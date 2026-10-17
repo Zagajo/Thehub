@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   User,
   Sparkles,
@@ -14,13 +14,28 @@ import {
   EyeOff,
   AlertCircle,
   UserPlus,
-  LogIn
+  LogIn,
+  BookOpen
 } from 'lucide-react';
 import { api } from '../services/api.js';
 
-export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
+export default function AuthModal({
+  isOpen,
+  onClose,
+  onAuthSuccess,
+  initialMode = 'login',
+  enrollCourse = null
+}) {
   // 'login' | 'register'
-  const [mode, setMode] = useState('login');
+  const [mode, setMode] = useState(initialMode || 'login');
+
+  useEffect(() => {
+    if (initialMode) {
+      setMode(initialMode);
+    }
+    setErrorMessage(null);
+    setSuccessMessage(null);
+  }, [initialMode, isOpen]);
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -94,7 +109,9 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
       if (res.success) {
         setSuccessMessage(res.message);
-        onAuthSuccess(res.user);
+        if (onAuthSuccess) {
+          onAuthSuccess(res.user, enrollCourse);
+        }
         setTimeout(() => {
           onClose();
         }, 600);
@@ -160,7 +177,9 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
       if (res.success) {
         setSuccessMessage(res.message);
-        onAuthSuccess(res.user);
+        if (onAuthSuccess) {
+          onAuthSuccess(res.user, enrollCourse);
+        }
         setTimeout(() => {
           onClose();
         }, 800);
@@ -183,32 +202,46 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in">
+      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[94vh] flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-6 relative shrink-0">
+        <div className="bg-slate-900 text-white p-5 sm:p-6 relative shrink-0">
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 text-slate-300 hover:text-white p-1 rounded-lg"
+            className="absolute top-4 right-4 text-slate-300 hover:text-white p-1 rounded-lg transition cursor-pointer"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold mb-2 border border-blue-400/30">
+
+          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-slate-800 text-blue-300 text-xs font-semibold mb-2 border border-slate-700">
             <Sparkles className="w-3.5 h-3.5" />
             <span>The Hub Rwanda Authentication</span>
           </div>
-          <h2 className="text-2xl font-black tracking-tight">
-            {mode === 'login' ? 'Sign In to Your Account' : 'Create an Account'}
+
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight">
+            {enrollCourse ? (
+              mode === 'register' ? 'Create Account & Enroll' : 'Log In & Enroll'
+            ) : (
+              mode === 'login' ? 'Sign In to Your Account' : 'Create a Free Account'
+            )}
           </h2>
+
           <p className="text-xs text-slate-300 mt-1">
-            {mode === 'login'
-              ? 'Provide your full email address and password to log in.'
-              : 'Register your details to access certified skills and credentials.'}
+            {enrollCourse ? (
+              mode === 'register'
+                ? `Create your account below to immediately enroll in "${enrollCourse.title}".`
+                : `Sign in to your account below to enroll in "${enrollCourse.title}".`
+            ) : (
+              mode === 'login'
+                ? 'Provide your email address and password to sign in.'
+                : 'Register your details to access certified skills, lessons, and credentials.'
+            )}
           </p>
         </div>
 
         {/* Scrollable Form Body */}
-        <div className="p-6 overflow-y-auto space-y-4">
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-4">
           {/* Notifications */}
           {errorMessage && (
             <div className="p-3 bg-red-50 border border-red-300 text-red-900 rounded-xl text-xs font-bold flex items-center space-x-2 animate-in fade-in">
@@ -224,6 +257,66 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
             </div>
           )}
 
+          {/* Contextual Course Enrollment Banner */}
+          {enrollCourse && (
+            <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-xl text-xs space-y-1.5 animate-in fade-in">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping"></span>
+                  <span className="font-bold text-blue-900 uppercase text-[10px] tracking-wider">
+                    TARGET ENROLLMENT COURSE
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono text-slate-500 bg-white/80 px-2 py-0.5 rounded-md border border-blue-200">
+                  {enrollCourse.duration || 'Self-Paced'}
+                </span>
+              </div>
+              <p className="text-slate-900 font-bold text-xs flex items-center space-x-1.5 pt-0.5">
+                <BookOpen className="w-4 h-4 text-blue-600 shrink-0" />
+                <span className="truncate">{enrollCourse.title}</span>
+              </p>
+              <p className="text-[11px] text-slate-600 leading-relaxed">
+                {mode === 'register'
+                  ? 'No account yet? Fill in your details below to create your account and automatically enroll in this cohort!'
+                  : 'Already have an account? Sign in below to automatically enroll in this course and track your progress!'}
+              </p>
+            </div>
+          )}
+
+          {/* Dedicated Mode Switcher Tabs for Better Interaction */}
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200/80">
+            <button
+              type="button"
+              onClick={() => {
+                setMode('register');
+                setErrorMessage(null);
+              }}
+              className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer ${
+                mode === 'register'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
+              }`}
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>{enrollCourse ? 'Create & Enroll' : 'Create Account'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode('login');
+                setErrorMessage(null);
+              }}
+              className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer ${
+                mode === 'login'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
+              }`}
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>{enrollCourse ? 'Log In & Enroll' : 'Sign In'}</span>
+            </button>
+          </div>
+
           {/* ========================================================= */}
           {/* MODE 1: LOGIN FORM */}
           {/* ========================================================= */}
@@ -238,7 +331,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   <button
                     type="button"
                     onClick={() => fillCredentials('kezia.umutoni@thehub.rw', 'password123')}
-                    className="p-2 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-left transition"
+                    className="p-2 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-left transition cursor-pointer"
                   >
                     <span className="text-[11px] font-bold text-slate-800 block truncate">Kezia (Learner)</span>
                     <span className="text-[10px] text-slate-500 font-mono block">Data Analyst • 14d</span>
@@ -247,7 +340,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   <button
                     type="button"
                     onClick={() => fillCredentials('alice.mukamana@thehub.rw', 'admin123')}
-                    className="p-2 bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-300 rounded-xl text-left transition"
+                    className="p-2 bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-300 rounded-xl text-left transition cursor-pointer"
                   >
                     <span className="text-[11px] font-bold text-slate-800 block truncate">Dr. Alice (Admin)</span>
                     <span className="text-[10px] text-amber-700 font-mono block">Executive Authority</span>
@@ -293,7 +386,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                     <button
                       type="button"
                       onClick={() => setShowLoginPassword(!showLoginPassword)}
-                      className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                      className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 cursor-pointer"
                     >
                       {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -306,7 +399,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   className="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 shadow-xs cursor-pointer"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span>{loading ? 'Authenticating...' : 'Sign In with Email & Password'}</span>
+                  <span>
+                    {loading
+                      ? 'Authenticating...'
+                      : enrollCourse
+                      ? `Sign In & Enroll in Course`
+                      : 'Sign In with Email & Password'}
+                  </span>
                 </button>
               </form>
 
@@ -321,9 +420,9 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                       setErrorMessage(null);
                       setSuccessMessage(null);
                     }}
-                    className="font-bold text-blue-600 hover:text-blue-800 hover:underline transition ml-1"
+                    className="font-bold text-blue-600 hover:text-blue-800 hover:underline transition ml-1 cursor-pointer"
                   >
-                    Create an account
+                    {enrollCourse ? 'Create an account to enroll' : 'Create an account'}
                   </button>
                 </p>
               </div>
@@ -332,7 +431,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
           {/* ========================================================= */}
           {/* MODE 2: CREATE AN ACCOUNT FORM */}
-          {/* asks for names, email, region/location, date of birth */}
           {/* ========================================================= */}
           {mode === 'register' && (
             <div className="space-y-4">
@@ -448,7 +546,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                       <button
                         type="button"
                         onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                        className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600"
+                        className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
                       >
                         {showRegisterPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
@@ -479,7 +577,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 shadow-xs cursor-pointer"
                 >
                   <UserPlus className="w-4 h-4" />
-                  <span>{loading ? 'Creating Account...' : 'Create Account & Begin'}</span>
+                  <span>
+                    {loading
+                      ? 'Creating Account...'
+                      : enrollCourse
+                      ? `Create Account & Enroll in Course`
+                      : 'Create Account & Begin'}
+                  </span>
                 </button>
               </form>
 
@@ -494,9 +598,9 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                       setErrorMessage(null);
                       setSuccessMessage(null);
                     }}
-                    className="font-bold text-blue-600 hover:text-blue-800 hover:underline transition ml-1"
+                    className="font-bold text-blue-600 hover:text-blue-800 hover:underline transition ml-1 cursor-pointer"
                   >
-                    Sign in here
+                    {enrollCourse ? 'Sign in to enroll' : 'Sign in here'}
                   </button>
                 </p>
               </div>

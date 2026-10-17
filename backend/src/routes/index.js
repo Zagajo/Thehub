@@ -18,8 +18,9 @@ import { recommendationEngine } from '../services/recommendationEngine.js';
 
 const router = express.Router();
 
-// Current in-memory session profile
-let currentUser = { ...demoUserProfile };
+// Current in-memory session profile (defaults to null for new unauthenticated visitors)
+let currentUser = null;
+let courses = [...initialCourses];
 let learners = [...initialLearnersList];
 let learnerTasks = [...initialLearnerTasks];
 let certificates = [...initialCertificateWinners];
@@ -35,6 +36,9 @@ router.get('/health', (req, res) => {
       provider: process.env.SUPABASE_URL ? 'Supabase PostgreSQL (Active)' : 'In-Memory Resilient DB (Active)',
       status: 'Connected',
       tablesReady: 12,
+      coursesCount: courses.length,
+      assessmentsCount: initialAssessments.length,
+      assessmentsPerSubject: 30,
       sslEnforced: true,
       pingLatencyMs: Math.floor(Math.random() * 4) + 3
     }
@@ -44,7 +48,7 @@ router.get('/health', (req, res) => {
 // 2. Courses
 router.get('/courses', (req, res) => {
   const { category, difficulty, search } = req.query;
-  let results = [...initialCourses];
+  let results = [...courses];
 
   if (category && category !== 'All') {
     results = results.filter(c => c.category.toLowerCase() === String(category).toLowerCase());
@@ -69,7 +73,7 @@ router.get('/courses', (req, res) => {
 
 router.get('/courses/:slug', (req, res) => {
   const { slug } = req.params;
-  const course = initialCourses.find(c => c.slug === slug || c.id === slug);
+  const course = courses.find(c => c.slug === slug || c.id === slug);
   if (!course) {
     return res.status(404).json({ success: false, error: 'Course not found' });
   }
@@ -78,9 +82,20 @@ router.get('/courses/:slug', (req, res) => {
 
 router.post('/courses/:id/enroll', (req, res) => {
   const { id } = req.params;
-  const course = initialCourses.find(c => c.id === id || c.slug === id);
+  const course = courses.find(c => c.id === id || c.slug === id);
   if (!course) {
     return res.status(404).json({ success: false, error: 'Course not found' });
+  }
+
+  if (!currentUser) {
+    return res.status(401).json({
+      success: false,
+      error: 'Please sign in or create an account to enroll in this course.'
+    });
+  }
+
+  if (!currentUser.enrolledCourses) {
+    currentUser.enrolledCourses = [];
   }
 
   if (!currentUser.enrolledCourses.includes(course.id)) {
@@ -91,6 +106,100 @@ router.post('/courses/:id/enroll', (req, res) => {
     success: true,
     message: `Enrolled successfully in ${course.title}`,
     user: currentUser
+  });
+});
+
+// Admin Add Course
+router.post('/admin/courses', (req, res) => {
+  const {
+    title,
+    tagline,
+    category,
+    difficulty,
+    durationWeeks,
+    estimatedHours,
+    description,
+    skillsGained,
+    nst2Sector,
+    nisrLinkage,
+    modules,
+    capstoneBrief,
+    prerequisites
+  } = req.body;
+
+  if (!title || !title.trim()) {
+    return res.status(400).json({ success: false, error: 'Course title is required' });
+  }
+
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const id = `c-${Date.now()}`;
+
+  const newCourse = {
+    id,
+    slug,
+    title: title.trim(),
+    tagline: tagline?.trim() || `${difficulty || 'Intermediate'} skills training program`,
+    category: category || 'Technology & ICT',
+    difficulty: difficulty || 'Intermediate (Level 2)',
+    durationWeeks: Number(durationWeeks) || 6,
+    estimatedHours: Number(estimatedHours) || 36,
+    description: description?.trim() || `Comprehensive curriculum designed for practical employability in Rwanda's ${category || 'economic'} sector.`,
+    skillsGained: Array.isArray(skillsGained) ? skillsGained : (skillsGained ? skillsGained.split(',').map(s => s.trim()) : ['Industry Applied Skills', 'Capstone Delivery']),
+    nst2Sector: nst2Sector || category || 'Technology & ICT',
+    nisrLinkage: nisrLinkage?.trim() || 'Directly aligned with national productivity benchmarks and NST2 economic priorities.',
+    modules: Array.isArray(modules) && modules.length > 0 ? modules : [
+      { id: `${id}-m1`, title: 'Module 1: Foundations & Domain Competency', durationMinutes: 45, summary: 'Core principles, national frameworks, and fundamentals.' },
+      { id: `${id}-m2`, title: 'Module 2: Practical Sandbox & Implementation', durationMinutes: 60, summary: 'Real-world problem-solving applied to Rwandan market realities.' },
+      { id: `${id}-m3`, title: 'Module 3: Capstone Evidence & Tri-Part Evaluation', durationMinutes: 90, summary: 'Demonstrated synthesis project and portfolio artifact submission.' }
+    ],
+    capstoneBrief: capstoneBrief?.trim() || 'Build and submit an end-to-end evidence artifact demonstrating mastery of curriculum principles.',
+    prerequisites: prerequisites?.trim() || 'Foundational digital literacy & motivation to learn',
+    status: 'Active',
+    enrolledCount: 0,
+    completionRate: '0%',
+    createdAt: new Date().toISOString()
+  };
+
+  courses.unshift(newCourse);
+
+  auditLog.unshift({
+    id: `log-${Date.now()}`,
+    action: 'New Course Published',
+    details: `Curriculum "${newCourse.title}" published in sector ${newCourse.category} (${newCourse.difficulty})`,
+    operator: 'Dr. Alice Mukamana',
+    timestamp: 'Just now',
+    type: 'curriculum'
+  });
+
+  res.json({
+    success: true,
+    message: `Course "${newCourse.title}" created and published successfully to the system!`,
+    data: newCourse
+  });
+});
+
+// Admin Remove / Archive Course
+router.delete('/admin/courses/:id', (req, res) => {
+  const { id } = req.params;
+  const index = courses.findIndex(c => c.id === id || c.slug === id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, error: 'Course not found' });
+  }
+
+  const removed = courses.splice(index, 1)[0];
+
+  auditLog.unshift({
+    id: `log-${Date.now()}`,
+    action: 'Course Archived',
+    details: `Curriculum "${removed.title}" was archived by administrator`,
+    operator: 'Dr. Alice Mukamana',
+    timestamp: 'Just now',
+    type: 'curriculum'
+  });
+
+  res.json({
+    success: true,
+    message: `Course "${removed.title}" has been archived from active catalog.`
   });
 });
 
@@ -118,9 +227,16 @@ router.get('/learning-paths', (req, res) => {
 });
 
 router.post('/recommendations/analyze', (req, res) => {
-  const { userSkills, targetRoleId } = req.body;
+  const { userSkills, targetRoleId } = req.body || {};
+  let skillsToEvaluate = [];
+  if (Array.isArray(userSkills)) {
+    skillsToEvaluate = userSkills;
+  } else if (currentUser && Array.isArray(currentUser.assessedSkills)) {
+    skillsToEvaluate = currentUser.assessedSkills;
+  }
+
   const analysis = recommendationEngine.calculateSkillGaps(
-    userSkills || currentUser.assessedSkills,
+    skillsToEvaluate,
     targetRoleId || 'path-1'
   );
   res.json({ success: true, data: analysis });
@@ -128,16 +244,61 @@ router.post('/recommendations/analyze', (req, res) => {
 
 // 6. Assessments
 router.get('/assessments', (req, res) => {
-  res.json({ success: true, data: initialAssessments });
+  const { courseId, difficulty, search } = req.query;
+  let results = [...initialAssessments];
+  if (courseId && courseId !== 'All') {
+    results = results.filter(a => a.courseId === courseId);
+  }
+  if (difficulty && difficulty !== 'All') {
+    results = results.filter(a => a.difficulty.toLowerCase().includes(String(difficulty).toLowerCase()));
+  }
+  if (search) {
+    const q = String(search).toLowerCase();
+    results = results.filter(a =>
+      a.title.toLowerCase().includes(q) ||
+      a.skillTarget.toLowerCase().includes(q)
+    );
+  }
+  res.json({
+    success: true,
+    count: results.length,
+    total: initialAssessments.length,
+    data: results
+  });
 });
+
+router.get('/assessments/:id', (req, res) => {
+  const assessment = initialAssessments.find(a => a.id === req.params.id);
+  if (!assessment) {
+    return res.status(404).json({ success: false, error: 'Assessment not found' });
+  }
+  res.json({ success: true, data: assessment });
+});
+
 
 router.post('/assessments/:id/submit', (req, res) => {
   const { id } = req.params;
   const { theoryAnswers, practicalCompleted, capstoneSubmitted } = req.body;
+
+  if (!currentUser) {
+    return res.status(401).json({
+      success: false,
+      error: 'Please sign in or create an account to submit an assessment.'
+    });
+  }
+
   const assessment = initialAssessments.find(a => a.id === id);
 
   if (!assessment) {
     return res.status(404).json({ success: false, error: 'Assessment not found' });
+  }
+
+  // Ensure arrays exist on currentUser
+  if (!Array.isArray(currentUser.assessedSkills)) {
+    currentUser.assessedSkills = [];
+  }
+  if (!Array.isArray(currentUser.verifiedCredentials)) {
+    currentUser.verifiedCredentials = [];
   }
 
   // Calculate Tri-Part score
@@ -385,6 +546,10 @@ router.get('/auth/me', (req, res) => {
 });
 
 router.post('/auth/profile', (req, res) => {
+  if (!currentUser) {
+    return res.status(401).json({ success: false, error: 'Please sign in to update your profile.' });
+  }
+
   const { name, email, location, role, bio, preferredLanguage, targetRole } = req.body;
   if (name) currentUser.name = name;
   if (email) currentUser.email = email;
@@ -412,6 +577,10 @@ router.post('/auth/profile', (req, res) => {
 });
 
 router.post('/auth/change-password', (req, res) => {
+  if (!currentUser) {
+    return res.status(401).json({ success: false, error: 'Please sign in to change your password.' });
+  }
+
   const { currentPassword, newPassword, confirmPassword } = req.body;
   if (!newPassword || newPassword.length < 6) {
     return res.status(400).json({ success: false, error: 'New password must be at least 6 characters long.' });
@@ -439,33 +608,32 @@ router.post('/auth/change-password', (req, res) => {
 });
 
 router.post('/auth/logout', (req, res) => {
-  currentUser = {
-    id: 'guest',
-    name: 'Guest Learner',
-    email: '',
-    role: 'Explorer',
-    location: 'Kigali, Rwanda',
-    streakDays: 0,
-    enrolledCourses: [],
-    completedLessons: [],
-    assessedSkills: [],
-    verifiedCredentials: [],
-    peerMatches: []
-  };
-  res.json({ success: true, user: currentUser });
+  currentUser = null;
+  res.json({ success: true, user: null, message: 'Logged out successfully' });
 });
 
 // 8. Peer Matching & Language Exchange
 router.get('/peers/matches', (req, res) => {
   res.json({
     success: true,
-    matches: currentUser.peerMatches,
+    matches: currentUser ? (currentUser.peerMatches || []) : [],
     studyGroups: initialStudyGroups,
     matchingAlgorithm: 'MatchScore = Skill_Compat(30%) + Goal_Alignment(25%) + Level_Compat(20%) + Language_Bridge(15%) + Availability(10%)'
   });
 });
 
 router.post('/peers/request-match', (req, res) => {
+  if (!currentUser) {
+    return res.status(401).json({
+      success: false,
+      error: 'Please sign in or create an account to request a peer match.'
+    });
+  }
+
+  if (!Array.isArray(currentUser.peerMatches)) {
+    currentUser.peerMatches = [];
+  }
+
   const { learningLanguage, knownLanguage, targetSkill, availability } = req.body;
   const newMatch = {
     partnerName: 'Mutesi Divine',
@@ -492,15 +660,19 @@ router.get('/challenges', (req, res) => {
 
 // 10. Public Skill Passport
 router.get('/passport/:id', (req, res) => {
+  const learner = (currentUser && currentUser.id === req.params.id)
+    ? currentUser
+    : (learners.find(l => l.id === req.params.id) || currentUser || learners[0]);
+
   res.json({
     success: true,
     passport: {
-      learner: currentUser.name,
-      district: currentUser.location,
-      role: currentUser.role,
-      verifiedCredentials: currentUser.verifiedCredentials,
-      assessedSkills: currentUser.assessedSkills,
-      streakDays: currentUser.streakDays,
+      learner: learner ? learner.name : 'Learner',
+      district: learner ? (learner.location || learner.province || 'Kigali City') : 'Kigali City',
+      role: learner ? learner.role : 'Learner',
+      verifiedCredentials: learner ? (learner.verifiedCredentials || []) : [],
+      assessedSkills: learner ? (learner.assessedSkills || []) : [],
+      streakDays: learner ? (learner.streakDays || 0) : 0,
       publicVerificationHash: 'sha256-nisr-hub-9f82d1c04ba2e'
     }
   });
@@ -599,7 +771,7 @@ router.post('/admin/users/:id/update-role', (req, res) => {
   if (status) learner.status = status;
 
   // If currentUser is this learner, sync
-  if (currentUser.id === id) {
+  if (currentUser && currentUser.id === id) {
     if (role) currentUser.role = role;
   }
 
@@ -617,6 +789,9 @@ router.post('/admin/users/:id/award-credential', (req, res) => {
   }
 
   learner.verifiedCredentialsCount = (learner.verifiedCredentialsCount || 0) + 1;
+  if (!Array.isArray(learner.assessedSkills)) {
+    learner.assessedSkills = [];
+  }
   const existingSkill = learner.assessedSkills.find(s => s.name === skill);
   if (existingSkill) {
     existingSkill.score = score || 90;
@@ -627,6 +802,11 @@ router.post('/admin/users/:id/award-credential', (req, res) => {
       score: score || 90,
       level: level || 'Specialist (Level 3)'
     });
+  }
+
+  if (currentUser && currentUser.id === id) {
+    currentUser.assessedSkills = [...learner.assessedSkills];
+    currentUser.verifiedCredentialsCount = learner.verifiedCredentialsCount;
   }
 
   res.json({
@@ -830,6 +1010,15 @@ router.get('/admin/stats', (req, res) => {
 // Audit Log
 router.get('/admin/audit-log', (req, res) => {
   res.json({ success: true, count: auditLog.length, data: auditLog });
+});
+
+// Global API error handler
+router.use((err, req, res, next) => {
+  console.error('[API Error]:', err);
+  res.status(err.status || 500).json({
+    success: false,
+    error: err.message || 'Internal server error occurred'
+  });
 });
 
 export default router;

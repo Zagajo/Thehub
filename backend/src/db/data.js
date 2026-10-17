@@ -1,4 +1,7 @@
 // In-memory persistent data store with mock and Supabase sync capability
+import { initialCourses as fullCurriculumCourses } from './curriculumData.js';
+import { allAssessments } from './assessmentsData.js';
+
 export const initialNISRIndicators = [
   {
     id: 'nisr-1',
@@ -89,154 +92,8 @@ export const initialSkills = [
   { id: 'sk-9', name: 'Hospitality & Guest Operations', category: 'Tourism', level: 'Beginner', marketDemand: 'High', sector: 'Hospitality' }
 ];
 
-export const initialCourses = [
-  {
-    id: 'c-1',
-    slug: 'rwanda-data-analyst-pathway',
-    title: 'Data Analytics with Python & SQL',
-    tagline: 'Master real-world data analysis aligned with Rwanda NISR economic benchmarks',
-    category: 'Technology',
-    difficulty: 'Intermediate',
-    duration: '6 Weeks (Self-paced)',
-    lessonsCount: 18,
-    nisrSector: 'Services & Financial Tech',
-    enrollmentCount: 1420,
-    rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
-    skillsGained: ['Python for Data Analysis', 'SQL & Relational Databases', 'Data Cleaning', 'Dashboarding'],
-    description: 'A hands-on program designed around genuine Rwandan industry data. Learn to import, clean, query, and visualize dataset indicators from NISR and local micro-finance institutions.',
-    syllabus: [
-      {
-        module: 'Module 1: Foundations of Economic & Survey Data',
-        lessons: [
-          { id: 'l1', title: 'Understanding Rwanda NISR Labour Force Data', duration: '25 min', completed: true },
-          { id: 'l2', title: 'Tabular Data Cleaning with Pandas', duration: '40 min', completed: true },
-          { id: 'l3', title: 'Exploratory Data Analysis on Kigali Youth Demographics', duration: '35 min', completed: false }
-        ]
-      },
-      {
-        module: 'Module 2: Practical SQL for Decision Support',
-        lessons: [
-          { id: 'l4', title: 'Writing Resilient PostgreSQL Queries', duration: '45 min', completed: false },
-          { id: 'l5', title: 'Aggregating Provincial Labour Statistics', duration: '50 min', completed: false },
-          { id: 'l6', title: 'Building Automated Views & Reports', duration: '30 min', completed: false }
-        ]
-      },
-      {
-        module: 'Module 3: Capstone Evidence Project',
-        lessons: [
-          { id: 'l7', title: 'Rwanda District Economic Opportunity Dashboard Brief', duration: '60 min', completed: false }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'c-2',
-    slug: 'fullstack-web-rwanda',
-    title: 'Full-Stack Web Development: Fast & Low-Bandwidth',
-    tagline: 'Build resilient web apps optimized for East African connectivity',
-    category: 'Technology',
-    difficulty: 'Intermediate',
-    duration: '8 Weeks',
-    lessonsCount: 24,
-    nisrSector: 'Digital Services & ICT',
-    enrollmentCount: 2190,
-    rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
-    skillsGained: ['React & Modern Frontend', 'Node.js APIs', 'Offline-First PWAs', 'Tailwind CSS'],
-    description: 'Learn modern web engineering with an essential constraint: real users in Rwanda need fast loading, offline resilience, and mobile optimization.',
-    syllabus: [
-      {
-        module: 'Module 1: Modern Component Architecture',
-        lessons: [
-          { id: 'l21', title: 'React 19 & Tailwind Responsive Design', duration: '30 min', completed: true },
-          { id: 'l22', title: 'Client-side State & Resilient UI States', duration: '40 min', completed: false }
-        ]
-      },
-      {
-        module: 'Module 2: Resilient REST APIs with Express',
-        lessons: [
-          { id: 'l23', title: 'Designing Clean API Contracts', duration: '45 min', completed: false },
-          { id: 'l24', title: 'Handling Connectivity Drops Gracefully', duration: '35 min', completed: false }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'c-3',
-    slug: 'business-english-communications',
-    title: 'Professional English & Executive Communication',
-    tagline: 'Confidently present proposals, lead meetings, and communicate internationally',
-    category: 'Languages',
-    difficulty: 'Beginner to Advanced',
-    duration: '4 Weeks',
-    lessonsCount: 14,
-    nisrSector: 'Services, MICE & International Trade',
-    enrollmentCount: 3450,
-    rating: 4.95,
-    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80',
-    skillsGained: ['Professional English for Business', 'Pitching & Presentation', 'Cross-Cultural Email Writing'],
-    description: 'Designed specifically for Rwandan professionals stepping into regional East African Community (EAC) trade, tech hubs, and conference coordination.',
-    syllabus: [
-      {
-        module: 'Module 1: Workplace Communication Protocols',
-        lessons: [
-          { id: 'l31', title: 'Crafting High-Impact Executive Summaries', duration: '20 min', completed: true },
-          { id: 'l32', title: 'Active Listening in Multilingual Meetings', duration: '30 min', completed: true }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'c-4',
-    slug: 'modern-agribusiness-cooperatives',
-    title: 'Modern Agribusiness & Cooperative Supply Chains',
-    tagline: 'Digitize farm records, manage cooperatives, and access premium markets',
-    category: 'Agriculture',
-    difficulty: 'Beginner',
-    duration: '5 Weeks',
-    lessonsCount: 16,
-    nisrSector: 'Agriculture & Food Systems',
-    enrollmentCount: 1820,
-    rating: 4.85,
-    image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80',
-    skillsGained: ['Agribusiness Financial Records', 'Supply Chain Traceability', 'Export Quality Standards'],
-    description: 'Directly aligned with NISR agriculture transformation data. Learn digital record-keeping, cooperative bookkeeping, and value-addition techniques.',
-    syllabus: [
-      {
-        module: 'Module 1: Cooperative Governance & Finance',
-        lessons: [
-          { id: 'l41', title: 'Digital Bookkeeping for Agri-Cooperatives', duration: '35 min', completed: false },
-          { id: 'l42', title: 'Post-Harvest Loss Reduction Strategies', duration: '40 min', completed: false }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'c-5',
-    slug: 'hospitality-mice-operations',
-    title: 'MICE Tourism & High-End Hospitality Operations',
-    tagline: 'World-class service excellence for Kigali’s conference & eco-tourism ecosystem',
-    category: 'Tourism',
-    difficulty: 'Intermediate',
-    duration: '4 Weeks',
-    lessonsCount: 12,
-    nisrSector: 'Hospitality & Tourism',
-    enrollmentCount: 970,
-    rating: 4.78,
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-    skillsGained: ['Hospitality & Guest Operations', 'Conference Event Coordination', 'Service Quality Standards'],
-    description: 'Equipping youth with premier customer care, conference logistics management, and eco-lodge operational skills.',
-    syllabus: [
-      {
-        module: 'Module 1: Guest Journey & Cultural Intelligence',
-        lessons: [
-          { id: 'l51', title: 'International Guest Etiquette & Protocol', duration: '30 min', completed: false }
-        ]
-      }
-    ]
-  }
-];
+export const initialCourses = fullCurriculumCourses;
+
 
 export const initialLearningPathways = [
   {
@@ -287,70 +144,8 @@ export const initialLearningPathways = [
   }
 ];
 
-export const initialAssessments = [
-  {
-    id: 'as-1',
-    title: 'Rwanda Labour & Economic Data Analysis (Tri-Part)',
-    courseId: 'c-1',
-    skillTarget: 'SQL & Relational Databases / Python',
-    totalDuration: '45 mins',
-    theoryWeight: 30,
-    practicalWeight: 40,
-    projectWeight: 30,
-    theoryQuestions: [
-      {
-        id: 'q1',
-        prompt: 'According to NISR Labour Force Survey standards, how is the "Youth" cohort defined in Rwanda?',
-        options: ['15-24 years', '16-30 years', '18-35 years', '14-28 years'],
-        correctIndex: 1,
-        explanation: 'Rwanda national policy and NISR monographs classify youth as ages 16 to 30.'
-      },
-      {
-        id: 'q2',
-        prompt: 'Which SQL clause is strictly executed before the HAVING clause in a PostgreSQL query?',
-        options: ['SELECT', 'ORDER BY', 'GROUP BY', 'LIMIT'],
-        correctIndex: 2,
-        explanation: 'In SQL logical query processing, GROUP BY groups the rows before HAVING filters grouped records.'
-      }
-    ],
-    practicalTask: {
-      instruction: 'Write a SQL query that calculates the total youth population and average employment rate for each Province where youth population exceeds 200,000.',
-      starterCode: 'SELECT province, \n       SUM(youth_count) AS total_youth, \n       AVG(employment_rate) AS avg_emp_rate\nFROM district_demographics\nGROUP BY province\nHAVING SUM(youth_count) > 200000\nORDER BY total_youth DESC;',
-      expectedOutputSnippet: 'Kigali City | 320,400 | 54.2%'
-    },
-    capstoneBrief: 'Upload your verified GitHub repo or clean CSV dataset link representing the NISR district analysis.'
-  },
-  {
-    id: 'as-2',
-    title: 'Resilient Frontend Engineering Assessment',
-    courseId: 'c-2',
-    skillTarget: 'React & Modern Frontend',
-    totalDuration: '40 mins',
-    theoryWeight: 30,
-    practicalWeight: 40,
-    projectWeight: 30,
-    theoryQuestions: [
-      {
-        id: 'q21',
-        prompt: 'Why is low-bandwidth architecture crucial for digital products in East African contexts?',
-        options: [
-          'Because mobile browsers do not support modern JavaScript',
-          'Because NISR telemetry shows variable household broadband access (34.2%), requiring low payload sizes and offline persistence',
-          'Because Tailwind CSS requires low bandwidth to compile',
-          'Because servers cannot run outside Europe'
-        ],
-        correctIndex: 1,
-        explanation: 'Official NISR ICT data shows that optimizing assets and enabling offline mode directly increases digital inclusion.'
-      }
-    ],
-    practicalTask: {
-      instruction: 'Implement an offline-resilient cache hook in React that persists user progress in localStorage when the navigator is offline.',
-      starterCode: 'function useOfflineSync(key, initialValue) {\n  const [state, setState] = useState(() => {\n    const cached = localStorage.getItem(key);\n    return cached ? JSON.parse(cached) : initialValue;\n  });\n  // Complete sync effect\n}',
-      expectedOutputSnippet: 'Synced 100% on reconnect'
-    },
-    capstoneBrief: 'Submit a functional URL of your offline-first single page app.'
-  }
-];
+export const initialAssessments = allAssessments;
+
 
 export const adminUserProfile = {
   id: 'usr-admin-01',

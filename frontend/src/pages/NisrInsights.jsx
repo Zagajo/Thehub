@@ -27,8 +27,8 @@ export default function NisrInsights() {
           api.getNisrIndicators(),
           api.getNisrProvinces()
         ]);
-        if (indRes.success) setIndicators(indRes.data);
-        if (provRes.success) {
+        if (indRes && indRes.data) setIndicators(indRes.data);
+        if (provRes && provRes.data && provRes.data.length > 0) {
           setProvinces(provRes.data);
           setSelectedProvince(provRes.data[0]);
         }

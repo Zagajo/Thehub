@@ -68,10 +68,14 @@ CREATE TABLE IF NOT EXISTS assessments (
   title TEXT NOT NULL,
   course_id TEXT REFERENCES courses(id),
   skill_target TEXT,
+  difficulty TEXT,
   duration TEXT,
   theory_weight INTEGER,
   practical_weight INTEGER,
-  project_weight INTEGER
+  project_weight INTEGER,
+  theory_questions JSONB,
+  practical_task JSONB,
+  capstone_brief TEXT
 );
 
 CREATE TABLE IF NOT EXISTS credentials (

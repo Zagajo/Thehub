@@ -83,6 +83,14 @@ export default function DbTelemetryModal({ isOpen, onClose }) {
               <span className="text-slate-300">TLS 1.3 / Enforced SSL</span>
             </div>
             <div className="flex justify-between">
+              <span className="text-slate-400">Curricula & Courses</span>
+              <span className="text-emerald-400 font-semibold">{telemetry?.coursesCount || 5} Subjects (Full Curricula / 106 Lessons)</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Subject Assessments</span>
+              <span className="text-emerald-400 font-semibold">{telemetry?.assessmentsCount || 150} Tests (30 in Each Subject)</span>
+            </div>
+            <div className="flex justify-between">
               <span className="text-slate-400">NISR Indicators Sync</span>
               <span className="text-blue-300">Live Seed Harmonized</span>
             </div>

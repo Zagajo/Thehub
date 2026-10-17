@@ -107,10 +107,10 @@ export default function SkillPassport({ user, onOpenEditProfile }) {
       {/* Passport Document Container */}
       <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden print:border-none print:shadow-none">
         {/* Passport Header Strip */}
-        <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-950 text-white p-6 sm:p-8 relative">
+        <div className="bg-slate-900 text-white p-6 sm:p-8 relative">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <span className="text-[11px] font-mono tracking-widest uppercase text-blue-300">
+              <span className="text-[11px] font-mono tracking-widest uppercase text-blue-400">
                 REPUBLIC OF RWANDA — THE HUB SKILL PASSPORT
               </span>
               <h2 className="text-2xl sm:text-3xl font-black">{learner.name}</h2>
@@ -180,7 +180,7 @@ export default function SkillPassport({ user, onOpenEditProfile }) {
             </div>
 
             <div className="space-y-3">
-              {learner.assessedSkills?.map((skill, idx) => (
+              {(learner?.assessedSkills || []).map((skill, idx) => (
                 <div key={idx} className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="text-slate-900">{skill.name}</span>
@@ -200,8 +200,8 @@ export default function SkillPassport({ user, onOpenEditProfile }) {
           </div>
 
           {/* Learning-by-Teaching Mentorship Ladder */}
-          <div className="p-5 bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 rounded-2xl space-y-2">
-            <div className="flex items-center space-x-2 text-indigo-900 font-bold text-xs uppercase tracking-wider">
+          <div className="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+            <div className="flex items-center space-x-2 text-slate-900 font-bold text-xs uppercase tracking-wider">
               <UserCheck className="w-4 h-4 text-indigo-600" />
               <span>Learning-by-Teaching Mentorship Ladder</span>
             </div>

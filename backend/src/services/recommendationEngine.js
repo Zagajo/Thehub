@@ -11,8 +11,11 @@ class RecommendationEngine {
   calculateSkillGaps(userSkills = [], targetRoleId = 'path-1') {
     const pathway = initialLearningPathways.find(p => p.id === targetRoleId) || initialLearningPathways[0];
     const userSkillMap = new Map();
-    userSkills.forEach(s => {
-      userSkillMap.set(s.name, s.score || 0);
+    const safeSkills = Array.isArray(userSkills) ? userSkills : [];
+    safeSkills.forEach(s => {
+      if (s && s.name) {
+        userSkillMap.set(s.name, typeof s.score === 'number' ? s.score : 0);
+      }
     });
 
     const gapBreakdown = pathway.requiredSkills.map(req => {

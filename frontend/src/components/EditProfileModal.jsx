@@ -182,7 +182,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-6 relative">
+        <div className="bg-slate-900 text-white p-6 relative">
           <button
             onClick={onClose}
             className="absolute top-5 right-5 text-slate-300 hover:text-white p-1 rounded-lg"

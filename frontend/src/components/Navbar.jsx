@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Compass,
@@ -9,20 +9,22 @@ import {
   Briefcase,
   Flame,
   Bot,
-  Database,
   Wifi,
   WifiOff,
   User,
   LogOut,
-  UserCog,
   Edit3,
-  ShieldCheck
+  ShieldCheck,
+  Menu,
+  X,
+  ChevronDown,
+  UserPlus,
+  LogIn
 } from 'lucide-react';
 
 export default function Navbar({
   user,
   onOpenAuth,
-  onOpenDbTelemetry,
   onOpenAiTutor,
   onOpenEditProfile,
   onLogout,
@@ -31,179 +33,390 @@ export default function Navbar({
 }) {
   const location = useLocation();
   const isAdmin = user && user.role === 'admin';
+  const isGuest = !user || user.id === 'guest';
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  const navLinks = isAdmin
-    ? [
-        { name: 'Admin Dashboard', path: '/admin', icon: ShieldCheck },
-        { name: 'NISR Macro Insights', path: '/insights', icon: TrendingUp }
-      ]
-    : [
-        { name: 'Dashboard', path: '/', icon: Compass },
-        { name: 'Courses', path: '/courses', icon: BookOpen },
-        { name: 'Pathways', path: '/pathways', icon: TrendingUp },
-        { name: 'NISR Insights', path: '/insights', icon: TrendingUp },
-        { name: 'Skill Passport', path: '/skill-passport', icon: Award },
-        { name: 'Assessments', path: '/assessments', icon: Award },
-        { name: 'Peer Connect', path: '/peer-matching', icon: Users },
-        { name: 'Challenges', path: '/challenges', icon: Briefcase }
-      ];
+  // Close menus on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setMoreDropdownOpen(false);
+  }, [location.pathname]);
+
+  // Click outside to close "More" dropdown
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setMoreDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Admin exclusive navigation (strictly no guest direction tabs)
+  const adminNavLinks = [
+    { name: 'Admin Dashboard', path: '/admin', icon: ShieldCheck },
+    { name: 'NISR Market Data', path: '/insights', icon: TrendingUp }
+  ];
+
+  // Guest tabs for directing new users for better interaction (never shown to admin)
+  const guestNavLinks = [
+    { name: 'Getting Started', path: '/', icon: Compass },
+    { name: 'Approved Courses', path: '/courses', icon: BookOpen },
+    { name: 'Career Pathways', path: '/pathways', icon: TrendingUp },
+    { name: 'NISR Market Data', path: '/insights', icon: TrendingUp }
+  ];
+
+  // Authenticated regular learner links
+  const primaryLearnerLinks = [
+    { name: 'Dashboard', path: '/', icon: Compass },
+    { name: 'Courses', path: '/courses', icon: BookOpen },
+    { name: 'Pathways', path: '/pathways', icon: TrendingUp },
+    { name: 'NISR Data', path: '/insights', icon: TrendingUp }
+  ];
+
+  const secondaryLearnerLinks = [
+    { name: 'Skill Passport', path: '/skill-passport', icon: Award },
+    { name: 'Assessments', path: '/assessments', icon: Award },
+    { name: 'Peer Connect', path: '/peer-matching', icon: Users },
+    { name: 'Employer Challenges', path: '/challenges', icon: Briefcase }
+  ];
+
+  const allLearnerLinks = [...primaryLearnerLinks, ...secondaryLearnerLinks];
+
+  // Active navigation set based on role & auth state
+  const activeNavLinks = isAdmin
+    ? adminNavLinks
+    : isGuest
+    ? guestNavLinks
+    : allLearnerLinks;
 
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
   };
 
-  return (
-    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Brand */}
-          <div className="flex items-center space-x-6">
-            <Link to={isAdmin ? '/admin' : '/'} className="flex items-center space-x-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-900 to-indigo-600 flex items-center justify-center text-white font-extrabold text-xl shadow-md group-hover:scale-105 transition">
-                H
-              </div>
-              <div className="flex flex-col">
-                <span className="font-extrabold text-base tracking-tight text-slate-900 group-hover:text-blue-700 transition">
-                  The Hub
-                </span>
-                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest -mt-1">
-                  {isAdmin ? 'Admin Authority' : 'Rwanda Skills'}
-                </span>
-              </div>
-            </Link>
+  const isSecondaryActive = secondaryLearnerLinks.some((item) => isActive(item.path));
 
-            {/* Desktop Nav Links */}
-            <nav className="hidden lg:flex items-center space-x-1">
-              {navLinks.map((item) => {
+  return (
+    <header className="sticky top-0 z-40 bg-white border-b border-slate-200 transition-colors w-full font-sans">
+      {/* Clean, Simple Main Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 gap-3">
+          {/* Left: Brand Identity */}
+          <Link
+            to={isAdmin ? '/admin' : '/'}
+            className="flex items-center space-x-3 group shrink-0"
+            aria-label="The Hub Rwanda"
+          >
+            <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm shrink-0">
+              H
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-slate-900 text-sm sm:text-base leading-tight tracking-tight">
+                The Hub Rwanda
+              </span>
+              <span className="text-[11px] text-slate-500 hidden sm:block">
+                {isAdmin ? 'National Administrative Console' : 'Education & Skills Platform'}
+              </span>
+            </div>
+          </Link>
+
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex items-center space-x-1">
+            {isAdmin ? (
+              adminNavLinks.map((item) => {
                 const active = isActive(item.path);
+                const Icon = item.icon;
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 ${
                       active
-                        ? 'bg-blue-50 text-blue-700 border border-blue-200/60'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                        ? 'bg-slate-100 text-blue-700 font-semibold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
-                    {item.name}
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span>{item.name}</span>
                   </Link>
                 );
-              })}
-            </nav>
-          </div>
+              })
+            ) : isGuest ? (
+              guestNavLinks.map((item) => {
+                const active = isActive(item.path);
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 ${
+                      active
+                        ? 'bg-slate-100 text-blue-700 font-semibold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })
+            ) : (
+              <>
+                {primaryLearnerLinks.map((item) => {
+                  const active = isActive(item.path);
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                        active
+                          ? 'bg-slate-100 text-blue-700 font-semibold'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  );
+                })}
 
-          {/* Right Controls */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            {/* Low-Bandwidth Mode Toggle (NISR ICT Grounding) */}
+                {/* More dropdown for secondary learner links */}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setMoreDropdownOpen(!moreDropdownOpen)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 cursor-pointer ${
+                      isSecondaryActive
+                        ? 'bg-slate-100 text-blue-700 font-semibold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>More</span>
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${moreDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {moreDropdownOpen && (
+                    <div className="absolute right-0 mt-1.5 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-50">
+                      {secondaryLearnerLinks.map((item) => {
+                        const active = isActive(item.path);
+                        const Icon = item.icon;
+                        return (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            onClick={() => setMoreDropdownOpen(false)}
+                            className={`flex items-center space-x-2 px-3 py-2 text-xs font-medium transition ${
+                              active
+                                ? 'bg-blue-50 text-blue-700 font-semibold'
+                                : 'text-slate-700 hover:bg-slate-50'
+                            }`}
+                          >
+                            <Icon className="w-4 h-4 text-slate-500 shrink-0" />
+                            <span>{item.name}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </nav>
+
+          {/* Right Action Tools: Zero DB button here (Strictly in Admin Dashboard) */}
+          <div className="flex items-center space-x-2 shrink-0">
+            {/* Low-Bandwidth Mode Toggle */}
             <button
               onClick={() => setLowBandwidth(!lowBandwidth)}
-              title="Toggle Low-Bandwidth text-first mode (Optimized for variable rural broadband)"
-              className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition ${
+              title={lowBandwidth ? 'Low-Data Mode ON' : 'Switch to Low-Data mode'}
+              aria-label="Toggle low bandwidth mode"
+              className={`hidden sm:inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition shrink-0 cursor-pointer ${
                 lowBandwidth
-                  ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
-                  : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+                  ? 'bg-amber-50 text-amber-800 border-amber-300'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
               }`}
             >
-              {lowBandwidth ? <WifiOff className="w-3.5 h-3.5" /> : <Wifi className="w-3.5 h-3.5" />}
-              <span className="hidden sm:inline">{lowBandwidth ? 'Low-Data ON' : 'Lite Mode'}</span>
+              {lowBandwidth ? <WifiOff className="w-3.5 h-3.5 text-amber-700" /> : <Wifi className="w-3.5 h-3.5 text-slate-500" />}
+              <span className="hidden lg:inline text-[11px]">
+                {lowBandwidth ? 'Lite ON' : 'Lite Mode'}
+              </span>
             </button>
 
-            {/* Database Telemetry Indicator Button */}
-            <button
-              onClick={onOpenDbTelemetry}
-              title="View live PostgreSQL database telemetry & latency"
-              className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <Database className="w-3.5 h-3.5 text-slate-500 hidden sm:inline" />
-              <span className="text-[11px] font-mono">DB Active</span>
-            </button>
-
-            {/* AI Tutor Coach Launcher (Learners only, not admin) */}
+            {/* AI Tutor Launcher (Learners & guests only) */}
             {!isAdmin && (
               <button
                 onClick={onOpenAiTutor}
-                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 text-xs font-bold transition shadow-2xs"
+                title="AI Tutor Coach"
+                aria-label="Open AI Tutor Coach"
+                className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 text-xs font-semibold transition shrink-0 cursor-pointer"
               >
-                <Bot className="w-3.5 h-3.5 text-blue-600" />
-                <span className="hidden md:inline">AI Coach</span>
+                <Bot className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">AI Tutor</span>
               </button>
             )}
 
-            {/* User Streak & Profile */}
+            {/* User Profile or Guest Directing Tabs */}
             {user && user.id !== 'guest' ? (
-              <div className="flex items-center space-x-2 pl-1 border-l border-slate-200">
+              <div className="flex items-center space-x-2 pl-2 border-l border-slate-200 shrink-0">
                 {isAdmin ? (
-                  <div className="flex items-center space-x-1.5 bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-xl text-xs font-black shadow-2xs">
-                    <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
-                    <span>ADMIN</span>
-                  </div>
+                  <span className="bg-slate-100 text-slate-800 border border-slate-200 px-2 py-0.5 rounded text-[11px] font-bold">
+                    Admin
+                  </span>
                 ) : (
-                  <div className="flex items-center space-x-1 bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-lg text-xs font-extrabold">
-                    <Flame className="w-3.5 h-3.5 fill-red-600 text-red-600" />
-                    <span>{user.streakDays || 14}d</span>
+                  <div
+                    title={`${user.streakDays || 0}-day study streak`}
+                    className="flex items-center space-x-1 bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px] font-medium"
+                  >
+                    <Flame className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
+                    <span>{user.streakDays || 0}d</span>
                   </div>
                 )}
 
-                <div className="flex items-center space-x-1">
-                  <button
-                    onClick={onOpenEditProfile}
-                    title={isAdmin ? 'Administrator Credentials & Security' : 'Edit Account & Profile Details'}
-                    className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold transition group border shadow-2xs ${
-                      isAdmin
-                        ? 'bg-slate-900 text-white hover:bg-slate-800 border-slate-800'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200/80'
-                    }`}
-                  >
-                    <User className={`w-3.5 h-3.5 ${isAdmin ? 'text-amber-400' : 'text-blue-600'}`} />
-                    <span className="hidden sm:inline font-bold">
-                      {isAdmin ? user.name : user.name.split(' ')[0]}
-                    </span>
-                    <Edit3 className={`w-3 h-3 transition ml-0.5 ${isAdmin ? 'text-slate-400 group-hover:text-amber-300' : 'text-slate-400 group-hover:text-blue-600'}`} />
-                  </button>
+                <button
+                  onClick={onOpenEditProfile}
+                  title="Profile Settings"
+                  className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 transition max-w-[130px] truncate cursor-pointer"
+                >
+                  <User className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+                  <span className="truncate">{user.name?.split(' ')[0] || 'User'}</span>
+                  <Edit3 className="w-3 h-3 text-slate-400 shrink-0 hidden sm:inline" />
+                </button>
 
+                <button
+                  onClick={onLogout}
+                  title="Log out"
+                  aria-label="Log out"
+                  className="p-1.5 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              /* When no one is signed in: Directing Actions for Log In & Create Account */
+              <div className="flex items-center space-x-2 shrink-0">
+                <button
+                  onClick={() => onOpenAuth('login')}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer whitespace-nowrap"
+                  title="Log in to existing account"
+                >
+                  <LogIn className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Log In</span>
+                </button>
+
+                <button
+                  onClick={() => onOpenAuth('register')}
+                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer whitespace-nowrap"
+                  title="Create free learner account"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Create Account</span>
+                </button>
+              </div>
+            )}
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              title={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
+              aria-label="Toggle navigation menu"
+              className="md:hidden p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition cursor-pointer ml-1"
+            >
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Drawer (Clean, simple, zero gradients) */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-slate-200 bg-white shadow-lg animate-in slide-in-from-top-2 duration-150">
+          <div className="max-w-7xl mx-auto px-4 py-3 space-y-3">
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 block">
+                {isAdmin ? 'Admin Console' : isGuest ? 'New User Orientation' : 'Navigation'}
+              </span>
+              <div className="grid grid-cols-1 gap-1">
+                {activeNavLinks.map((item) => {
+                  const active = isActive(item.path);
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium transition ${
+                        active
+                          ? 'bg-blue-50 text-blue-700 font-semibold'
+                          : 'text-slate-700 hover:bg-slate-50'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 text-slate-500 shrink-0" />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Mobile guest tabs directive */}
+            {isGuest && (
+              <div className="pt-2 border-t border-slate-100 space-y-2">
+                <span className="text-[11px] text-slate-500 block px-1">
+                  Ready to start learning? Create an account or sign in to enroll in approved courses.
+                </span>
+                <div className="flex gap-2">
                   <button
-                    onClick={onLogout}
-                    title="Log out"
-                    className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenAuth('register');
+                    }}
+                    className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold text-center transition flex items-center justify-center space-x-1 cursor-pointer"
                   >
-                    <LogOut className="w-3.5 h-3.5" />
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>Create Account</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenAuth('login');
+                    }}
+                    className="flex-1 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg text-xs font-semibold text-center transition flex items-center justify-center space-x-1 cursor-pointer"
+                  >
+                    <LogIn className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Log In</span>
                   </button>
                 </div>
               </div>
-            ) : (
-              <button
-                onClick={onOpenAuth}
-                className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-xs"
-              >
-                Sign In / Register
-              </button>
             )}
+
+            {/* Mobile Utilities */}
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+              <button
+                onClick={() => setLowBandwidth(!lowBandwidth)}
+                className="flex items-center space-x-1.5 py-1 text-slate-600 hover:text-slate-900 cursor-pointer"
+              >
+                {lowBandwidth ? <WifiOff className="w-3.5 h-3.5 text-amber-600" /> : <Wifi className="w-3.5 h-3.5" />}
+                <span>{lowBandwidth ? 'Lite Data: ON' : 'Lite Data Mode'}</span>
+              </button>
+
+              {!isAdmin && (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenAiTutor();
+                  }}
+                  className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 font-semibold cursor-pointer"
+                >
+                  <Bot className="w-3.5 h-3.5" />
+                  <span>AI Tutor</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
-
-        {/* Mobile secondary navigation scroll */}
-        <div className="lg:hidden flex items-center space-x-2 overflow-x-auto py-2 border-t border-slate-100 scrollbar-none text-xs">
-          {navLinks.map((item) => {
-            const active = isActive(item.path);
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`whitespace-nowrap px-3 py-1 rounded-lg font-semibold transition ${
-                  active
-                    ? 'bg-blue-600 text-white'
-                    : 'text-slate-600 bg-slate-100 hover:bg-slate-200'
-                }`}
-              >
-                {item.name}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      )}
     </header>
   );
 }

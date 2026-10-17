@@ -23,11 +23,11 @@ export default function LearningPaths({ user, onEnrollCourse }) {
     async function loadData() {
       try {
         const pRes = await api.getLearningPaths();
-        if (pRes.success) {
+        if (pRes && pRes.data) {
           setPaths(pRes.data);
         }
-        const gapRes = await api.analyzeSkillGaps(user?.assessedSkills, activePathId);
-        if (gapRes.success) {
+        const gapRes = await api.analyzeSkillGaps(user?.assessedSkills || [], activePathId);
+        if (gapRes && gapRes.data) {
           setAnalysis(gapRes.data);
         }
       } catch (e) {

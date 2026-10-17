@@ -18,15 +18,19 @@ import {
   BookOpen
 } from 'lucide-react';
 import CourseCard from '../components/CourseCard.jsx';
+import NewUserGuideTabs from '../components/NewUserGuideTabs.jsx';
 import { api } from '../services/api.js';
 
-export default function Dashboard({ user, onEnrollCourse, lowBandwidth }) {
+export default function Dashboard({ user, onEnrollCourse, onLoginToEnroll, onOpenAuth, lowBandwidth }) {
   const [courses, setCourses] = useState([]);
   const [nisrSummary, setNisrSummary] = useState(null);
   const [indicators, setIndicators] = useState([]);
   const [selectedGoal, setSelectedGoal] = useState('path-1');
   const [gapAnalysis, setGapAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const isGuest = !user || user.id === 'guest';
+  const isAdmin = user && user.role === 'admin';
 
   useEffect(() => {
     async function loadData() {
@@ -35,12 +39,13 @@ export default function Dashboard({ user, onEnrollCourse, lowBandwidth }) {
           api.getCourses(),
           api.getNisrLabourSummary(),
           api.getNisrIndicators(),
-          api.analyzeSkillGaps(user?.assessedSkills, 'path-1')
+          api.analyzeSkillGaps(user?.assessedSkills || [], 'path-1')
         ]);
-        if (cRes.success) setCourses(cRes.data);
-        if (nRes) setNisrSummary(nRes);
-        if (indRes.success) setIndicators(indRes.data);
-        if (gapRes.success) setGapAnalysis(gapRes.data);
+        if (cRes && cRes.data) setCourses(cRes.data);
+        if (nRes && nRes.data) setNisrSummary(nRes.data);
+        else if (nRes && nRes.nationalServicesShare) setNisrSummary(nRes);
+        if (indRes && indRes.data) setIndicators(indRes.data);
+        if (gapRes && gapRes.data) setGapAnalysis(gapRes.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -54,7 +59,7 @@ export default function Dashboard({ user, onEnrollCourse, lowBandwidth }) {
     const goalId = e.target.value;
     setSelectedGoal(goalId);
     try {
-      const res = await api.analyzeSkillGaps(user?.assessedSkills, goalId);
+      const res = await api.analyzeSkillGaps(user?.assessedSkills || [], goalId);
       if (res.success) setGapAnalysis(res.data);
     } catch (e) {
       console.error(e);
@@ -63,62 +68,77 @@ export default function Dashboard({ user, onEnrollCourse, lowBandwidth }) {
 
   return (
     <div className="space-y-10 pb-16">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white p-6 sm:p-10 border border-slate-800 shadow-2xl">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-blue-600/15 blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-96 h-96 rounded-full bg-indigo-600/15 blur-3xl pointer-events-none"></div>
-
-        <div className="relative z-10 max-w-4xl space-y-4">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-bold tracking-wide">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            <span>RWANDA NISR LABOUR MARKET INFORMED</span>
+      {/* Realistic, Simple Hero (No gradients) */}
+      <section className="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+        <div className="max-w-3xl space-y-3">
+          <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-blue-50 text-blue-700 text-xs font-semibold">
+            <span>National Skills & Workforce Platform</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
-            Data-Informed Skills & Learning Platform
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+            Learn In-Demand Skills Aligned with Rwanda Market Benchmarks
           </h1>
 
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-3xl">
-            Bridge the gap between education and real Rwandan employment demand. Explore verified curriculum, take tri-part competency assessments, build your cryptographic Skill Passport, and partner in local peer learning cohorts.
+          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+            Acquire verified competencies through accredited courses and hands-on capstone projects, with skill pathways matched to National Institute of Statistics of Rwanda (NISR) labor intelligence.
           </p>
 
-          {/* Core Recommendation Principle Banner */}
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-xs sm:text-sm font-mono text-blue-200">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400 block mb-1">
-              Core Recommendation Engine Principle:
-            </span>
-            <div className="overflow-x-auto whitespace-nowrap text-xs text-white">
-              USER GOAL + USER SKILLS + ASSESSMENT + SKILL REQS + NISR LABOUR CONTEXT → <span className="text-emerald-400 font-bold">DATA-INFORMED PATHWAY</span>
-            </div>
-          </div>
-
           {/* Quick CTA Actions */}
-          <div className="pt-2 flex flex-wrap items-center gap-3">
+          <div className="pt-2 flex flex-wrap items-center gap-2.5">
+            {isGuest && (
+              <>
+                <button
+                  onClick={() => onOpenAuth && onOpenAuth('register')}
+                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <span>Create Account</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => onOpenAuth && onOpenAuth('login')}
+                  className="px-4 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition border border-slate-200 flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <span>Log In</span>
+                </button>
+              </>
+            )}
+
             <Link
               to="/courses"
-              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition shadow-lg flex items-center space-x-2"
+              className="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition flex items-center space-x-2"
             >
+              <BookOpen className="w-3.5 h-3.5" />
               <span>Explore Courses</span>
-              <ArrowRight className="w-4 h-4" />
             </Link>
 
             <Link
               to="/pathways"
-              className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition border border-white/15 flex items-center space-x-2"
+              className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition border border-slate-200 flex items-center space-x-2"
             >
-              <TrendingUp className="w-4 h-4 text-blue-400" />
-              <span>Target Pathways</span>
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>Career Pathways</span>
             </Link>
 
             <Link
               to="/insights"
-              className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition border border-white/15 flex items-center space-x-2"
+              className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition border border-slate-200 flex items-center space-x-2"
             >
-              <span>NISR Insights & Data</span>
+              <span>NISR Labour Statistics</span>
             </Link>
           </div>
         </div>
       </section>
+
+      {/* Interactive Tabs for Directing New Users (Strictly hidden for admin account) */}
+      {isGuest && !isAdmin && (
+        <NewUserGuideTabs
+          onOpenAuth={onOpenAuth}
+          onEnrollCourse={onEnrollCourse}
+          onLoginToEnroll={onLoginToEnroll}
+          courses={courses}
+          isAdmin={isAdmin}
+        />
+      )}
 
       {/* Macroeconomic NISR Context Strip */}
       <section className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm">
@@ -211,7 +231,7 @@ export default function Dashboard({ user, onEnrollCourse, lowBandwidth }) {
         {/* Readiness Overview */}
         {gapAnalysis && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1 p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 text-white flex flex-col justify-between">
+            <div className="lg:col-span-1 p-5 rounded-xl bg-slate-900 text-white flex flex-col justify-between">
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-blue-300">
                   Target Role Readiness
@@ -314,6 +334,8 @@ export default function Dashboard({ user, onEnrollCourse, lowBandwidth }) {
               course={course}
               isEnrolled={user?.enrolledCourses?.includes(course.id)}
               onEnrollClick={onEnrollCourse}
+              onLoginToEnroll={onLoginToEnroll}
+              isGuest={isGuest}
               lowBandwidth={lowBandwidth}
             />
           ))}

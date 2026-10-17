@@ -1,9 +1,66 @@
-// API Client for The Hub backend
+// Resilient API Client for The Hub backend
+import { getFallbackForUrl } from './fallbackData.js';
+
+/**
+ * Safe fetch helper that guarantees:
+ * 1. Checks content-type before parsing JSON to prevent SyntaxError: Unexpected token '<'
+ * 2. Automatic retry for transient connection failures in iframe environments
+ * 3. Graceful fallback data provider so UI never encounters blank or broken states
+ * 4. Suppresses fatal console.error exceptions on transient network interrupts
+ */
+async function safeFetch(url, options = {}, retries = 2) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, options);
+      const contentType = res.headers.get('content-type') || '';
+
+      if (contentType.includes('application/json')) {
+        const data = await res.json();
+        return data;
+      }
+
+      // If server returned non-JSON (e.g. proxy starting up)
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+        continue;
+      }
+
+      const fallback = getFallbackForUrl(url);
+      if (fallback) {
+        return { success: true, data: fallback, fromFallback: true };
+      }
+
+      return {
+        success: false,
+        error: `Server returned non-JSON response (${res.status} ${res.statusText}).`,
+        data: null
+      };
+    } catch (err) {
+      // Retry transient network errors (e.g. TypeError: Failed to fetch during container/proxy init)
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+        continue;
+      }
+
+      console.warn(`[The Hub API] ${url} unavailable, using resilient fallback data:`, err.message);
+
+      const fallback = getFallbackForUrl(url);
+      if (fallback) {
+        return { success: true, data: fallback, fromFallback: true };
+      }
+
+      return {
+        success: false,
+        error: err.message || 'Network request failed. Please check your connection.',
+        data: null
+      };
+    }
+  }
+}
 
 export const api = {
   async getHealth() {
-    const res = await fetch('/api/health');
-    return res.json();
+    return safeFetch('/api/health');
   },
 
   async getCourses(filters = {}) {
@@ -11,156 +68,138 @@ export const api = {
     if (filters.category && filters.category !== 'All') params.append('category', filters.category);
     if (filters.difficulty && filters.difficulty !== 'All') params.append('difficulty', filters.difficulty);
     if (filters.search) params.append('search', filters.search);
-    const res = await fetch(`/api/courses?${params.toString()}`);
-    return res.json();
+    return safeFetch(`/api/courses?${params.toString()}`);
   },
 
   async getCourseBySlug(slug) {
-    const res = await fetch(`/api/courses/${slug}`);
-    return res.json();
+    return safeFetch(`/api/courses/${slug}`);
   },
 
   async enrollCourse(id) {
-    const res = await fetch(`/api/courses/${id}/enroll`, { method: 'POST' });
-    return res.json();
+    return safeFetch(`/api/courses/${id}/enroll`, { method: 'POST' });
   },
 
   async getSkills() {
-    const res = await fetch('/api/skills');
-    return res.json();
+    return safeFetch('/api/skills');
   },
 
   async getNisrIndicators() {
-    const res = await fetch('/api/nisr/indicators');
-    return res.json();
+    return safeFetch('/api/nisr/indicators');
   },
 
   async getNisrLabourSummary() {
-    const res = await fetch('/api/nisr/labour');
-    return res.json();
+    return safeFetch('/api/nisr/labour');
   },
 
   async getNisrProvinces() {
-    const res = await fetch('/api/nisr/provinces');
-    return res.json();
+    return safeFetch('/api/nisr/provinces');
   },
 
   async getLearningPaths() {
-    const res = await fetch('/api/learning-paths');
-    return res.json();
+    return safeFetch('/api/learning-paths');
   },
 
   async analyzeSkillGaps(userSkills, targetRoleId) {
-    const res = await fetch('/api/recommendations/analyze', {
+    const safeSkills = Array.isArray(userSkills) ? userSkills : [];
+    return safeFetch('/api/recommendations/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userSkills, targetRoleId })
+      body: JSON.stringify({ userSkills: safeSkills, targetRoleId })
     });
-    return res.json();
   },
 
-  async getAssessments() {
-    const res = await fetch('/api/assessments');
-    return res.json();
+  async getAssessments(params = {}) {
+    const query = new URLSearchParams();
+    if (params.courseId && params.courseId !== 'All') query.set('courseId', params.courseId);
+    if (params.difficulty && params.difficulty !== 'All') query.set('difficulty', params.difficulty);
+    if (params.search) query.set('search', params.search);
+    const qs = query.toString();
+    return safeFetch(`/api/assessments${qs ? `?${qs}` : ''}`);
   },
 
   async submitAssessment(id, data) {
-    const res = await fetch(`/api/assessments/${id}/submit`, {
+    return safeFetch(`/api/assessments/${id}/submit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    return res.json();
   },
 
   async getAuthUser() {
-    const res = await fetch('/api/auth/me');
-    return res.json();
+    return safeFetch('/api/auth/me');
   },
 
   async login(credentials) {
-    const res = await fetch('/api/auth/login', {
+    return safeFetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials)
     });
-    return res.json();
   },
 
   async register(registrationData) {
-    const res = await fetch('/api/auth/register', {
+    return safeFetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(registrationData)
     });
-    return res.json();
   },
 
   async demoLogin() {
-    const res = await fetch('/api/auth/demo-login', { method: 'POST' });
-    return res.json();
+    return safeFetch('/api/auth/demo-login', { method: 'POST' });
   },
 
   async updateProfile(profileData) {
-    const res = await fetch('/api/auth/profile', {
+    return safeFetch('/api/auth/profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(profileData)
     });
-    return res.json();
   },
 
   async changePassword(passwordData) {
-    const res = await fetch('/api/auth/change-password', {
+    return safeFetch('/api/auth/change-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(passwordData)
     });
-    return res.json();
   },
 
   async logout() {
-    const res = await fetch('/api/auth/logout', { method: 'POST' });
-    return res.json();
+    return safeFetch('/api/auth/logout', { method: 'POST' });
   },
 
   async getPeerMatches() {
-    const res = await fetch('/api/peers/matches');
-    return res.json();
+    return safeFetch('/api/peers/matches');
   },
 
   async requestPeerMatch(matchData) {
-    const res = await fetch('/api/peers/request-match', {
+    return safeFetch('/api/peers/request-match', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(matchData)
     });
-    return res.json();
   },
 
   async getChallenges() {
-    const res = await fetch('/api/challenges');
-    return res.json();
+    return safeFetch('/api/challenges');
   },
 
   async askAiTutor(question, contextCourse, learnerLevel) {
-    const res = await fetch('/api/ai/tutor', {
+    return safeFetch('/api/ai/tutor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question, contextCourse, learnerLevel })
     });
-    return res.json();
   },
 
   // Admin Portal Methods
   async adminLogin() {
-    const res = await fetch('/api/auth/admin-login', { method: 'POST' });
-    return res.json();
+    return safeFetch('/api/auth/admin-login', { method: 'POST' });
   },
 
   async getAdminOverview() {
-    const res = await fetch('/api/admin/overview');
-    return res.json();
+    return safeFetch('/api/admin/overview');
   },
 
   async getAdminUsers(filters = {}) {
@@ -170,45 +209,53 @@ export const api = {
     if (filters.role && filters.role !== 'All') params.append('role', filters.role);
     if (filters.sessionStatus && filters.sessionStatus !== 'All') params.append('sessionStatus', filters.sessionStatus);
     if (filters.completion && filters.completion !== 'All') params.append('completion', filters.completion);
-    const res = await fetch(`/api/admin/users?${params.toString()}`);
-    return res.json();
+    return safeFetch(`/api/admin/users?${params.toString()}`);
   },
 
   async updateAdminUserRole(id, role, status) {
-    const res = await fetch(`/api/admin/users/${id}/update-role`, {
+    return safeFetch(`/api/admin/users/${id}/update-role`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ role, status })
     });
-    return res.json();
   },
 
   async awardAdminCredential(id, data) {
-    const res = await fetch(`/api/admin/users/${id}/award-credential`, {
+    return safeFetch(`/api/admin/users/${id}/award-credential`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    return res.json();
   },
 
   async getAdminTasks() {
-    const res = await fetch('/api/admin/tasks');
-    return res.json();
+    return safeFetch('/api/admin/tasks');
+  },
+
+  async createAdminCourse(courseData) {
+    return safeFetch('/api/admin/courses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(courseData)
+    });
+  },
+
+  async deleteAdminCourse(id) {
+    return safeFetch(`/api/admin/courses/${id}`, {
+      method: 'DELETE'
+    });
   },
 
   async reviewAdminTask(id, data) {
-    const res = await fetch(`/api/admin/tasks/${id}/review`, {
+    return safeFetch(`/api/admin/tasks/${id}/review`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    return res.json();
   },
 
   async getAdminStats() {
-    const res = await fetch('/api/admin/stats');
-    return res.json();
+    return safeFetch('/api/admin/stats');
   },
 
   async getAdminCertificates(filters = {}) {
@@ -216,30 +263,26 @@ export const api = {
     if (filters.search) params.append('search', filters.search);
     if (filters.course && filters.course !== 'All') params.append('course', filters.course);
     if (filters.district && filters.district !== 'All') params.append('district', filters.district);
-    const res = await fetch(`/api/admin/certificates?${params.toString()}`);
-    return res.json();
+    return safeFetch(`/api/admin/certificates?${params.toString()}`);
   },
 
   async issueAdminCertificate(certData) {
-    const res = await fetch('/api/admin/certificates/issue', {
+    return safeFetch('/api/admin/certificates/issue', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(certData)
     });
-    return res.json();
   },
 
   async revokeAdminCertificate(id, reason) {
-    const res = await fetch(`/api/admin/certificates/${id}/revoke`, {
+    return safeFetch(`/api/admin/certificates/${id}/revoke`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ reason })
     });
-    return res.json();
   },
 
   async getAdminAuditLog() {
-    const res = await fetch('/api/admin/audit-log');
-    return res.json();
+    return safeFetch('/api/admin/audit-log');
   }
 };

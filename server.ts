@@ -10,9 +10,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const PORT = 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
+}));
 app.use(express.json());
 
 // Initialize Gemini SDK if key provided
@@ -62,6 +67,14 @@ app.post('/api/ai/tutor', async (req, res) => {
 // Express API routes for The Hub
 app.use('/api', apiRoutes);
 
+// Explicitly catch any unhandled /api requests so they NEVER fall through to Vite SPA
+app.use('/api', (req, res) => {
+  res.status(404).json({
+    success: false,
+    error: `API endpoint not found: ${req.method} ${req.originalUrl}`
+  });
+});
+
 // Development: Vite middleware mode
 if (process.env.NODE_ENV !== 'production') {
   const { createServer: createViteServer } = await import('vite');
@@ -74,7 +87,7 @@ if (process.env.NODE_ENV !== 'production') {
   // Production: Serve static assets from dist
   const distPath = path.resolve(__dirname, 'dist');
   app.use(express.static(distPath));
-  app.get('*', (_req, res) => {
+  app.use((_req, res) => {
     res.sendFile(path.resolve(distPath, 'index.html'));
   });
 }

@@ -11,16 +11,26 @@ import {
   Bot,
   Award,
   BookOpen,
-  Share2
+  Share2,
+  UserPlus,
+  LogIn
 } from 'lucide-react';
 import { api } from '../services/api.js';
 
-export default function CourseDetail({ user, onEnrollCourse, onOpenAiTutor, lowBandwidth }) {
+export default function CourseDetail({
+  user,
+  onEnrollCourse,
+  onLoginToEnroll,
+  onOpenAiTutor,
+  lowBandwidth
+}) {
   const { slug } = useParams();
   const [course, setCourse] = useState(null);
   const [activeLesson, setActiveLesson] = useState(null);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const isGuest = !user || user.id === 'guest';
 
   useEffect(() => {
     async function fetchCourse() {
@@ -124,12 +134,26 @@ export default function CourseDetail({ user, onEnrollCourse, onOpenAiTutor, lowB
                 <span>Enrolled & Ready</span>
               </span>
             ) : (
-              <button
-                onClick={() => onEnrollCourse(course)}
-                className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow-md"
-              >
-                Enroll in Program
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => onEnrollCourse(course)}
+                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow-md flex items-center space-x-1.5 cursor-pointer"
+                  title={isGuest ? 'New user? Click to create account & enroll' : 'Enroll in program'}
+                >
+                  {isGuest && <UserPlus className="w-4 h-4" />}
+                  <span>{isGuest ? 'Enroll (Create Account)' : 'Enroll in Program'}</span>
+                </button>
+                {isGuest && (
+                  <button
+                    onClick={() => onLoginToEnroll ? onLoginToEnroll(course) : onEnrollCourse(course)}
+                    className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer"
+                    title="Already registered? Sign in to enroll"
+                  >
+                    <LogIn className="w-4 h-4 text-slate-300" />
+                    <span>Have Account? Log In & Enroll</span>
+                  </button>
+                )}
+              </div>
             )}
 
             <button
