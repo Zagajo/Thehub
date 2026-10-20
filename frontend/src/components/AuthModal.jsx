@@ -15,7 +15,9 @@ import {
   AlertCircle,
   UserPlus,
   LogIn,
-  BookOpen
+  BookOpen,
+  Check,
+  ShieldAlert
 } from 'lucide-react';
 import { api } from '../services/api.js';
 
@@ -58,6 +60,12 @@ export default function AuthModal({
   const [successMessage, setSuccessMessage] = useState(null);
 
   if (!isOpen) return null;
+
+  // Password Strength Criteria Calculation
+  const hasMinLength = registerPassword.length >= 8;
+  const hasNumber = /\d/.test(registerPassword);
+  const hasSign = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(registerPassword);
+  const isStrongPassword = hasMinLength && hasNumber && hasSign;
 
   const rwandaDistricts = [
     'Gasabo District, Kigali City',
@@ -139,8 +147,8 @@ export default function AuthModal({
       setErrorMessage('Please enter a valid email address.');
       return;
     }
-    if (!registerPassword || registerPassword.length < 6) {
-      setErrorMessage('Password must be at least 6 characters long.');
+    if (!isStrongPassword) {
+      setErrorMessage('A strong password must be at least 8 characters and mixed with numbers and signs.');
       return;
     }
     if (registerPassword !== confirmPassword) {
@@ -203,23 +211,23 @@ export default function AuthModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[94vh] flex flex-col">
+      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[94vh] flex flex-col font-sans">
         {/* Header */}
-        <div className="bg-slate-900 text-white p-5 sm:p-6 relative shrink-0">
+        <div className="bg-white text-slate-900 p-5 sm:p-6 relative shrink-0 border-b border-slate-200">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-slate-300 hover:text-white p-1 rounded-lg transition cursor-pointer"
+            className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-1 rounded-lg transition cursor-pointer"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-slate-800 text-blue-300 text-xs font-semibold mb-2 border border-slate-700">
+          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded bg-blue-50 text-blue-700 text-xs font-semibold mb-2 border border-blue-200">
             <Sparkles className="w-3.5 h-3.5" />
             <span>The Hub Rwanda Authentication</span>
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-black tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
             {enrollCourse ? (
               mode === 'register' ? 'Create Account & Enroll' : 'Log In & Enroll'
             ) : (
@@ -227,7 +235,7 @@ export default function AuthModal({
             )}
           </h2>
 
-          <p className="text-xs text-slate-300 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             {enrollCourse ? (
               mode === 'register'
                 ? `Create your account below to immediately enroll in "${enrollCourse.title}".`
@@ -267,7 +275,7 @@ export default function AuthModal({
                     TARGET ENROLLMENT COURSE
                   </span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-500 bg-white/80 px-2 py-0.5 rounded-md border border-blue-200">
+                <span className="text-[10px] font-mono text-slate-500 bg-white px-2 py-0.5 rounded-md border border-blue-200">
                   {enrollCourse.duration || 'Self-Paced'}
                 </span>
               </div>
@@ -283,8 +291,8 @@ export default function AuthModal({
             </div>
           )}
 
-          {/* Dedicated Mode Switcher Tabs for Better Interaction */}
-          <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200/80">
+          {/* Dedicated Mode Switcher Tabs */}
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200">
             <button
               type="button"
               onClick={() => {
@@ -294,7 +302,7 @@ export default function AuthModal({
               className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer ${
                 mode === 'register'
                   ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
               }`}
             >
               <UserPlus className="w-3.5 h-3.5" />
@@ -309,7 +317,7 @@ export default function AuthModal({
               className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer ${
                 mode === 'login'
                   ? 'bg-slate-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
               }`}
             >
               <LogIn className="w-3.5 h-3.5" />
@@ -322,8 +330,7 @@ export default function AuthModal({
           {/* ========================================================= */}
           {mode === 'login' && (
             <div className="space-y-4">
-              {/* Quick credential presets */}
-              <div className="p-3 bg-slate-50 border border-slate-200/90 rounded-2xl space-y-2">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                   Quick-Fill Presets for Evaluation
                 </span>
@@ -348,7 +355,6 @@ export default function AuthModal({
                 </div>
               </div>
 
-              {/* Login Form */}
               <form onSubmit={handleLoginSubmit} className="space-y-3.5">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -409,7 +415,6 @@ export default function AuthModal({
                 </button>
               </form>
 
-              {/* Link below for creating an account */}
               <div className="pt-3 border-t border-slate-100 text-center">
                 <p className="text-xs text-slate-600">
                   Don't have an account?{' '}
@@ -430,12 +435,11 @@ export default function AuthModal({
           )}
 
           {/* ========================================================= */}
-          {/* MODE 2: CREATE AN ACCOUNT FORM */}
+          {/* MODE 2: CREATE AN ACCOUNT FORM WITH STRONG PASSWORD INDICATOR */}
           {/* ========================================================= */}
           {mode === 'register' && (
             <div className="space-y-4">
               <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
-                {/* Full Names */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     Full Names (First & Last)
@@ -453,7 +457,6 @@ export default function AuthModal({
                   </div>
                 </div>
 
-                {/* Email */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     Email Address
@@ -471,7 +474,6 @@ export default function AuthModal({
                   </div>
                 </div>
 
-                {/* Region / Location */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     Region / Location in Rwanda
@@ -490,7 +492,6 @@ export default function AuthModal({
                   </div>
                 </div>
 
-                {/* Date of Birth */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     Date of Birth
@@ -511,7 +512,6 @@ export default function AuthModal({
                   </span>
                 </div>
 
-                {/* Career Pathway Goal */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     Primary Pathway Target
@@ -527,11 +527,11 @@ export default function AuthModal({
                   </select>
                 </div>
 
-                {/* Password & Confirm */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* Password & Confirm with Strong Password Indicator */}
+                <div className="space-y-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Password (min. 6 chars)
+                      Password
                     </label>
                     <div className="relative">
                       <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
@@ -540,7 +540,7 @@ export default function AuthModal({
                         required
                         value={registerPassword}
                         onChange={(e) => setRegisterPassword(e.target.value)}
-                        placeholder="••••••••"
+                        placeholder="At least 8 chars with numbers & signs"
                         className="w-full pl-8 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-600 focus:outline-none focus:bg-white"
                       />
                       <button
@@ -550,6 +550,43 @@ export default function AuthModal({
                       >
                         {showRegisterPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
+                    </div>
+
+                    {/* Real-time Strong Password Indicator & Checklist */}
+                    <div className="mt-2 p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 text-[11px]">
+                      <div className="flex items-center justify-between font-semibold">
+                        <span className="text-slate-600">Password Strength:</span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          isStrongPassword
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            : 'bg-amber-100 text-amber-800 border border-amber-200'
+                        }`}>
+                          {isStrongPassword ? 'Strong Password ✓' : 'Incomplete Requirements'}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 pt-1 text-slate-500">
+                        <div className={`flex items-center space-x-1 ${hasMinLength ? 'text-emerald-700 font-bold' : ''}`}>
+                          <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] ${hasMinLength ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                            {hasMinLength ? '✓' : '•'}
+                          </span>
+                          <span>Min 8 chars</span>
+                        </div>
+
+                        <div className={`flex items-center space-x-1 ${hasNumber ? 'text-emerald-700 font-bold' : ''}`}>
+                          <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] ${hasNumber ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                            {hasNumber ? '✓' : '•'}
+                          </span>
+                          <span>Number (0-9)</span>
+                        </div>
+
+                        <div className={`flex items-center space-x-1 ${hasSign ? 'text-emerald-700 font-bold' : ''}`}>
+                          <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] ${hasSign ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                            {hasSign ? '✓' : '•'}
+                          </span>
+                          <span>Sign (!@#$)</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -564,7 +601,7 @@ export default function AuthModal({
                         required
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="••••••••"
+                        placeholder="Re-type password"
                         className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-600 focus:outline-none focus:bg-white"
                       />
                     </div>
@@ -573,7 +610,7 @@ export default function AuthModal({
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !isStrongPassword}
                   className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 shadow-xs cursor-pointer"
                 >
                   <UserPlus className="w-4 h-4" />
@@ -587,7 +624,6 @@ export default function AuthModal({
                 </button>
               </form>
 
-              {/* Link below to sign in if already have an account */}
               <div className="pt-3 border-t border-slate-100 text-center">
                 <p className="text-xs text-slate-600">
                   Already have an account?{' '}

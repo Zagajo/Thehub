@@ -76,6 +76,7 @@ export default function AdminDashboard({ user, onOpenAuth, onOpenDbTelemetry }) 
   const [issueCertModal, setIssueCertModal] = useState(false);
   const [addCourseModal, setAddCourseModal] = useState(false);
   const [actionNotice, setActionNotice] = useState(null);
+  const [selectedCourseForPreview, setSelectedCourseForPreview] = useState(null);
 
   // Add Course Form State
   const [newCourseTitle, setNewCourseTitle] = useState('');
@@ -618,6 +619,15 @@ export default function AdminDashboard({ user, onOpenAuth, onOpenDbTelemetry }) 
 
                     {/* Actions */}
                     <td className="p-3.5 text-right whitespace-nowrap space-x-1.5">
+                      <button
+                        onClick={() => setSelectedCourseForPreview(course)}
+                        className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition inline-flex items-center space-x-1 cursor-pointer"
+                        title="Preview Course Structure, Syllabus Modules & Notes"
+                      >
+                        <BookOpen className="w-3 h-3 text-blue-600" />
+                        <span>Structure & Notes</span>
+                      </button>
+
                       <a
                         href={`/courses/${course.slug}`}
                         target="_blank"
@@ -1739,6 +1749,81 @@ export default function AdminDashboard({ user, onOpenAuth, onOpenDbTelemetry }) 
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Course Structure & Notes Preview Modal */}
+      {selectedCourseForPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-slate-900 text-white p-6 relative flex items-center justify-between shrink-0">
+              <div>
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-400">
+                  Administrative Course Content Review
+                </span>
+                <h3 className="text-xl font-black mt-0.5">{selectedCourseForPreview.title}</h3>
+                <span className="text-xs text-slate-300 font-mono">{selectedCourseForPreview.category} • {selectedCourseForPreview.difficulty}</span>
+              </div>
+              <button
+                onClick={() => setSelectedCourseForPreview(null)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-5 text-xs text-slate-700">
+              <div className="space-y-1">
+                <span className="font-bold uppercase text-[10px] tracking-wider text-slate-400">Course Tagline & Overview</span>
+                <p className="text-slate-900 font-semibold text-sm">{selectedCourseForPreview.tagline}</p>
+                <p className="text-slate-600 leading-relaxed">{selectedCourseForPreview.description}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                  <span className="font-bold text-[10px] uppercase text-slate-400">NISR Sector Linkage</span>
+                  <p className="text-slate-800 font-medium">{selectedCourseForPreview.nisrLinkage || selectedCourseForPreview.nisrSector}</p>
+                </div>
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                  <span className="font-bold text-[10px] uppercase text-slate-400">Prerequisites</span>
+                  <p className="text-slate-800 font-medium">{selectedCourseForPreview.prerequisites || 'None specified'}</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <span className="font-bold uppercase text-[10px] tracking-wider text-slate-400 block">Complete Syllabus Structure & Notes</span>
+                <div className="space-y-3">
+                  {selectedCourseForPreview.syllabus?.map((mod, idx) => (
+                    <div key={idx} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                      <span className="font-bold text-slate-900 text-xs block">{mod.module}</span>
+                      <div className="space-y-1.5 pl-2">
+                        {mod.lessons?.map((les, lIdx) => (
+                          <div key={lIdx} className="flex items-center justify-between text-xs py-1 border-b border-slate-200/50 last:border-0">
+                            <span className="font-medium text-slate-800">• {les.title}</span>
+                            <span className="text-slate-500 font-mono text-[11px]">{les.duration}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl space-y-1">
+                <span className="font-bold uppercase text-[10px] tracking-wider text-blue-800">Capstone Evidence Brief</span>
+                <p className="text-blue-950 font-medium">{selectedCourseForPreview.capstoneBrief}</p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
+              <button
+                onClick={() => setSelectedCourseForPreview(null)}
+                className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold"
+              >
+                Close Preview
+              </button>
+            </div>
           </div>
         </div>
       )}

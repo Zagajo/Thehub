@@ -8,8 +8,8 @@
 
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    background-color: #f1f5f9;
-    color: #0f172a;
+    background-color: #f4f4f4;
+    color: #161616;
   }
 
   code, pre, .font-mono {
@@ -17,17 +17,45 @@
   }
 }
 
-/* Clean, simple, realistic base styles */
-.bg-futuristic-grid {
-  background-color: #f8fafc;
-}
-
-.glass-panel {
+/* IBM Carbon-inspired Enterprise Design System Classes */
+.ibm-card {
   background-color: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
 }
 
-.glass-panel-subtle {
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
+.ibm-card-dark {
+  background-color: #161616;
+  color: #ffffff;
+  border: 1px solid #262626;
+}
+
+.ibm-btn-primary {
+  background-color: #0f62fe;
+  color: #ffffff;
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+}
+
+.ibm-btn-primary:hover {
+  background-color: #0353e9;
+}
+
+.ibm-btn-secondary {
+  background-color: #ffffff;
+  color: #161616;
+  border: 1px solid #8d8d8d;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.ibm-btn-secondary:hover {
+  background-color: #e5e5e5;
+  border-color: #161616;
+}
+
+.ibm-header {
+  background-color: #161616;
+  color: #ffffff;
+  border-bottom: 1px solid #393939;
 }

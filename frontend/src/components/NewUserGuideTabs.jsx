@@ -54,7 +54,7 @@ export default function NewUserGuideTabs({
     <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
       {/* Clean Solid Header Banner (No gradients) */}
       <div className="bg-slate-900 text-white p-6 border-b border-slate-800">
-        <div className="max-w-3xl space-y-2">
+        <div className="max-w-3xl space-y-2" style={{ width: '490px', maxWidth: '100%' }}>
           <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-slate-800 text-slate-300 text-xs font-medium">
             <span>New Learner Orientation & Directing Guide</span>
           </div>
@@ -88,7 +88,7 @@ export default function NewUserGuideTabs({
 
       {/* Tabs Row */}
       <div className="p-2 sm:p-3 bg-slate-50 border-b border-slate-200">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-semibold">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-semibold" style={{ width: '600px', maxWidth: '100%', marginLeft: '120px' }}>
           {guideTabs.map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -96,23 +96,23 @@ export default function NewUserGuideTabs({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`p-3 rounded-lg transition text-left flex flex-col justify-between space-y-1.5 border cursor-pointer ${
+                className={`p-3 rounded-lg transition text-left flex flex-col justify-between space-y-1.5 border cursor-pointer w-full min-w-0 overflow-hidden ${
                   active
                     ? 'bg-white text-blue-700 border-blue-500 shadow-xs'
                     : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 hover:border-slate-300'
                 }`}
               >
-                <div className="flex items-center justify-between w-full">
-                  <div className={`p-1.5 rounded-md ${active ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
+                <div className="flex items-center justify-between w-full min-w-0">
+                  <div className={`p-1.5 rounded-md shrink-0 ${active ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
                     <Icon className="w-4 h-4" />
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded font-mono uppercase ${
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-mono uppercase truncate ml-1 shrink-0 ${
                     active ? 'bg-blue-100 text-blue-800 font-semibold' : 'bg-slate-100 text-slate-500'
                   }`}>
                     {tab.badge}
                   </span>
                 </div>
-                <span className="text-xs font-semibold leading-tight">{tab.title}</span>
+                <span className="text-xs font-semibold leading-tight break-words whitespace-normal w-full min-w-0">{tab.title}</span>
               </button>
             );
           })}

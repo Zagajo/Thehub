@@ -97,13 +97,22 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      const res = await api.logout();
-      if (res.success) {
-        setUser(null);
-      }
+      await api.logout();
     } catch (e) {
       console.error(e);
+    } finally {
+      setUser(null);
+      setAuthMode('login');
+      setIsAuthOpen(true);
+      window.location.href = '/';
     }
+  };
+
+  const ProtectedRoute = ({ children }) => {
+    if (!user || user.id === 'guest') {
+      return <Navigate to="/" replace />;
+    }
+    return children;
   };
 
   const handleOpenAiTutor = (course) => {
@@ -199,15 +208,17 @@ export default function App() {
             <Route
               path="/pathways"
               element={
-                isAdmin ? (
-                  <Navigate to="/admin" replace />
-                ) : (
-                  <LearningPaths
-                    user={user}
-                    onEnrollCourse={handleEnrollCourse}
-                    onLoginToEnroll={handleLoginToEnroll}
-                  />
-                )
+                <ProtectedRoute>
+                  {isAdmin ? (
+                    <Navigate to="/admin" replace />
+                  ) : (
+                    <LearningPaths
+                      user={user}
+                      onEnrollCourse={handleEnrollCourse}
+                      onLoginToEnroll={handleLoginToEnroll}
+                    />
+                  )}
+                </ProtectedRoute>
               }
             />
             <Route
@@ -217,48 +228,56 @@ export default function App() {
             <Route
               path="/skill-passport"
               element={
-                isAdmin ? (
-                  <Navigate to="/admin" replace />
-                ) : (
-                  <SkillPassport
-                    user={user}
-                    onOpenEditProfile={() => setIsEditProfileOpen(true)}
-                  />
-                )
+                <ProtectedRoute>
+                  {isAdmin ? (
+                    <Navigate to="/admin" replace />
+                  ) : (
+                    <SkillPassport
+                      user={user}
+                      onOpenEditProfile={() => setIsEditProfileOpen(true)}
+                    />
+                  )}
+                </ProtectedRoute>
               }
             />
             <Route
               path="/assessments"
               element={
-                isAdmin ? (
-                  <Navigate to="/admin" replace />
-                ) : (
-                  <Assessments
-                    user={user}
-                    onAssessmentComplete={(updatedUser) => setUser(updatedUser)}
-                    onOpenAuth={() => setIsAuthModalOpen(true)}
-                  />
-                )
+                <ProtectedRoute>
+                  {isAdmin ? (
+                    <Navigate to="/admin" replace />
+                  ) : (
+                    <Assessments
+                      user={user}
+                      onAssessmentComplete={(updatedUser) => setUser(updatedUser)}
+                      onOpenAuth={() => setIsAuthOpen(true)}
+                    />
+                  )}
+                </ProtectedRoute>
               }
             />
             <Route
               path="/peer-matching"
               element={
-                isAdmin ? (
-                  <Navigate to="/admin" replace />
-                ) : (
-                  <PeerMatching user={user} />
-                )
+                <ProtectedRoute>
+                  {isAdmin ? (
+                    <Navigate to="/admin" replace />
+                  ) : (
+                    <PeerMatching user={user} />
+                  )}
+                </ProtectedRoute>
               }
             />
             <Route
               path="/challenges"
               element={
-                isAdmin ? (
-                  <Navigate to="/admin" replace />
-                ) : (
-                  <EmployerChallenges user={user} />
-                )
+                <ProtectedRoute>
+                  {isAdmin ? (
+                    <Navigate to="/admin" replace />
+                  ) : (
+                    <EmployerChallenges user={user} />
+                  )}
+                </ProtectedRoute>
               }
             />
             <Route
@@ -274,29 +293,29 @@ export default function App() {
           </Routes>
         </main>
 
-        {/* Clean, Simple, Realistic Footer (No gradients) */}
-        <footer className="mt-auto bg-slate-900 text-slate-400 border-t border-slate-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        {/* IBM Enterprise Footer */}
+        <footer className="mt-auto bg-[#161616] text-[#c6c6c6] border-t border-[#393939]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-xs">
               {/* Col 1 */}
               <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-6 h-6 rounded-sm bg-[#0F62FE] flex items-center justify-center text-white font-bold text-xs">
                     H
                   </div>
-                  <span className="font-bold text-white text-sm">The Hub Rwanda</span>
+                  <span className="font-bold text-white text-sm tracking-tight">The Hub Rwanda</span>
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-[#8d8d8d] leading-relaxed">
                   National digital education and workforce skills platform aligning learner competencies with National Institute of Statistics of Rwanda (NISR) market benchmarks.
                 </p>
               </div>
 
               {/* Col 2 */}
-              <div className="space-y-2">
-                <span className="font-semibold text-white uppercase tracking-wider text-[11px] block">
+              <div className="space-y-2.5">
+                <span className="font-semibold text-white uppercase tracking-wider font-mono text-[11px] block">
                   Curriculum & Learning
                 </span>
-                <ul className="space-y-1.5 text-xs text-slate-400">
+                <ul className="space-y-2 text-xs text-[#c6c6c6]">
                   <li><a href="/courses" className="hover:text-white transition">Accredited Courses</a></li>
                   <li><a href="/pathways" className="hover:text-white transition">Career Pathways</a></li>
                   <li><a href="/assessments" className="hover:text-white transition">Competency Assessments</a></li>
@@ -305,11 +324,11 @@ export default function App() {
               </div>
 
               {/* Col 3 */}
-              <div className="space-y-2">
-                <span className="font-semibold text-white uppercase tracking-wider text-[11px] block">
+              <div className="space-y-2.5">
+                <span className="font-semibold text-white uppercase tracking-wider font-mono text-[11px] block">
                   National Data & Agencies
                 </span>
-                <ul className="space-y-1.5 text-xs text-slate-400">
+                <ul className="space-y-2 text-xs text-[#c6c6c6]">
                   <li><a href="/insights" className="hover:text-white transition">NISR Labour Statistics</a></li>
                   <li><a href="/challenges" className="hover:text-white transition">Employer Challenges</a></li>
                   <li><a href="/peer-matching" className="hover:text-white transition">Peer Circles</a></li>
@@ -317,28 +336,28 @@ export default function App() {
               </div>
 
               {/* Col 4 */}
-              <div className="space-y-2">
-                <span className="font-semibold text-white uppercase tracking-wider text-[11px] block">
+              <div className="space-y-2.5">
+                <span className="font-semibold text-white uppercase tracking-wider font-mono text-[11px] block">
                   Contact & Support
                 </span>
-                <div className="text-xs text-slate-400 space-y-1">
+                <div className="text-xs text-[#c6c6c6] space-y-1.5">
                   <p>Kigali, Rwanda</p>
-                  <p>General Inquiries: <strong className="text-slate-300">support@thehub.rw</strong></p>
-                  <p>Toll-Free Support: <strong className="text-slate-300">1322</strong></p>
+                  <p>General Inquiries: <strong className="text-white font-mono">support@thehub.rw</strong></p>
+                  <p>Toll-Free Support: <strong className="text-white font-mono">1322</strong></p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3">
+            <div className="mt-10 pt-6 border-t border-[#393939] flex flex-col sm:flex-row items-center justify-between text-xs text-[#8d8d8d] gap-3">
               <div>
-                © 2026 The Hub Rwanda. All rights reserved.
+                © 2026 The Hub Rwanda. All rights reserved. Powered by Carbon Design Principles.
               </div>
-              <div className="flex items-center space-x-3 text-slate-500">
-                <span>Privacy</span>
+              <div className="flex items-center space-x-4 text-[#8d8d8d]">
+                <span className="hover:text-white cursor-pointer">Privacy</span>
                 <span>·</span>
-                <span>Terms</span>
+                <span className="hover:text-white cursor-pointer">Terms of Use</span>
                 <span>·</span>
-                <span>National Portal</span>
+                <span className="hover:text-white cursor-pointer">National Portal</span>
               </div>
             </div>
           </div>

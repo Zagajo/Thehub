@@ -396,7 +396,7 @@ router.post('/auth/login', (req, res) => {
   if (registeredUsers.has(cleanEmail)) {
     const record = registeredUsers.get(cleanEmail);
     if (record.password && record.password !== password) {
-      return res.status(401).json({ success: false, error: 'Incorrect password. Please try again.' });
+      return res.status(401).json({ success: false, error: 'Error: Incorrect password provided. Please verify your password and try again.' });
     }
     currentUser = { ...record.profile };
     return res.json({
@@ -420,7 +420,7 @@ router.post('/auth/login', (req, res) => {
   // Not found
   return res.status(404).json({
     success: false,
-    error: 'No account found with this email. Click "Create an account" below to register.'
+    error: `Error: No account found with email "${email}". Please verify your email address or click "Create Account" below to register.`
   });
 });
 
@@ -492,7 +492,7 @@ router.post('/auth/register', (req, res) => {
     hasFinishedCertificate: false,
     certificateTitle: 'New Enrollee',
     quizAverage: 0,
-    enrolledCourses: ['c-1'],
+    enrolledCourses: [],
     completedLessons: [],
     completedLessonsCount: 0,
     totalLessonsCount: 6,
