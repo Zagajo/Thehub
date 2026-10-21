@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5174;
 
 app.use(cors());
 app.use(express.json());
@@ -79,10 +79,10 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, 'localhost', () => {
   console.log(`====================================================`);
-  console.log(`[The Hub] Full-Stack App running on http://0.0.0.0:${PORT}`);
-  console.log(`API Health: http://0.0.0.0:${PORT}/api/health`);
+  console.log(`[The Hub] Full-Stack App running on http://localhost:${PORT}`);
+  console.log(`API Health: http://localhost:${PORT}/api/health`);
   console.log(`====================================================`);
 });
 
