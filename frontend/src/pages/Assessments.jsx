@@ -80,7 +80,12 @@ export default function Assessments({ user, onAssessmentComplete, onOpenAuth }) 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
+  const [selectedModule, setSelectedModule] = useState(1);
+
   const isGuest = !user || user.id === 'guest';
+  const userProgress = user?.progressPercentage || (isGuest ? 100 : 65);
+  const isModule2Unlocked = userProgress >= 33 || isGuest || (user?.role === 'admin');
+  const isModule3Unlocked = userProgress >= 66 || isGuest || (user?.role === 'admin');
 
   // Fetch all 150 assessments on mount
   useEffect(() => {
@@ -103,10 +108,13 @@ export default function Assessments({ user, onAssessmentComplete, onOpenAuth }) 
     fetchAssessments();
   }, []);
 
-  // Filter assessments by active subject, search, and difficulty
+  // Filter assessments by active subject, selected module, search, and difficulty
   const subjectAssessments = useMemo(() => {
-    return assessments.filter(a => a.courseId === selectedSubjectId);
-  }, [assessments, selectedSubjectId]);
+    const allForSubject = assessments.filter(a => a.courseId === selectedSubjectId);
+    const startIdx = (selectedModule - 1) * 10;
+    const endIdx = startIdx + 10;
+    return allForSubject.slice(startIdx, endIdx);
+  }, [assessments, selectedSubjectId, selectedModule]);
 
   const filteredAssessments = useMemo(() => {
     return subjectAssessments.filter(a => {
@@ -118,9 +126,10 @@ export default function Assessments({ user, onAssessmentComplete, onOpenAuth }) 
     });
   }, [subjectAssessments, searchQuery, difficultyFilter]);
 
-  // When subject changes, pick first assessment in that subject
+  // When subject changes, pick first assessment in that subject and reset module to 1
   const handleSelectSubject = (subjectId) => {
     setSelectedSubjectId(subjectId);
+    setSelectedModule(1);
     setSearchQuery('');
     setDifficultyFilter('All');
     setSubmissionResult(null);
@@ -128,7 +137,7 @@ export default function Assessments({ user, onAssessmentComplete, onOpenAuth }) 
     setPracticalCompleted(false);
     setCapstoneSubmitted(false);
 
-    const firstInNewSubject = assessments.find(a => a.courseId === subjectId);
+    const firstInNewSubject = assessments.filter(a => a.courseId === subjectId)[0];
     if (firstInNewSubject) {
       setActiveAssessment(firstInNewSubject);
     }
@@ -276,7 +285,7 @@ export default function Assessments({ user, onAssessmentComplete, onOpenAuth }) 
               <span>{currentSubjectMeta.name} Database</span>
             </h2>
             <p className="text-xs text-slate-500">
-              Showing {filteredAssessments.length} of {subjectAssessments.length || 30} assessments in this subject
+              Showing Module {selectedModule} (Tests { (selectedModule - 1) * 10 + 1 }–{ selectedModule * 10 })
             </p>
           </div>
 
@@ -306,25 +315,122 @@ export default function Assessments({ user, onAssessmentComplete, onOpenAuth }) 
           </div>
         </div>
 
-        {/* Quick Grid: Assessments #1 through #30 */}
+        {/* Module Availability Tabs (Module 1, Module 2, Module 3) */}
+        <div className="space-y-2 pt-2">
+          <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+            <span>Completed Module Availability (Assessments unlock as modules are completed):</span>
+            <span className="text-[11px] text-blue-700 font-mono">User Progress: {userProgress}%</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {/* Module 1 */}
+            <button
+              onClick={() => {
+                setSelectedModule(1);
+                const first = assessments.filter(a => a.courseId === selectedSubjectId)[0];
+                if (first) handleSelectAssessment(first);
+              }}
+              className={`p-3 rounded-lg border text-xs text-left font-semibold transition cursor-pointer flex flex-col justify-between ${
+                selectedModule === 1
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                  : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span>Module 1: Foundations</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${selectedModule === 1 ? 'bg-blue-700 text-white' : 'bg-emerald-100 text-emerald-800'}`}>Unlocked</span>
+              </div>
+              <span className={`text-[10px] mt-1 ${selectedModule === 1 ? 'text-blue-100' : 'text-slate-500'}`}>Tests #1–10 (Theory & Basics)</span>
+            </button>
+
+            {/* Module 2 */}
+            <button
+              onClick={() => {
+                if (isModule2Unlocked) {
+                  setSelectedModule(2);
+                  const first = assessments.filter(a => a.courseId === selectedSubjectId)[10];
+                  if (first) handleSelectAssessment(first);
+                } else {
+                  alert('Please complete Module 1 to unlock Module 2 assessments.');
+                }
+              }}
+              className={`p-3 rounded-lg border text-xs text-left font-semibold transition cursor-pointer flex flex-col justify-between ${
+                selectedModule === 2
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                  : isModule2Unlocked
+                  ? 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
+                  : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-80'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span>Module 2: Mid-Course</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${isModule2Unlocked ? (selectedModule === 2 ? 'bg-blue-700 text-white' : 'bg-emerald-100 text-emerald-800') : 'bg-slate-200 text-slate-600'}`}>
+                  {isModule2Unlocked ? 'Unlocked (Intermediate Practical 20%)' : 'Locked (Requires Mod 1)'}
+                </span>
+              </div>
+              <span className={`text-[10px] mt-1 ${selectedModule === 2 ? 'text-blue-100' : 'text-slate-500'}`}>Tests #11–20 (Mid-course Practical 20%)</span>
+            </button>
+
+            {/* Module 3 */}
+            <button
+              onClick={() => {
+                if (isModule3Unlocked) {
+                  setSelectedModule(3);
+                  const first = assessments.filter(a => a.courseId === selectedSubjectId)[20];
+                  if (first) handleSelectAssessment(first);
+                } else {
+                  alert('Please complete Module 2 to unlock Module 3 assessments.');
+                }
+              }}
+              className={`p-3 rounded-lg border text-xs text-left font-semibold transition cursor-pointer flex flex-col justify-between ${
+                selectedModule === 3
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                  : isModule3Unlocked
+                  ? 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
+                  : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-80'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span>Module 3: Final Mastery</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${isModule3Unlocked ? (selectedModule === 3 ? 'bg-blue-700 text-white' : 'bg-emerald-100 text-emerald-800') : 'bg-slate-200 text-slate-600'}`}>
+                  {isModule3Unlocked ? 'Unlocked (Final Practical 20% / 40%)' : 'Locked (Requires Mod 2)'}
+                </span>
+              </div>
+              <span className={`text-[10px] mt-1 ${selectedModule === 3 ? 'text-blue-100' : 'text-slate-500'}`}>Tests #21–30 (Final Course Completion & Practical 40%)</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Practical Assessment Rule Notice Banner */}
+        <div className="p-3 bg-blue-50/80 border border-blue-200 rounded-lg text-xs text-blue-900 space-y-1">
+          <p className="font-bold flex items-center space-x-1.5">
+            <Award className="w-4 h-4 text-blue-700 shrink-0" />
+            <span>Practical Assessment Rules & Weighting (40% Total):</span>
+          </p>
+          <p className="text-[11px] text-blue-800 leading-relaxed">
+            • <strong>Standard Courses:</strong> The practical assessment is credited 40% and is completed on the final module when the course is finished.<br/>
+            • <strong>Intermediate Courses:</strong> Practical assessments are done twice—mid-course (Module 2, 20%) and final (Module 3, 20%), totaling 40%.
+          </p>
+        </div>
+
+        {/* Quick Grid: Assessments for Active Module */}
         <div>
           <div className="flex items-center justify-between text-xs font-semibold text-slate-600 mb-2">
-            <span>Subject Test Numbers (Click to Load):</span>
+            <span>Module {selectedModule} Assessments (Click to Load):</span>
             <span className="text-[11px] text-slate-500">
               Active: Test #{currentSubjectIndex > 0 ? currentSubjectIndex : 1}
             </span>
           </div>
 
-          <div className="grid grid-cols-6 sm:grid-cols-10 md:grid-cols-15 gap-1.5">
+          <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
             {subjectAssessments.map((as, idx) => {
-              const testNum = idx + 1;
+              const testNum = (selectedModule - 1) * 10 + idx + 1;
               const isSelected = activeAssessment?.id === as.id;
               return (
                 <button
                   key={as.id}
                   onClick={() => handleSelectAssessment(as)}
                   title={`${testNum}. ${as.title} (${as.difficulty})`}
-                  className={`py-1.5 px-1 rounded text-center text-xs font-medium transition cursor-pointer border ${
+                  className={`py-2 px-1 rounded text-center text-xs font-medium transition cursor-pointer border ${
                     isSelected
                       ? 'bg-blue-600 text-white border-blue-600 font-bold shadow-2xs'
                       : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'

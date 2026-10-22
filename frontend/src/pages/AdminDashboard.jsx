@@ -43,16 +43,13 @@ import {
 import { api } from '../services/api.js';
 
 export default function AdminDashboard({ user, onOpenAuth, onOpenDbTelemetry }) {
-  // Tabs:
-  // 1. 'courses'         => Course Studio & Add Courses (Directly Requested)
-  // 2. 'active-users'    => Total Active & Signed-in Users (live sessions, presence, devices)
-  // 3. 'progress'        => Learner Progress & Certificate Winners (honors graduates)
-  // 4. 'capstones'       => Capstone & Project Review Queue (Recommended)
-  // 5. 'tracking-specs'  => Tracking Specs & NST2 Telemetry (DAU/WAU, funnels)
-  // 6. 'audit'           => Academic Audit & Security Trail (Recommended)
-  const [activeTab, setActiveTab] = useState('courses');
+  const isAdmin = user && user.role === 'admin';
+  const [adminEmailInput, setAdminEmailInput] = useState('alice.mukamana@thehub.rw');
+  const [adminPasswordInput, setAdminPasswordInput] = useState('admin123');
+  const [adminAuthError, setAdminAuthError] = useState(null);
+  const [adminAuthLoading, setAdminAuthLoading] = useState(false);
 
-  // Data states
+  const [activeTab, setActiveTab] = useState('courses');
   const [courses, setCourses] = useState([]);
   const [overview, setOverview] = useState(null);
   const [stats, setStats] = useState(null);
@@ -62,14 +59,12 @@ export default function AdminDashboard({ user, onOpenAuth, onOpenDbTelemetry }) 
   const [auditLogs, setAuditLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Filters
   const [search, setSearch] = useState('');
   const [districtFilter, setDistrictFilter] = useState('All');
   const [sessionFilter, setSessionFilter] = useState('All');
   const [completionFilter, setCompletionFilter] = useState('All');
   const [courseCategoryFilter, setCourseCategoryFilter] = useState('All');
 
-  // Modals
   const [selectedLearner, setSelectedLearner] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [viewCertificateModal, setViewCertificateModal] = useState(null);
@@ -78,7 +73,6 @@ export default function AdminDashboard({ user, onOpenAuth, onOpenDbTelemetry }) 
   const [actionNotice, setActionNotice] = useState(null);
   const [selectedCourseForPreview, setSelectedCourseForPreview] = useState(null);
 
-  // Add Course Form State
   const [newCourseTitle, setNewCourseTitle] = useState('');
   const [newCourseTagline, setNewCourseTagline] = useState('');
   const [newCourseCategory, setNewCourseCategory] = useState('Technology & ICT');
@@ -96,36 +90,13 @@ export default function AdminDashboard({ user, onOpenAuth, onOpenDbTelemetry }) 
     { title: 'Module 3: Capstone Evidence & Tri-Part Assessment', durationMinutes: 90, summary: 'Autonomous portfolio project for accredited certification.' }
   ]);
 
-  // Certificate Issuance Form State
   const [newCertLearnerId, setNewCertLearnerId] = useState('');
   const [newCertCourse, setNewCertCourse] = useState('Data Analytics with Python & SQL');
   const [newCertGrade, setNewCertGrade] = useState('95%');
   const [newCertDistinction, setNewCertDistinction] = useState('First Class Distinction');
 
-  // Task Review Form State
   const [reviewStatus, setReviewStatus] = useState('Verified & Approved');
   const [reviewFeedback, setReviewFeedback] = useState('');
-
-  const districts = [
-    'All',
-    'Gasabo',
-    'Kicukiro',
-    'Nyarugenge',
-    'Musanze',
-    'Gicumbi',
-    'Huye',
-    'Rubavu',
-    'Rwamagana'
-  ];
-
-  const courseCategories = [
-    'All',
-    'Technology & ICT',
-    'Financial & Data Analytics',
-    'Modern Agribusiness & Cooperatives',
-    'Hospitality & MICE Tourism',
-    'Renewable & Green Energy'
-  ];
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -160,8 +131,87 @@ export default function AdminDashboard({ user, onOpenAuth, onOpenDbTelemetry }) 
   };
 
   useEffect(() => {
-    fetchDashboardData();
-  }, [search, districtFilter, sessionFilter, completionFilter, courseCategoryFilter]);
+    if (isAdmin) {
+      fetchDashboardData();
+    }
+  }, [isAdmin, search, districtFilter, sessionFilter, completionFilter, courseCategoryFilter]);
+
+  const handleAdminAuthSubmit = async (e) => {
+    e.preventDefault();
+    setAdminAuthError(null);
+    setAdminAuthLoading(true);
+    try {
+      const res = await api.adminLogin({ email: adminEmailInput, password: adminPasswordInput });
+      if (res.success) {
+        window.location.reload();
+      } else {
+        setAdminAuthError(res.error || 'Invalid administrator password.');
+      }
+    } catch (err) {
+      setAdminAuthError('Network error during authentication.');
+    } finally {
+      setAdminAuthLoading(false);
+    }
+  };
+
+  if (!isAdmin) {
+    return (
+      <div className="max-w-md mx-auto my-16 p-8 bg-white rounded-3xl border border-slate-200 shadow-xl space-y-6 text-center font-sans">
+        <div className="w-12 h-12 bg-blue-600/10 border border-blue-600/20 text-blue-600 rounded-2xl flex items-center justify-center mx-auto">
+          <ShieldCheck className="w-6 h-6" />
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-black text-slate-900">Admin Authentication Required</h1>
+          <p className="text-xs text-slate-600">
+            Access to the Enterprise Admin Console is restricted to authenticated administrators (Dr. Alice Mukamana). Please provide your database password.
+          </p>
+        </div>
+
+        {adminAuthError && (
+          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl text-left">
+            {adminAuthError}
+          </div>
+        )}
+
+        <form onSubmit={handleAdminAuthSubmit} className="space-y-4 text-left">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Admin Email</label>
+            <input
+              type="email"
+              value={adminEmailInput}
+              onChange={(e) => setAdminEmailInput(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono bg-slate-50"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Database Password</label>
+            <input
+              type="password"
+              value={adminPasswordInput}
+              onChange={(e) => setAdminPasswordInput(e.target.value)}
+              placeholder="Enter admin password (e.g. admin123)"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={adminAuthLoading}
+            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md transition disabled:opacity-50 cursor-pointer"
+          >
+            {adminAuthLoading ? 'Verifying Credentials...' : 'Authenticate as Administrator'}
+          </button>
+        </form>
+
+        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-left space-y-1 font-mono text-[11px] text-slate-600">
+          <p className="font-bold text-slate-800">Admin Credentials Stored in Database:</p>
+          <p>Email: <span className="text-blue-600">alice.mukamana@thehub.rw</span></p>
+          <p>Password: <span className="text-blue-600 font-bold">admin123</span></p>
+        </div>
+      </div>
+    );
+  }
 
   const showNotification = (msg) => {
     setActionNotice(msg);
@@ -741,7 +791,7 @@ export default function AdminDashboard({ user, onOpenAuth, onOpenDbTelemetry }) 
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
-                {learners.map((learner) => {
+                {learners.map((learner, index) => {
                   const isOnline = learner.sessionStatus?.includes('Signed In');
                   const isMobile = learner.sessionStatus?.includes('Mobile');
                   return (
@@ -763,7 +813,7 @@ export default function AdminDashboard({ user, onOpenAuth, onOpenDbTelemetry }) 
                       </td>
 
                       <td className="p-3.5">
-                        <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                        <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 ${index === 4 ? 'rounded-md' : 'rounded-full'} text-[10px] font-bold ${
                           isOnline
                             ? 'bg-emerald-100 text-emerald-800'
                             : learner.sessionStatus?.includes('Idle')

@@ -194,8 +194,12 @@ export const api = {
   },
 
   // Admin Portal Methods
-  async adminLogin() {
-    return safeFetch('/api/auth/admin-login', { method: 'POST' });
+  async adminLogin(credentials) {
+    return safeFetch('/api/auth/admin-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials)
+    });
   },
 
   async getAdminOverview() {

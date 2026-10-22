@@ -382,23 +382,25 @@ router.post('/auth/login', (req, res) => {
 
   const cleanEmail = email.trim().toLowerCase();
 
-  // Check admin account
-  if (cleanEmail === 'alice.mukamana@thehub.rw' || cleanEmail.includes('admin')) {
-    currentUser = { ...adminUserProfile };
-    return res.json({
-      success: true,
-      message: 'Authenticated as Administrator: Dr. Alice Mukamana',
-      user: currentUser
-    });
-  }
-
-  // Check in registered users map
+  // Check in registered users map (stores all credentials in database store)
   if (registeredUsers.has(cleanEmail)) {
     const record = registeredUsers.get(cleanEmail);
     if (record.password && record.password !== password) {
       return res.status(401).json({ success: false, error: 'Error: Incorrect password provided. Please verify your password and try again.' });
     }
     currentUser = { ...record.profile };
+    
+    if (currentUser.role === 'admin') {
+      auditLog.unshift({
+        id: `log-${Date.now()}`,
+        action: 'Admin Authentication',
+        details: `Administrator ${currentUser.name} authenticated with verified database credentials`,
+        operator: currentUser.name,
+        timestamp: 'Just now',
+        type: 'security'
+      });
+    }
+
     return res.json({
       success: true,
       message: `Welcome back, ${currentUser.name}!`,
@@ -533,10 +535,35 @@ router.post('/auth/demo-login', (req, res) => {
 });
 
 router.post('/auth/admin-login', (req, res) => {
-  currentUser = { ...adminUserProfile };
+  const { email, password } = req.body;
+  const cleanEmail = (email || 'alice.mukamana@thehub.rw').trim().toLowerCase();
+
+  if (!password || !password.trim()) {
+    return res.status(400).json({ success: false, error: 'Admin password is required.' });
+  }
+
+  const record = registeredUsers.get(cleanEmail);
+  if (!record || record.profile.role !== 'admin') {
+    return res.status(403).json({ success: false, error: 'Access denied. Administrator account not found in database.' });
+  }
+
+  if (record.password !== password) {
+    return res.status(401).json({ success: false, error: 'Invalid admin password. Please verify your credentials in the database.' });
+  }
+
+  currentUser = { ...record.profile };
+  auditLog.unshift({
+    id: `log-${Date.now()}`,
+    action: 'Admin Authentication Verified',
+    details: `Administrator ${currentUser.name} (${currentUser.email}) authenticated successfully with verified password store`,
+    operator: currentUser.name,
+    timestamp: 'Just now',
+    type: 'security'
+  });
+
   res.json({
     success: true,
-    message: 'Authenticated as Administrator: Dr. Alice Mukamana',
+    message: `Authenticated as Administrator: ${currentUser.name}`,
     user: currentUser
   });
 });

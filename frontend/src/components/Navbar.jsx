@@ -125,7 +125,7 @@ export default function Navbar({
                   to={item.path}
                   className={`px-3 py-2 rounded-lg text-xs font-semibold tracking-wide transition flex items-center space-x-1.5 ${
                     active
-                      ? 'bg-blue-50 text-blue-700 font-bold border-b-2 border-blue-600'
+                      ? 'bg-blue-50 text-blue-700 font-bold border-1 border-blue-600'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   }`}
                 >
@@ -202,6 +202,8 @@ export default function Navbar({
                 {lowBandwidth ? 'Lite ON' : 'Lite Mode'}
               </span>
             </button>
+
+
 
             {/* AI Tutor Launcher */}
             {!isAdmin && (

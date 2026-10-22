@@ -128,7 +128,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className={`min-h-screen flex flex-col w-full overflow-x-hidden ${lowBandwidth ? 'bg-slate-50' : 'bg-[#f4f7f9]'}`}>
+      <div className={`min-h-screen flex flex-col w-full overflow-x-hidden ${lowBandwidth ? 'bg-slate-50 text-slate-900' : 'bg-[#f4f7f9] text-slate-900'}`}>
         <Navbar
           user={user}
           onOpenAuth={handleOpenAuth}
