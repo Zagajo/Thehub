@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @layer base {
+<<<<<<< HEAD
   body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: #f1f5f9; /* Slate-100 refined light gray */
@@ -44,4 +45,63 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #1d4ed8;
+=======
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #f4f4f4;
+    color: #161616;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* IBM Carbon-inspired Enterprise Design System Classes */
+.ibm-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+.ibm-card-dark {
+  background-color: #161616;
+  color: #ffffff;
+  border: 1px solid #262626;
+}
+
+.ibm-btn-primary {
+  background-color: #0f62fe;
+  color: #ffffff;
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+}
+
+.ibm-btn-primary:hover {
+  background-color: #0353e9;
+}
+
+.ibm-btn-secondary {
+  background-color: #ffffff;
+  color: #161616;
+  border: 1px solid #8d8d8d;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.ibm-btn-secondary:hover {
+  background-color: #e5e5e5;
+  border-color: #161616;
+}
+
+.ibm-header {
+  background-color: #161616;
+  color: #ffffff;
+  border-bottom: 1px solid #393939;
+>>>>>>> bf53632cf4d649f83a661a098be828d1230469b5
 }

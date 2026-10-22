@@ -44,7 +44,7 @@ export const DashboardPage = ({
   return (
     <div className="space-y-8 pb-16">
       {/* Futuristic Hero Banner in Dark Blue with Red/Blue Accent Highlights */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-10 shadow-xl shadow-slate-900/10 text-white">
+      <section className="relative overflow-hidden bg-blue-500 from-slate-900 via-blue-950 to-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-10 shadow-xl shadow-slate-900/10 text-white">
         {/* Subtle geometric grid backdrop */}
         <div className="absolute inset-0 bg-futuristic-grid opacity-20 pointer-events-none" />
         
