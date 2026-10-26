@@ -1,87 +1,168 @@
-import React, { useEffect, useState } from 'react';
-import { Award, ShieldCheck, Share2, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Award, CheckCircle2, ShieldCheck, Download, QrCode, BookOpen, AlertCircle } from 'lucide-react';
+import CertificateModal from '../components/CertificateModal';
 
-export const SkillPassport = ({ user, onOpenAuth }) => {
+export default function SkillPassport({ user, onOpenAuth }) {
+  const [enrollments, setEnrollments] = useState([]);
   const [certificates, setCertificates] = useState([]);
+  const [selectedCert, setSelectedCert] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/certificates')
-      .then(res => res.json())
-      .then(data => setCertificates(data))
-      .catch(console.error);
-  }, []);
+    if (!user) return;
+    async function fetchData() {
+      try {
+        const [enRes, certRes] = await Promise.all([
+          fetch(`/api/enrollments?userId=${user.id}`),
+          fetch('/api/certificates')
+        ]);
+        const enData = await enRes.json();
+        const certData = await certRes.json();
+        setEnrollments(enData);
+        // Filter certificates for current user
+        setCertificates(certData.filter(c => c.userId === user.id));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [user]);
 
   if (!user) {
     return (
-      <div className="py-20 text-center space-y-4 max-w-md mx-auto bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
-        <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto">
-          <Award className="w-6 h-6" />
+      <div className="max-w-4xl mx-auto px-4 py-20 text-center space-y-6">
+        <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto">
+          <Award className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-bold text-slate-900">Sign In Required</h2>
-        <p className="text-xs text-slate-600">Sign in with demo learner or your account to view official Skill Passports and verified certificates.</p>
+        <h2 className="text-3xl font-bold text-slate-900">Sign In to View Your Skill Passport</h2>
+        <p className="text-slate-600 max-w-md mx-auto">
+          Your Skill Passport aggregates your enrolled courses, verified competencies, and downloadable QR completion certificates.
+        </p>
         <button
           onClick={onOpenAuth}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl text-xs transition shadow"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3.5 rounded-2xl shadow-lg transition-all text-sm"
         >
-          Sign In / Register
+          Sign In Now
         </button>
       </div>
     );
   }
 
-  const userCertificates = certificates.filter(c => c.userId === user.id || c.userName === user.name);
-
   return (
-    <div className="space-y-8 max-w-4xl mx-auto pb-16">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 text-white p-8 rounded-3xl shadow-md border border-slate-800">
-        <div className="flex items-center gap-4">
-          <img src={user.avatar} alt={user.name} className="w-16 h-16 rounded-full object-cover border-2 border-blue-400 shadow" />
-          <div>
-            <span className="text-xs uppercase font-bold text-blue-400">Verified Competency Record</span>
-            <h1 className="text-2xl font-extrabold">{user.name}</h1>
-            <p className="text-xs text-slate-300 mt-0.5">{user.district} • Passport ID: <span className="font-mono font-bold text-blue-400">{user.passportId}</span></p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+      {/* Learner ID Header */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 text-white p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex items-center space-x-6">
+          <img src={user.avatar} alt={user.name} className="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-400 shadow-md" />
+          <div className="space-y-1">
+            <div className="inline-flex items-center space-x-2 bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full text-xs font-mono">
+              <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
+              <span>National Passport ID: {user.passportId}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold">{user.name}</h1>
+            <p className="text-slate-300 text-sm">{user.email} • <span className="text-indigo-400 font-semibold">{user.district}</span></p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <button className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-xl text-xs transition border border-slate-700 flex items-center gap-1.5">
-            <Share2 className="w-3.5 h-3.5" /> Share URL
-          </button>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-xl text-xs transition shadow flex items-center gap-1.5">
-            <Download className="w-3.5 h-3.5" /> Export PDF
-          </button>
+
+        <div className="bg-slate-800/80 backdrop-blur-md p-5 rounded-2xl border border-slate-700 text-center space-y-1">
+          <div className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Verified Credentials</div>
+          <div className="text-3xl font-bold text-emerald-400">{certificates.length}</div>
         </div>
       </div>
 
+      {/* Enrolled Courses */}
       <div className="space-y-6">
-        <h3 className="text-xl font-bold text-slate-900">Official Verified Certificates ({userCertificates.length})</h3>
-        
-        {userCertificates.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 text-slate-500 space-y-2">
-            <Award className="w-10 h-10 text-slate-300 mx-auto" />
-            <p className="text-sm font-semibold">No certificates granted yet.</p>
-            <p className="text-xs">Complete course modules and request certification from the system administrator.</p>
+        <h2 className="text-2xl font-bold text-slate-900 flex items-center space-x-2">
+          <BookOpen className="w-6 h-6 text-indigo-600" />
+          <span>Enrolled Courses & Progress</span>
+        </h2>
+
+        {enrollments.length === 0 ? (
+          <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-500">
+            You are not enrolled in any courses yet. Explore the course catalog to get started.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {userCertificates.map((cert, idx) => (
-              <div key={idx} className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-lg border border-emerald-200">Verified Certificate</span>
-                  <ShieldCheck className="w-5 h-5 text-emerald-600" />
+            {enrollments.map((en) => (
+              <div key={en.id} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full">Enrolled Course</span>
+                    {en.completed ? (
+                      <span className="bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-semibold flex items-center space-x-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Completed</span>
+                      </span>
+                    ) : (
+                      <span className="bg-amber-100 text-amber-800 text-xs px-3 py-1 rounded-full font-semibold">In Progress</span>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900">{en.courseTitle}</h3>
                 </div>
-                <div>
-                  <h4 className="text-lg font-bold text-slate-900">{cert.courseTitle}</h4>
-                  <p className="text-xs text-slate-600 mt-1">Awarded by SkillBridge Rwanda System Administration.</p>
-                </div>
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                  <span>Issued: {cert.issuedDate}</span>
-                  <span className="font-mono text-blue-600 font-semibold">{cert.credentialHash}</span>
+
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-xs text-slate-500">Certificate Status: {en.certificateRequested ? 'Requested / Issued' : 'Not Requested'}</span>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Earned Certificates with View Certificate & Download PDF */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold text-slate-900 flex items-center space-x-2">
+          <Award className="w-6 h-6 text-indigo-600" />
+          <span>Verified Certificates & QR Passports</span>
+        </h2>
+
+        {certificates.length === 0 ? (
+          <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-500">
+            No certificates earned yet. Complete course modules and request your certificate.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {certificates.map((cert) => (
+              <div key={cert.id} className="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-3xl shadow-xl space-y-4 flex flex-col justify-between border border-indigo-900/30">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="bg-indigo-500/20 text-indigo-300 text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider">
+                      REB Verified Credential
+                    </span>
+                    <span className="text-xs text-slate-400 font-mono">{cert.issuedDate}</span>
+                  </div>
+                  <h3 className="text-xl font-bold">{cert.courseTitle}</h3>
+                  <div className="text-xs text-slate-400 font-mono bg-slate-800/80 p-2 rounded-xl">
+                    Hash: {cert.credentialHash}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-xs text-emerald-400">
+                    <QrCode className="w-4 h-4" />
+                    <span>QR Code Ready</span>
+                  </div>
+                  <button
+                    onClick={() => setSelectedCert(cert)}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow transition-all flex items-center space-x-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>View & Download PDF</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <CertificateModal
+        isOpen={!!selectedCert}
+        onClose={() => setSelectedCert(null)}
+        certificate={selectedCert}
+      />
     </div>
   );
-};
+}

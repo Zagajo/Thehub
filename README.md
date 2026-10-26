@@ -239,7 +239,7 @@ npm run db:init
 ---
 
 ## 5. Security & Credentials
-- All sensitive credentials (`SUPABASE_SECRET_KEY`, `DATABASE_URL`) are isolated to `backend/.env` and `.env`.
+- All sensitive credentials are isolated to server configuration.
 - Frontend only uses public/publishable credentials.
 - Zero credentials committed to public files or Git history.
->>>>>>> 16d585a (v2)
+

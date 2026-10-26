@@ -1,154 +1,151 @@
 import React, { useState } from 'react';
 import { 
+  ShieldCheck, 
   BookOpen, 
-  BarChart3, 
+  Video, 
   Award, 
-  Compass, 
   Users, 
-  Briefcase, 
-  Layers, 
   User, 
   LogOut, 
-  Menu, 
-  X,
-  Settings
+  ChevronDown,
+  Compass,
+  BarChart3,
+  Layers
 } from 'lucide-react';
 
 export const Navbar = ({ currentTab, setCurrentTab, user, onOpenAuth, onLogout }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const navItems = [
+  const adminNavItems = [
+    { id: 'admin-overview', label: 'Overview & Stats', icon: ShieldCheck },
+    { id: 'admin-courses', label: 'Course Registry', icon: BookOpen },
+    { id: 'admin-media', label: 'Notes & Video Manager', icon: Video },
+    { id: 'admin-certs', label: 'Certificate Approvals', icon: Award },
+    { id: 'admin-users', label: 'User Directory', icon: Users }
+  ];
+
+  const learnerNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Compass },
     { id: 'courses', label: 'Courses & Notes', icon: BookOpen },
     { id: 'insights', label: 'NISR Insights', icon: BarChart3 },
     { id: 'assessments', label: 'Assessments', icon: Layers },
-    { id: 'passport', label: 'Skill Passport', icon: Award },
-    { id: 'peermatch', label: 'Peer Connect', icon: Users },
-    { id: 'challenges', label: 'Employer Challenges', icon: Briefcase },
+    { id: 'passport', label: 'Skill Passport', icon: Award }
   ];
 
-  if (user?.role === 'admin') {
-    navItems.push({ id: 'admin', label: 'Admin Panel', icon: Settings });
-  }
+  const navItems = user?.role === 'admin' ? adminNavItems : learnerNavItems;
+
+  const activeItem = navItems.find(item => item.id === currentTab) || navItems[0];
+  const ActiveIcon = activeItem?.icon || ShieldCheck;
 
   return (
-    <header className="sticky top-0 z-40 bg-slate-900 text-white shadow-md border-b border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setCurrentTab('dashboard')}>
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md">
-              <BookOpen className="w-6 h-6 text-white" />
+    <header className="sticky top-0 z-40 w-full border-b border-slate-300 bg-slate-900/95 backdrop-blur-md shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-4 lg:gap-6">
+          <div className="flex items-center gap-2.5 cursor-pointer group shrink-0" onClick={() => setCurrentTab(user?.role === 'admin' ? 'admin-overview' : 'dashboard')}>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-900 via-blue-700 to-red-600 flex items-center justify-center shadow-lg text-white font-extrabold text-lg tracking-wider border border-blue-400/30">
+              H
             </div>
             <div>
-              <span className="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
-                The Hub <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-400/30 font-semibold">Backend API Active</span>
-              </span>
-              <p className="text-[11px] text-slate-400">SkillBridge Rwanda Platform</p>
+              <div className="flex items-center gap-1.5">
+                <span className="text-base font-extrabold tracking-tight text-white group-hover:text-blue-300 transition-colors">
+                  {user?.role === 'admin' ? 'The Hub Admin' : 'The Hub'}
+                </span>
+              </div>
+              <div className="text-[10px] text-slate-400 font-mono hidden sm:block">
+                {user?.role === 'admin' ? 'System Management Portal' : 'SkillBridge Rwanda'}
+              </div>
             </div>
           </div>
 
-          <nav className="hidden lg:flex items-center space-x-1">
-            {navItems.map(item => {
+          <div className="relative lg:hidden">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 bg-slate-800 text-white px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700 shadow-sm"
+            >
+              <ActiveIcon className="w-4 h-4 text-blue-400" />
+              <span>{activeItem.label}</span>
+              <ChevronDown className="w-3.5 h-3.5 ml-1 text-slate-400" />
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute left-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-2xl shadow-xl py-2 z-50">
+                {navItems.map(item => {
+                  const Icon = item.icon;
+                  const active = currentTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setCurrentTab(item.id);
+                        setDropdownOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold transition text-left ${
+                        active ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <nav className="hidden lg:flex items-center gap-1 text-xs font-medium overflow-x-auto no-scrollbar py-1">
+            {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = currentTab === item.id;
+              const active = currentTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => setCurrentTab(item.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition ${
-                    isActive 
-                      ? 'bg-blue-600 text-white shadow' 
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-200 whitespace-nowrap ${
+                    active
+                      ? 'text-white bg-blue-800/80 font-bold shadow-sm border border-blue-600/40'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5" />
                   <span>{item.label}</span>
                 </button>
               );
             })}
           </nav>
+        </div>
 
-          <div className="hidden lg:flex items-center gap-4">
-            {user ? (
-              <div className="flex items-center gap-3 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
-                <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover border border-blue-400" />
-                <div className="text-left">
-                  <div className="text-xs font-bold text-white leading-tight">{user.name}</div>
-                  <div className="text-[10px] text-blue-400 uppercase font-semibold">{user.role}</div>
+        <div className="flex items-center gap-2.5 shrink-0">
+          {user ? (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-700">
+                <div className="flex items-center gap-2">
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full ring-2 ring-blue-500 object-cover shadow-sm"
+                  />
+                  <span className="hidden xl:inline text-xs font-bold text-white max-w-[100px] truncate">{user.name}</span>
                 </div>
                 <button
                   onClick={onLogout}
                   title="Sign out"
-                  className="ml-2 text-slate-400 hover:text-red-400 p-1 transition"
+                  className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-colors ml-1"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
-            ) : (
-              <button
-                onClick={onOpenAuth}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow transition flex items-center gap-2"
-              >
-                <User className="w-4 h-4" />
-                Sign In / Register
-              </button>
-            )}
-          </div>
-
-          <div className="lg:hidden flex items-center">
+            </div>
+          ) : (
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800"
+              onClick={() => onOpenAuth()}
+              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 text-white text-xs font-bold rounded-xl shadow-md transition-all border border-blue-500/40 active:scale-95"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              <User className="w-3.5 h-3.5" />
+              <span>Sign In</span>
             </button>
-          </div>
+          )}
         </div>
       </div>
-
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-slate-950 border-t border-slate-800 px-4 pt-3 pb-5 space-y-1">
-          {navItems.map(item => {
-            const Icon = item.icon;
-            const isActive = currentTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => { setCurrentTab(item.id); setMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition ${
-                  isActive ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-          <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
-            {user ? (
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-3">
-                  <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
-                  <div>
-                    <div className="text-xs font-bold text-white">{user.name}</div>
-                    <div className="text-[10px] text-blue-400 uppercase">{user.role}</div>
-                  </div>
-                </div>
-                <button onClick={onLogout} className="text-slate-400 hover:text-red-400 p-2">
-                  <LogOut className="w-5 h-5" />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => { onOpenAuth(); setMobileMenuOpen(false); }}
-                className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-xs font-semibold"
-              >
-                Sign In / Register
-              </button>
-            )}
-          </div>
-        </div>
-      )}
     </header>
   );
 };

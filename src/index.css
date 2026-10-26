@@ -2,10 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    background-color: #f1f5f9;
-    color: #0f172a;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  @apply bg-slate-50 text-slate-900;
 }

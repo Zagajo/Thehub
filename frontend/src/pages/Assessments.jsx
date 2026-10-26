@@ -1,26 +1,74 @@
 import React, { useEffect, useState } from 'react';
-import { Clock, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Clock, CheckCircle2, ArrowRight, Lock, BookOpen } from 'lucide-react';
 
-export const Assessments = () => {
+export const Assessments = ({ user, onOpenAuth, setCurrentTab }) => {
   const [assessments, setAssessments] = useState([]);
+  const [enrollments, setEnrollments] = useState([]);
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/assessments')
-      .then(res => res.json())
-      .then(data => setAssessments(data))
-      .catch(console.error);
-  }, []);
+    Promise.all([
+      fetch('/api/assessments').then(res => res.json()),
+      user ? fetch(`/api/enrollments?userId=${user.id}`).then(res => res.json()) : Promise.resolve([])
+    ])
+      .then(([assData, enData]) => {
+        setAssessments(assData);
+        setEnrollments(enData);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, [user]);
+
+  if (!user) {
+    return (
+      <div className="py-20 text-center space-y-4 max-w-md mx-auto bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
+        <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto">
+          <Lock className="w-6 h-6" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-900">Sign In Required for Assessments</h2>
+        <p className="text-xs text-slate-600">Please sign in with your account or demo learner to access assessments for your enrolled courses.</p>
+        <button
+          onClick={onOpenAuth}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl text-xs transition shadow"
+        >
+          Sign In / Register
+        </button>
+      </div>
+    );
+  }
+
+  const enrolledCourseIds = enrollments.map(e => e.courseId);
+  const userAssessments = assessments.filter(a => enrolledCourseIds.includes(a.courseId));
 
   return (
     <div className="space-y-8 pb-16">
       <div>
-        <h1 className="text-3xl font-extrabold text-slate-900">Tri-Part Weighted Assessments</h1>
-        <p className="text-slate-600 text-sm mt-1">Demonstrate competency through theory, practical code challenges, and capstone project evidence.</p>
+        <h1 className="text-3xl font-extrabold text-slate-900">Enrolled Course Assessments</h1>
+        <p className="text-slate-600 text-sm mt-1">Demonstrate competency through assessments for courses you are currently enrolled in.</p>
       </div>
 
-      {selectedAssessment ? (
+      {loading ? (
+        <div className="py-12 text-center text-slate-500">Loading your course assessments...</div>
+      ) : userAssessments.length === 0 ? (
+        <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 space-y-4 max-w-lg mx-auto">
+          <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto">
+            <BookOpen className="w-6 h-6" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-900">No Enrolled Course Assessments Found</h3>
+          <p className="text-xs text-slate-600">You must enroll in at least one course before you can take its assessments.</p>
+          <button
+            onClick={() => setCurrentTab('courses')}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl text-xs transition shadow"
+          >
+            Browse Courses & Enroll
+          </button>
+        </div>
+      ) : selectedAssessment ? (
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-200 space-y-6 max-w-3xl mx-auto">
           <div className="flex items-center justify-between pb-4 border-b border-slate-100">
             <div>
@@ -66,7 +114,7 @@ export const Assessments = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {assessments.map(item => (
+          {userAssessments.map(item => (
             <div key={item.id} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
               <div>
                 <span className="text-xs uppercase font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">{item.category}</span>
