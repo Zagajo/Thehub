@@ -1,0 +1,6 @@
+{
+  "name": "The Hub - Data-Informed Skills & Learning Platform",
+  "description": "A production-quality full-stack platform helping learners discover relevant skills, take practical assessments, explore structured learning pathways, and connect with official labour-market context from NISR Rwanda.",
+  "request_permissions": [],
+  "major_capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
