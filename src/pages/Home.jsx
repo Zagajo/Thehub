@@ -74,45 +74,47 @@ export default function Home({ setActiveTab, user, onOpenAuth }) {
         </div>
       </section>
 
-      {/* Highlights & Features */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <h2 className="text-3xl font-bold text-slate-900">Platform Core Capabilities</h2>
-          <p className="text-slate-600">Built for Rwandan students, educators, and enterprise employers seeking verifiable skill credentials.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow space-y-4">
-            <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-bold text-xl">
-              01
-            </div>
-            <h3 className="text-xl font-bold text-slate-900">Enrolled-Only Assessments</h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Assessments require login and strict enrollment. You only access tests for courses you are actively enrolled in, ensuring rigorous learning standards.
-            </p>
+      {/* Highlights & Features (hidden when logged in) */}
+      {!user && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+            <h2 className="text-3xl font-bold text-slate-900">Platform Core Capabilities</h2>
+            <p className="text-slate-600">Built for Rwandan students, educators, and enterprise employers seeking verifiable skill credentials.</p>
           </div>
 
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow space-y-4">
-            <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-bold text-xl">
-              02
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow space-y-4">
+              <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-bold text-xl">
+                01
+              </div>
+              <h3 className="text-xl font-bold text-slate-900">Enrolled-Only Assessments</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Assessments require login and strict enrollment. You only access tests for courses you are actively enrolled in, ensuring rigorous learning standards.
+              </p>
             </div>
-            <h3 className="text-xl font-bold text-slate-900">Certificate Requests & Approvals</h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Upon completing course modules, request your certificate. Administrators review and approve certificates with cryptographically verifiable QR codes.
-            </p>
-          </div>
 
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow space-y-4">
-            <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-bold text-xl">
-              03
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow space-y-4">
+              <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-bold text-xl">
+                02
+              </div>
+              <h3 className="text-xl font-bold text-slate-900">Certificate Requests & Approvals</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Upon completing course modules, request your certificate. Administrators review and approve certificates with cryptographically verifiable QR codes.
+              </p>
             </div>
-            <h3 className="text-xl font-bold text-slate-900">NISR Labour Data Sync</h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Real-time integration with National Institute of Statistics of Rwanda indicators guiding you towards high-demand economic sectors.
-            </p>
+
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow space-y-4">
+              <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-bold text-xl">
+                03
+              </div>
+              <h3 className="text-xl font-bold text-slate-900">NISR Labour Data Sync</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Real-time integration with National Institute of Statistics of Rwanda indicators guiding you towards high-demand economic sectors.
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

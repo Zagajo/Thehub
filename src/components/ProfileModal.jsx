@@ -44,7 +44,18 @@ export const ProfilePage = ({ user, onUpdateUser, onOpenAuth }) => {
     );
   }
 
+  const fullName = user.fullName || user.name || 'Learner';
+  const email = user.email || '';
+  const location = user.location || user.district || 'Kigali, Rwanda';
+  const avatarUrl = user.avatarUrl || user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80';
+
   // Profile State
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [editFullName, setEditFullName] = useState(fullName);
+  const [editEmail, setEditEmail] = useState(email);
+  const [editLocation, setEditLocation] = useState(location);
+  const [editAvatarUrl, setEditAvatarUrl] = useState(avatarUrl);
+
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [personalNotes, setPersonalNotes] = useState(
     user.notes || user.bio || 'Aspiring technology and data professional based in Kigali. Passionate about applying modern digital skills, data analysis, and web development to solve community and economic challenges in Rwanda.'
@@ -160,6 +171,20 @@ export const ProfilePage = ({ user, onUpdateUser, onOpenAuth }) => {
   const handleSaveNotes = () => {
     setIsEditingNotes(false);
     persistChanges({ notes: personalNotes });
+  };
+
+  const handleSaveProfileDetails = (e) => {
+    e.preventDefault();
+    persistChanges({
+      fullName: editFullName,
+      name: editFullName,
+      email: editEmail,
+      location: editLocation,
+      district: editLocation,
+      avatarUrl: editAvatarUrl,
+      avatar: editAvatarUrl
+    });
+    setShowEditProfileModal(false);
   };
 
   const handleAddLink = (e) => {
@@ -295,6 +320,13 @@ export const ProfilePage = ({ user, onUpdateUser, onOpenAuth }) => {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowEditProfileModal(true)}
+            className="px-4 py-2.5 bg-slate-300 hover:bg-slate-400 text-blue-950 font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5 active:scale-95"
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+            <span>Edit Profile Details</span>
+          </button>
           <button
             onClick={() => {
               const url = `${window.location.origin}/passport/${user.id}`;
@@ -808,6 +840,80 @@ export const ProfilePage = ({ user, onUpdateUser, onOpenAuth }) => {
                   className="px-5 py-2 bg-blue-900 text-white rounded-xl font-bold shadow-md"
                 >
                   Save Certificate
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Profile Details Modal */}
+      {showEditProfileModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-200 border border-slate-300 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4 animate-in fade-in">
+            <div className="flex items-center justify-between border-b border-slate-300 pb-2">
+              <h3 className="text-sm font-extrabold text-blue-950">Edit Profile Details</h3>
+              <button onClick={() => setShowEditProfileModal(false)} className="text-slate-500 font-mono text-sm">✕</button>
+            </div>
+
+            <form onSubmit={handleSaveProfileDetails} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editFullName}
+                  onChange={e => setEditFullName(e.target.value)}
+                  className="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={editEmail}
+                  onChange={e => setEditEmail(e.target.value)}
+                  className="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Location / District</label>
+                <input
+                  type="text"
+                  required
+                  value={editLocation}
+                  onChange={e => setEditLocation(e.target.value)}
+                  className="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Avatar Image URL</label>
+                <input
+                  type="url"
+                  required
+                  value={editAvatarUrl}
+                  onChange={e => setEditAvatarUrl(e.target.value)}
+                  className="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditProfileModal(false)}
+                  className="px-4 py-2 bg-slate-300 text-slate-700 rounded-xl font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-blue-900 text-white rounded-xl font-bold shadow-md"
+                >
+                  Save Profile
                 </button>
               </div>
             </form>

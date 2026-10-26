@@ -194,7 +194,7 @@ export const Dashboard = ({ setCurrentTab, onSelectCourse, user, onOpenAuth }) =
               onClick={() => setCurrentTab('assessments')}
               className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition shadow flex items-center justify-center gap-2"
             >
-              Take Assessment Diagnostic
+              Take Assessment Diagnostic:
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

@@ -71,7 +71,6 @@ export default function App() {
         {activeTab === 'admin' && <AdminPanel user={user} />}
       </main>
 
-      <Footer />
 
       <AuthModal
         isOpen={authOpen}
@@ -79,12 +78,25 @@ export default function App() {
         onLoginSuccess={handleLoginSuccess}
       />
 
-      <ProfileModal
-        isOpen={profileOpen}
-        onClose={() => setProfileOpen(false)}
-        user={user}
-        onUpdateUser={handleUpdateUser}
-      />
+      {profileOpen && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-100 border border-slate-300 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl">
+            <button
+              onClick={() => setProfileOpen(false)}
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-900 p-2 rounded-xl bg-slate-200 font-bold z-10"
+            >
+              ✕
+            </button>
+            <ProfileModal
+              user={user}
+              onUpdateUser={handleUpdateUser}
+              onOpenAuth={() => setAuthOpen(true)}
+            />
+          </div>
+        </div>
+      )}
+
+      <Footer />
     </div>
   );
 }
