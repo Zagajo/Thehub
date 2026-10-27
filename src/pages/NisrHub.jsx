@@ -11,7 +11,8 @@ export default function NisrHub() {
       try {
         const res = await fetch('/api/nisr/indicators');
         const data = await res.json();
-        setIndicators(data || []);
+        const list = Array.isArray(data) ? data : (data.indicators || data.data || []);
+        setIndicators(list);
       } catch (err) {
         console.error(err);
       } finally {

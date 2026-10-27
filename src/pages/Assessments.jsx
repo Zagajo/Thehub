@@ -21,8 +21,10 @@ export default function Assessments({ user, onOpenAuth, setActiveTab }) {
         ]);
         const assessData = await assessRes.json();
         const enData = await enRes.json();
-        setAssessments(assessData || []);
-        setEnrollments(enData || []);
+        const list = Array.isArray(assessData) ? assessData : (assessData.assessments || assessData.data || []);
+        const enList = Array.isArray(enData) ? enData : (enData.enrollments || enData.data || []);
+        setAssessments(list);
+        setEnrollments(enList);
       } catch (err) {
         console.error(err);
       } finally {

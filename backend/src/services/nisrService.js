@@ -1,10 +1,11 @@
-<<<<<<< HEAD
 /**
  * The Hub — NISR Data Layer Service
  * 
  * Manages normalized indicators from the National Institute of Statistics of Rwanda (NISR).
  * Preserves strict data provenance: source, dataset, indicator, year, unit, geography, metadata.
  */
+
+import { initialNISRIndicators } from '../db/data.js';
 
 export const officialNisrIndicators = [
   {
@@ -82,6 +83,10 @@ export const officialNisrIndicators = [
 ];
 
 export class NisrService {
+  constructor() {
+    this.indicators = [...initialNISRIndicators];
+  }
+
   static getAllIndicators() {
     return officialNisrIndicators;
   }
@@ -94,14 +99,6 @@ export class NisrService {
     return officialNisrIndicators.filter(i => 
       i.indicator_code.includes('EMP') || i.indicator_code.includes('AGRI') || i.indicator_code.includes('YOUTH')
     );
-  }
-}
-=======
-import { initialNISRIndicators } from '../db/data.js';
-
-class NisrService {
-  constructor() {
-    this.indicators = [...initialNISRIndicators];
   }
 
   getAllIndicators() {
@@ -176,4 +173,3 @@ class NisrService {
 }
 
 export const nisrService = new NisrService();
->>>>>>> bf53632cf4d649f83a661a098be828d1230469b5

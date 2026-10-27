@@ -12,7 +12,8 @@ export default function EmployerMatching({ user, onOpenAuth }) {
       try {
         const res = await fetch('/api/challenges');
         const data = await res.json();
-        setChallenges(data || []);
+        const list = Array.isArray(data) ? data : (data.challenges || data.data || []);
+        setChallenges(list);
       } catch (err) {
         console.error(err);
       } finally {

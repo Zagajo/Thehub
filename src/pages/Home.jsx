@@ -31,8 +31,8 @@ export default function Home({ setActiveTab, user, onOpenAuth }) {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end">
             <div className="lg:col-span-2 space-y-4">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-slate-900">
-                {t('hero_title', 'The Hub')} <span className="font-bold text-blue-900">{t('hero_title_highlight', 'Enterprise Learning')}</span>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-slate-900 leading-tight">
+                {t('hero_title', 'Learn skills that move you forward')} <span className="font-bold text-blue-900">{t('hero_title_highlight', ' in Rwanda\'s modern economy')}</span>
               </h1>
               <p className="text-slate-600 text-sm sm:text-base max-w-2xl leading-relaxed font-normal">
                 {t('hero_desc', 'A data-informed technical training and credentialing platform engineered around official National Institute of Statistics of Rwanda (NISR) labour demand. Features in-depth subtopic notes, mandatory 10-question module mastery quizzes, deterministic career paths, and bilingual peer study circles.')}

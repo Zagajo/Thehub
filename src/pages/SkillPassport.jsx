@@ -19,9 +19,10 @@ export default function SkillPassport({ user, onOpenAuth }) {
         ]);
         const enData = await enRes.json();
         const certData = await certRes.json();
-        setEnrollments(enData || []);
-        // Filter certificates for current user
-        setCertificates((certData || []).filter(c => c.userId === user.id));
+        const enList = Array.isArray(enData) ? enData : (enData.enrollments || enData.data || []);
+        const certList = Array.isArray(certData) ? certData : (certData.certificates || certData.data || []);
+        setEnrollments(enList);
+        setCertificates(certList.filter(c => c.userId === user.id || c.learnerId === user.id));
       } catch (err) {
         console.error(err);
       } finally {
@@ -162,8 +163,8 @@ export default function SkillPassport({ user, onOpenAuth }) {
                     onClick={() => setSelectedCert(cert)}
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-mono uppercase tracking-wider font-semibold transition-colors flex items-center space-x-1.5"
                   >
-                    <QrCode className="w-3.5 h-3.5" />
-                    <span>View & Scan QR Certificate</span>
+                    <Award className="w-3.5 h-3.5" />
+                    <span>View Landscape Certificate</span>
                   </button>
                 </div>
               </div>

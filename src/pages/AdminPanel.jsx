@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Plus, Trash2, CheckCircle2, Award, BookOpen, Users, ShieldAlert, FileText, Video, Activity, Edit3, Save, X } from 'lucide-react';
+import { Settings, Plus, Trash2, CheckCircle2, Award, BookOpen, Users, ShieldAlert, FileText, Video, Activity, Edit3, Save, X, Eye, Database, RefreshCw, Cloud, Server, Copy, ExternalLink, Check } from 'lucide-react';
+import CertificateModal from '../components/CertificateModal';
 
 export default function AdminPanel({ user }) {
   const [courses, setCourses] = useState([]);
@@ -8,6 +9,14 @@ export default function AdminPanel({ user }) {
   const [userProgress, setUserProgress] = useState([]);
   const [systemLogs, setSystemLogs] = useState([]);
   const [activeSubTab, setActiveSubTab] = useState('courses');
+  const [previewCert, setPreviewCert] = useState(null);
+
+  // Supabase Integration State
+  const [supabaseInfo, setSupabaseInfo] = useState(null);
+  const [isCheckingSb, setIsCheckingSb] = useState(false);
+  const [isSyncingSb, setIsSyncingSb] = useState(false);
+  const [syncResult, setSyncResult] = useState(null);
+  const [copiedSql, setCopiedSql] = useState(false);
 
   // New Course Form
   const [newTitle, setNewTitle] = useState('');
@@ -21,6 +30,37 @@ export default function AdminPanel({ user }) {
   const [editingCourseId, setEditingCourseId] = useState(null);
   const [editModules, setEditModules] = useState([]);
   const [adminNotice, setAdminNotice] = useState(null);
+
+  const fetchSupabaseStatus = async () => {
+    setIsCheckingSb(true);
+    try {
+      const res = await fetch('/api/supabase/status');
+      if (res.ok) {
+        const data = await res.json();
+        setSupabaseInfo(data.data || data);
+      }
+    } catch (err) {
+      console.warn('Failed to query Supabase status:', err);
+    } finally {
+      setIsCheckingSb(false);
+    }
+  };
+
+  const handleSyncSupabase = async () => {
+    setIsSyncingSb(true);
+    setSyncResult(null);
+    try {
+      const res = await fetch('/api/supabase/sync', { method: 'POST' });
+      const data = await res.json();
+      setSyncResult(data);
+      fetchSupabaseStatus();
+      fetchData();
+    } catch (err) {
+      setSyncResult({ success: false, message: 'Sync failed: ' + err.message });
+    } finally {
+      setIsSyncingSb(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -36,11 +76,11 @@ export default function AdminPanel({ user }) {
       const uData = await uRes.json();
       const progData = await progRes.json();
       const logData = await logRes.json();
-      setCourses(cData);
-      setCertificates(certData);
-      setUsersList(uData);
-      setUserProgress(progData);
-      setSystemLogs(logData);
+      setCourses(Array.isArray(cData) ? cData : (cData.courses || cData.data || []));
+      setCertificates(Array.isArray(certData) ? certData : (certData.certificates || certData.data || []));
+      setUsersList(Array.isArray(uData) ? uData : (uData.users || uData.data || []));
+      setUserProgress(Array.isArray(progData) ? progData : (progData.progress || progData.data || []));
+      setSystemLogs(Array.isArray(logData) ? logData : (logData.logs || logData.data || []));
     } catch (err) {
       console.error(err);
     }
@@ -48,6 +88,7 @@ export default function AdminPanel({ user }) {
 
   useEffect(() => {
     fetchData();
+    fetchSupabaseStatus();
   }, []);
 
   const handleAddCourse = async (e) => {
@@ -171,6 +212,14 @@ export default function AdminPanel({ user }) {
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${activeSubTab === 'users' ? 'bg-indigo-600 text-white shadow' : 'text-slate-300 hover:text-white'}`}
           >
             Learners
+          </button>
+          <button
+            onClick={() => setActiveSubTab('supabase')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center space-x-1.5 ${activeSubTab === 'supabase' ? 'bg-emerald-600 text-white shadow' : 'text-slate-300 hover:text-white'}`}
+          >
+            <Database className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Supabase Cloud DB</span>
+            <span className={`w-2 h-2 rounded-full ${supabaseInfo?.connected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
           </button>
         </div>
       </div>
@@ -489,6 +538,13 @@ export default function AdminPanel({ user }) {
                 </div>
 
                 <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => setPreviewCert(cert)}
+                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-colors shadow-2xs"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>View Landscape Certificate</span>
+                  </button>
                   <span className="bg-emerald-100 text-emerald-800 text-xs px-3 py-1.5 rounded-xl font-semibold flex items-center space-x-1">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                     <span>QR Verified</span>
@@ -520,6 +576,284 @@ export default function AdminPanel({ user }) {
             ))}
           </div>
         </div>
+      )}
+
+      {activeSubTab === 'supabase' && (
+        <div className="space-y-8">
+          {/* Supabase Status Banner */}
+          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+              <div className="flex items-center space-x-4">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${supabaseInfo?.connected ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                  <Database className="w-7 h-7" />
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h3 className="text-xl font-bold text-slate-900">Supabase Cloud Database</h3>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                      supabaseInfo?.connected ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {supabaseInfo?.connected ? 'Connected' : (supabaseInfo?.status || 'Active')}
+                    </span>
+                  </div>
+                  <p className="text-slate-500 text-xs mt-1">
+                    Enterprise PostgreSQL database & authentication layer for The Hub Rwanda platform.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={fetchSupabaseStatus}
+                  disabled={isCheckingSb}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center space-x-1.5 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isCheckingSb ? 'animate-spin' : ''}`} />
+                  <span>{isCheckingSb ? 'Testing...' : 'Test Connection'}</span>
+                </button>
+                <button
+                  onClick={handleSyncSupabase}
+                  disabled={isSyncingSb}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center space-x-1.5 shadow-sm transition-colors disabled:opacity-50"
+                >
+                  <Cloud className={`w-3.5 h-3.5 ${isSyncingSb ? 'animate-pulse' : ''}`} />
+                  <span>{isSyncingSb ? 'Syncing...' : 'Sync Data to Supabase'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Sync Feedback Message */}
+            {syncResult && (
+              <div className={`p-4 rounded-2xl border text-sm flex items-start space-x-3 ${
+                syncResult.success ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800'
+              }`}>
+                {syncResult.success ? <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" /> : <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />}
+                <div>
+                  <p className="font-semibold">{syncResult.message}</p>
+                  {syncResult.summary && (
+                    <p className="text-xs mt-1 opacity-90">
+                      Synced {syncResult.summary.courses} courses, {syncResult.summary.profiles} profiles, {syncResult.summary.certificates} certificates, {syncResult.summary.indicators} NISR indicators.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Telemetry Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <span className="text-xs text-slate-500 font-medium">Supabase Host URL</span>
+                <p className="font-mono text-xs font-semibold text-slate-900 mt-1 truncate" title={supabaseInfo?.url}>
+                  {supabaseInfo?.url || 'https://guvhwswopudwriwonudn.supabase.co'}
+                </p>
+              </div>
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <span className="text-xs text-slate-500 font-medium">Round-trip Latency</span>
+                <p className="font-semibold text-slate-900 mt-1 text-sm">
+                  {supabaseInfo?.latencyMs !== undefined ? `${supabaseInfo.latencyMs} ms` : 'Measuring...'}
+                </p>
+              </div>
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <span className="text-xs text-slate-500 font-medium">Database Persistence</span>
+                <p className="font-semibold text-emerald-700 mt-1 text-sm">
+                  {supabaseInfo?.connected ? 'Live PostgreSQL' : 'Resilient In-Memory + Supabase Sync'}
+                </p>
+              </div>
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <span className="text-xs text-slate-500 font-medium">Synced Entities</span>
+                <p className="font-semibold text-indigo-700 mt-1 text-sm">
+                  {courses.length} Courses • {certificates.length} Certs
+                </p>
+              </div>
+            </div>
+
+            {/* Diagnostics details */}
+            <div className="p-4 rounded-2xl bg-slate-900 text-slate-300 font-mono text-xs space-y-1">
+              <div className="flex items-center justify-between text-slate-400 pb-2 border-b border-slate-800">
+                <span>SYSTEM HEALTH & SUPABASE STATUS</span>
+                <span className="text-emerald-400">● LIVE</span>
+              </div>
+              <p>Project URL: <span className="text-indigo-400">{supabaseInfo?.url || 'https://guvhwswopudwriwonudn.supabase.co'}</span></p>
+              <p>Status: <span className={supabaseInfo?.connected ? 'text-emerald-400' : 'text-amber-400'}>{supabaseInfo?.status || 'ready'}</span></p>
+              <p>Message: <span className="text-slate-100">{supabaseInfo?.message || 'Ready for client operations.'}</span></p>
+              {supabaseInfo?.tableCounts && Object.keys(supabaseInfo.tableCounts).length > 0 && (
+                <p>Table counts: <span className="text-slate-100">{JSON.stringify(supabaseInfo.tableCounts)}</span></p>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Setup & Migration Helper */}
+          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">Database Schema & Migration (supabase-schema.sql)</h3>
+                <p className="text-slate-500 text-xs mt-1">
+                  Run this SQL in your Supabase SQL Editor to initialize all 7 tables (<code className="bg-slate-100 px-1 py-0.5 rounded">courses</code>, <code className="bg-slate-100 px-1 py-0.5 rounded">profiles</code>, <code className="bg-slate-100 px-1 py-0.5 rounded">certificates</code>, <code className="bg-slate-100 px-1 py-0.5 rounded">enrollments</code>, <code className="bg-slate-100 px-1 py-0.5 rounded">nisr_indicators</code>) with RLS security policies.
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => {
+                    const schemaSnippet = `-- THE HUB RWANDA SUPABASE MIGRATION
+-- Run in Supabase SQL Editor: https://supabase.com/dashboard/project/_/sql
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE,
+  role TEXT DEFAULT 'learner',
+  district TEXT DEFAULT 'Kigali City',
+  passport_id TEXT,
+  learning_streak INT DEFAULT 1,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.courses (
+  id TEXT PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL,
+  difficulty TEXT DEFAULT 'Beginner',
+  duration TEXT DEFAULT '6 Weeks',
+  rating NUMERIC(3,2) DEFAULT 4.8,
+  description TEXT,
+  modules JSONB,
+  enrolled INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.enrollments (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES public.profiles(id) ON DELETE CASCADE,
+  course_id TEXT REFERENCES public.courses(id) ON DELETE CASCADE,
+  course_title TEXT NOT NULL,
+  completed BOOLEAN DEFAULT FALSE,
+  certificate_requested BOOLEAN DEFAULT FALSE,
+  progress_percentage INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, course_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.certificates (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES public.profiles(id) ON DELETE CASCADE,
+  user_name TEXT NOT NULL,
+  course_title TEXT NOT NULL,
+  issued_date TEXT NOT NULL,
+  credential_hash TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.nisr_indicators (
+  id TEXT PRIMARY KEY,
+  indicator TEXT NOT NULL,
+  value TEXT NOT NULL,
+  trend TEXT,
+  category TEXT NOT NULL,
+  definition TEXT,
+  source TEXT,
+  retrieved_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.certificates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.enrollments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.nisr_indicators ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read" ON public.courses FOR SELECT USING (true);
+CREATE POLICY "Allow public read certs" ON public.certificates FOR SELECT USING (true);
+CREATE POLICY "Allow public read profiles" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Allow public read indicators" ON public.nisr_indicators FOR SELECT USING (true);
+CREATE POLICY "Allow insert certs" ON public.certificates FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow insert enrollments" ON public.enrollments FOR INSERT WITH CHECK (true);`;
+                    navigator.clipboard.writeText(schemaSnippet);
+                    setCopiedSql(true);
+                    setTimeout(() => setCopiedSql(false), 3000);
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 flex items-center space-x-1.5 transition-colors"
+                >
+                  {copiedSql ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                  <span>{copiedSql ? 'Copied to Clipboard!' : 'Copy SQL Schema'}</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-slate-900 rounded-2xl p-5 text-slate-300 font-mono text-xs overflow-x-auto max-h-72 border border-slate-800">
+              <pre className="text-slate-300">{`-- The Hub (Rwanda) Supabase Schema
+-- 1. Profiles Table
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE,
+  role TEXT DEFAULT 'learner',
+  district TEXT DEFAULT 'Kigali City',
+  passport_id TEXT,
+  learning_streak INT DEFAULT 1,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Courses Table
+CREATE TABLE IF NOT EXISTS public.courses (
+  id TEXT PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL,
+  difficulty TEXT DEFAULT 'Beginner',
+  duration TEXT DEFAULT '6 Weeks',
+  rating NUMERIC(3,2) DEFAULT 4.8,
+  description TEXT,
+  modules JSONB,
+  enrolled INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Enrollments Table
+CREATE TABLE IF NOT EXISTS public.enrollments (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES public.profiles(id) ON DELETE CASCADE,
+  course_id TEXT REFERENCES public.courses(id) ON DELETE CASCADE,
+  course_title TEXT NOT NULL,
+  completed BOOLEAN DEFAULT FALSE,
+  certificate_requested BOOLEAN DEFAULT FALSE,
+  progress_percentage INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, course_id)
+);
+
+-- 4. Certificates Table
+CREATE TABLE IF NOT EXISTS public.certificates (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES public.profiles(id) ON DELETE CASCADE,
+  user_name TEXT NOT NULL,
+  course_title TEXT NOT NULL,
+  issued_date TEXT NOT NULL,
+  credential_hash TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Official NISR Indicators Table
+CREATE TABLE IF NOT EXISTS public.nisr_indicators (
+  id TEXT PRIMARY KEY,
+  indicator TEXT NOT NULL,
+  value TEXT NOT NULL,
+  trend TEXT,
+  category TEXT NOT NULL,
+  definition TEXT,
+  source TEXT,
+  retrieved_at TIMESTAMPTZ DEFAULT NOW()
+);`}</pre>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Landscape Certificate Preview Modal */}
+      {previewCert && (
+        <CertificateModal
+          certificate={previewCert}
+          user={user}
+          onClose={() => setPreviewCert(null)}
+        />
       )}
     </div>
   );

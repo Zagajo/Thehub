@@ -1,10 +1,12 @@
-<<<<<<< HEAD
 /**
  * The Hub — Deterministic Recommendation Engine
  * 
  * Computes deterministic skill gap scores between target career roles
  * and user assessed skills, augmented with NISR socioeconomic context.
  */
+
+import { initialCourses, initialLearningPathways } from '../db/data.js';
+import { nisrService } from './nisrService.js';
 
 export const roleBenchmarks = {
   'data-analyst': {
@@ -61,22 +63,29 @@ export class RecommendationEngine {
       }
 
       return {
-        skill: req.skill,
+        skillName: req.skill,
         skillCode: req.code,
-        currentScore,
         targetScore: req.targetScore,
-        gapScore: gap,
+        currentScore,
+        gap,
         priority,
-        reason,
-        recommendedCourseId: req.recommendedCourse
+        recommendedCourseId: req.recommendedCourse,
+        explanation: reason
       };
     });
 
-    // Sort by largest gap and priority
-    gaps.sort((a, b) => b.gapScore - a.gapScore);
+    const totalWeight = benchmark.requiredSkills.reduce((sum, r) => sum + r.weight, 0);
+    const weightedScore = benchmark.requiredSkills.reduce((sum, r) => {
+      const score = Math.min(r.targetScore, userScores[r.code] || 0);
+      return sum + ((score / r.targetScore) * r.weight);
+    }, 0);
+
+    const matchScore = Math.round((weightedScore / totalWeight) * 100);
 
     return {
-      targetRole: benchmark.roleName,
+      roleKey,
+      roleName: benchmark.roleName,
+      matchScore,
       labourMarketContext: benchmark.nisrContext,
       overallReadinessPercentage: Math.round(
         (gaps.reduce((acc, g) => acc + (g.currentScore / g.targetScore), 0) / gaps.length) * 100
@@ -85,12 +94,7 @@ export class RecommendationEngine {
       disclaimer: 'Recommendations represent informed pathways based on skill benchmarks and NISR labour-market indicators. They do not constitute an employment guarantee.'
     };
   }
-}
-=======
-import { initialCourses, initialLearningPathways } from '../db/data.js';
-import { nisrService } from './nisrService.js';
 
-class RecommendationEngine {
   /**
    * Deterministic Skill Gap Calculation
    * Formula:
@@ -162,4 +166,3 @@ class RecommendationEngine {
 }
 
 export const recommendationEngine = new RecommendationEngine();
->>>>>>> bf53632cf4d649f83a661a098be828d1230469b5

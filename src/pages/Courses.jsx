@@ -24,6 +24,7 @@ import {
 import { api } from '../services/api.js';
 import { coursesData } from '../data/coursesData.js';
 import { useLanguage } from '../context/LanguageContext';
+import CertificateModal from '../components/CertificateModal';
 
 export default function Courses({ user, onOpenAuth }) {
   const { t } = useLanguage();
@@ -44,6 +45,9 @@ export default function Courses({ user, onOpenAuth }) {
   // 10-Question Quiz runner state
   // activeQuizModal: { course, module, moduleIndex, answers: {}, submitted: false, score: 0, passed: false }
   const [activeQuizModal, setActiveQuizModal] = useState(null);
+
+  // Landscape Certificate preview modal state
+  const [viewCertModal, setViewCertModal] = useState(null);
 
   const loadData = async () => {
     try {
@@ -198,9 +202,17 @@ export default function Courses({ user, onOpenAuth }) {
     try {
       const res = await api.requestCertificate(user.id, course.id, course.title);
       if (res.success) {
-        setSuccessMsg('Official Verified Certificate issued with cryptographic SHA-256 seal! Viewable in your Skill Passport.');
+        setSuccessMsg('Official Verified Certificate issued with cryptographic SHA-256 seal!');
         const updatedEns = await api.getEnrollments(user.id);
         setEnrollments(updatedEns || []);
+        // Automatically open the landscape certificate modal for immediate viewing & printing
+        setViewCertModal({
+          id: res.certificate?.id || `HUB-RW-${Math.floor(10000 + Math.random() * 90000)}`,
+          courseTitle: course.title,
+          learnerName: user?.fullName || user?.name || user?.email,
+          issuedDate: new Date().toISOString().split('T')[0],
+          credentialHash: res.certificate?.verificationHash || 'SHA-256: 8fbc91e4a27b9c9f0e1d823456789abc01234567'
+        });
       }
     } catch (err) {
       console.error(err);
@@ -636,17 +648,36 @@ export default function Courses({ user, onOpenAuth }) {
               </p>
             </div>
 
-            <button
-              onClick={() => handleRequestCertificate(selectedCourse)}
-              disabled={requestingCert || !fullyCompleted}
-              className="px-6 py-3.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white text-xs font-semibold uppercase tracking-wider font-mono whitespace-nowrap transition-colors"
-            >
-              {!fullyCompleted
-                ? 'Complete All Quizzes with ≥8/10'
-                : requestingCert
-                ? 'Generating Credential...'
-                : 'Request Verified Certificate'}
-            </button>
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              {en.certificateRequested && (
+                <button
+                  onClick={() => setViewCertModal({
+                    id: en.certificateId || `HUB-RW-${Math.floor(10000 + Math.random() * 90000)}`,
+                    courseTitle: selectedCourse.title,
+                    learnerName: user?.fullName || user?.name || user?.email,
+                    issuedDate: en.completedAt || new Date().toISOString().split('T')[0]
+                  })}
+                  className="px-5 py-3.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold uppercase tracking-wider font-mono transition-colors flex items-center space-x-2 shadow-xs"
+                >
+                  <Award className="w-4 h-4" />
+                  <span>View Landscape Certificate</span>
+                </button>
+              )}
+
+              <button
+                onClick={() => handleRequestCertificate(selectedCourse)}
+                disabled={requestingCert || !fullyCompleted}
+                className="px-6 py-3.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white text-xs font-semibold uppercase tracking-wider font-mono whitespace-nowrap transition-colors"
+              >
+                {!fullyCompleted
+                  ? 'Complete All Quizzes with ≥8/10'
+                  : requestingCert
+                  ? 'Generating Credential...'
+                  : en.certificateRequested
+                  ? 'Re-issue Certificate'
+                  : 'Request Verified Certificate'}
+              </button>
+            </div>
           </div>
         )}
 
@@ -1124,6 +1155,15 @@ export default function Courses({ user, onOpenAuth }) {
           );
         })}
       </div>
+
+      {/* Landscape Certificate Modal */}
+      {viewCertModal && (
+        <CertificateModal
+          certificate={viewCertModal}
+          user={user}
+          onClose={() => setViewCertModal(null)}
+        />
+      )}
     </div>
   );
 }

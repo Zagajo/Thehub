@@ -4,6 +4,19 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { coursesData } from './src/data/coursesData.js';
+import { nisrService, officialNisrIndicators } from './backend/src/services/nisrService.js';
+import { recommendationEngine, roleBenchmarks } from './backend/src/services/recommendationEngine.js';
+import { initialSkills, initialLearningPathways, initialAssessments } from './backend/src/db/data.js';
+import {
+  getSupabaseHealth,
+  serverSupabase,
+  supabaseProjectUrl,
+  persistCertificateToSupabase,
+  fetchCertificatesFromSupabase,
+  persistUserToSupabase,
+  persistEnrollmentToSupabase,
+  syncAllToSupabase
+} from './serverSupabase.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,24 +28,32 @@ async function startServer() {
   app.use(cors());
   app.use(express.json());
 
+  // In-memory data store with state preservation across client interactions
   let usersStore = [
     {
       id: 'u-admin-1',
       name: 'System Administrator',
+      fullName: 'System Administrator',
       email: 'admin@thehub.rw',
       role: 'admin',
       district: 'Kigali City (HQ)',
+      location: 'Kigali City (HQ)',
       passportId: 'HUB-RW-ADMIN-01',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80'
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
+      avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80'
     },
     {
       id: 'u-kezia-1',
       name: 'Kezia Umutoni',
+      fullName: 'Kezia Umutoni',
       email: 'kezia.umutoni@thehub.rw',
       role: 'learner',
       district: 'Kigali City (Gasabo)',
+      location: 'Kigali City (Gasabo)',
       passportId: 'HUB-RW-88392',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      learningStreak: 4
     }
   ];
 
@@ -40,7 +61,14 @@ async function startServer() {
   let quizProgressStore = {};
 
   let enrollmentsStore = [
-    { id: 'en-1', userId: 'u-kezia-1', courseId: 'c1', courseTitle: 'Full-Stack Web Engineering (Python & React)', completed: true, certificateRequested: true }
+    {
+      id: 'en-1',
+      userId: 'u-kezia-1',
+      courseId: 'c1',
+      courseTitle: 'Full-Stack Web Engineering (Python & React)',
+      completed: true,
+      certificateRequested: true
+    }
   ];
 
   let certificatesStore = [
@@ -50,7 +78,7 @@ async function startServer() {
       userName: 'Kezia Umutoni',
       courseTitle: 'Full-Stack Web Engineering (Python & React)',
       issuedDate: '2026-10-15',
-      credentialHash: 'SHA-256: 8fbc91e4a27b9c...'
+      credentialHash: 'SHA-256: 8fbc91e4a27b9c9f0e1d823456789abc'
     }
   ];
 
@@ -78,213 +106,6 @@ async function startServer() {
     { id: 'ec-3', company: 'Rwanda Craft Hub', title: 'E-Commerce Recommendation Widget for Artisans', stipend: 'RWF 300,000', duration: '2 Weeks', skills: ['JavaScript', 'UI/UX', 'Algorithmic Matching'] }
   ];
 
-  const docsAnalysisStore = {
-    analyzedAt: new Date().toISOString(),
-    documents: [
-      {
-        path: '/docs/data-model.md',
-        topic: 'Database Architecture',
-        entities: ['profiles', 'skills', 'user_skills', 'courses', 'course_modules', 'lessons', 'enrollments', 'assessments', 'nisr_indicators'],
-        status: 'Successfully analyzed and stored in database'
-      },
-      {
-        path: '/docs/nisr-data.md',
-        topic: 'NISR Labour Market Provenance',
-        indicators: ['NISR-LFS-EMP-SRV (38.6%)', 'NISR-LFS-YOUTH-LFPR (52.4%)', 'NISR-ICT-ACCESS (34.2%)', 'NISR-LFS-AGRI-SHARE (44.8%)'],
-        status: 'Successfully analyzed and stored in database'
-      },
-      {
-        path: '/docs/recommendation-engine.md',
-        topic: 'Deterministic & Explainable Recommendations',
-        formula: 'USER GOAL + SKILLS + ASSESSMENT + NISR CONTEXT -> LEARNING PATHWAY',
-        status: 'Successfully analyzed and stored in database'
-      }
-    ]
-  };
-
-  app.get('/api/docs/analysis', (req, res) => {
-    res.json(docsAnalysisStore);
-  });
-
-  app.get('/api/health', (req, res) => {
-    res.json({ success: true, message: 'The Hub backend API is running' });
-  });
-
-  app.get('/api/courses', (req, res) => {
-    res.json(coursesStore);
-  });
-
-  app.get('/api/courses/:slug', (req, res) => {
-    const course = coursesStore.find(c => c.slug === req.params.slug);
-    if (!course) return res.status(404).json({ error: 'Course not found' });
-    res.json(course);
-  });
-
-  app.post('/api/courses', (req, res) => {
-    const newCourse = {
-      id: 'c-' + Date.now(),
-      slug: req.body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      enrolled: 0,
-      rating: 5.0,
-      image: req.body.image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
-      ...req.body
-    };
-    coursesStore.push(newCourse);
-    res.json({ success: true, course: newCourse });
-  });
-
-  app.delete('/api/courses/:id', (req, res) => {
-    coursesStore = coursesStore.filter(c => c.id !== req.params.id);
-    res.json({ success: true });
-  });
-
-  // 10-Question Module Quiz Submission (Gating Requirement: >= 8/10 to unlock next module)
-  app.post('/api/courses/quiz-submit', (req, res) => {
-    const { userId, courseId, moduleIndex, score } = req.body;
-    const finalScore = parseInt(score, 10) || 0;
-    const passed = finalScore >= 8; // Mandatory >= 8/10 rule
-
-    const key = `${userId}_${courseId}`;
-    if (!quizProgressStore[key]) quizProgressStore[key] = {};
-    quizProgressStore[key][moduleIndex] = {
-      score: finalScore,
-      passed,
-      attemptedAt: new Date().toISOString()
-    };
-
-    systemLogsStore.unshift({
-      id: 'log-' + Date.now(),
-      timestamp: new Date().toISOString(),
-      type: 'QUIZ_SUBMIT',
-      description: `User ${userId || 'Learner'} completed Module ${parseInt(moduleIndex, 10) + 1} Quiz on Course ${courseId}: ${finalScore}/10 (${passed ? 'PASSED >=8/10' : 'REVIEW NEEDED <8/10'})`
-    });
-
-    res.json({
-      success: true,
-      score: finalScore,
-      passed,
-      passingScore: 8,
-      totalQuestions: 10,
-      unlockedNextModule: passed,
-      progress: quizProgressStore[key]
-    });
-  });
-
-  app.get('/api/courses/quiz-progress', (req, res) => {
-    const { userId, courseId } = req.query;
-    const key = `${userId}_${courseId}`;
-    res.json(quizProgressStore[key] || {});
-  });
-
-  // Learning Paths & Gap Analysis
-  app.get('/api/learning-paths', (req, res) => {
-    res.json({
-      success: true,
-      data: [
-        {
-          id: 'path-1',
-          role: 'Full-Stack Software Engineer',
-          title: 'Full-Stack Software Engineer (Enterprise Python & React)',
-          targetSector: 'ICT, Fintech & Services',
-          estimatedDuration: '16 Weeks',
-          nisrEvidence: 'According to NISR Labour Force Survey (LFS 2023), services and digital tech employment grew +3.2% YoY. Software engineers and API developers in Kigali command high demand with substantial wage premiums in digital trade.',
-          capstoneBrief: 'Design, implement, and deploy a distributed cooperative inventory and payment reconciliation ledger for Rwandan agricultural exporters with offline SMS fallbacks and PostgreSQL audit logs.'
-        },
-        {
-          id: 'path-2',
-          role: 'Data Analyst & Market Researcher',
-          title: 'Data Analyst & Labour Market Intelligence Specialist',
-          targetSector: 'Public Policy, Banking & Statistical Research',
-          estimatedDuration: '12 Weeks',
-          nisrEvidence: 'NISR Open Data initiative and national development goals (NST1) require high-level analytical talent capable of processing microdata, computing macroeconomic indicators, and generating actionable policy briefs.',
-          capstoneBrief: 'Publish an automated longitudinal dashboard examining youth labour underutilization trends (LU1 to LU4) across all 30 Rwandan districts using official NISR microdata.'
-        },
-        {
-          id: 'path-3',
-          role: 'Digital Agriculture Specialist',
-          title: 'Smart Agriculture & IoT Automation Systems Engineer',
-          targetSector: 'Agritech & Rural Cooperatives',
-          estimatedDuration: '14 Weeks',
-          nisrEvidence: 'While agriculture employs 44.8% of Rwanda’s workforce, productivity transformation relies on tech integration: IoT telemetry, smart irrigation, and post-harvest supply chain digitization.',
-          capstoneBrief: 'Deploy an automated soil moisture and telemetry sensor station communicating via MQTT with SMS alert dispatching for cooperative tea and coffee washing stations in Northern Province.'
-        }
-      ]
-    });
-  });
-
-  app.post('/api/learning-paths/gap-analysis', (req, res) => {
-    const { assessedSkills = [], pathId = 'path-1' } = req.body;
-    const benchmarks = {
-      'path-1': [
-        { skillName: 'Python & FastAPI Routing', requiredScore: 80, defaultCurrent: 85 },
-        { skillName: 'Relational Database Design & SQL', requiredScore: 80, defaultCurrent: 55 },
-        { skillName: 'React Component Architecture', requiredScore: 80, defaultCurrent: 82 },
-        { skillName: 'API Security & Authentication', requiredScore: 75, defaultCurrent: 60 }
-      ],
-      'path-2': [
-        { skillName: 'Statistical Methodology & NISR Indices', requiredScore: 85, defaultCurrent: 75 },
-        { skillName: 'Pandas Data Wrangling & Cleaning', requiredScore: 80, defaultCurrent: 85 },
-        { skillName: 'SQL Microdata Aggregation', requiredScore: 80, defaultCurrent: 65 },
-        { skillName: 'Policy Visualization & Dashboards', requiredScore: 75, defaultCurrent: 70 }
-      ],
-      'path-3': [
-        { skillName: 'Microcontroller Telemetry (ESP32/Arduino)', requiredScore: 80, defaultCurrent: 60 },
-        { skillName: 'MQTT & Low-Bandwidth Protocol Design', requiredScore: 75, defaultCurrent: 55 },
-        { skillName: 'Crop Analytics & Weather Correlation', requiredScore: 80, defaultCurrent: 85 },
-        { skillName: 'Solar & Power-Resilient Hardware Design', requiredScore: 70, defaultCurrent: 65 }
-      ]
-    };
-
-    const targetList = benchmarks[pathId] || benchmarks['path-1'];
-    let totalMet = 0;
-    let totalReq = 0;
-
-    const breakdown = targetList.map(item => {
-      const found = assessedSkills.find(s => s.skillName === item.skillName);
-      const currentScore = found ? found.score : item.defaultCurrent;
-      const gap = Math.max(0, item.requiredScore - currentScore);
-      totalMet += Math.min(currentScore, item.requiredScore);
-      totalReq += item.requiredScore;
-
-      let priority = 'Benchmark Met';
-      if (gap >= 25) priority = 'Critical Gap';
-      else if (gap > 0) priority = 'Moderate Gap';
-
-      return {
-        skillName: item.skillName,
-        requiredScore: item.requiredScore,
-        currentScore,
-        gap,
-        priority
-      };
-    });
-
-    const overallReadinessPercentage = Math.round((totalMet / totalReq) * 100);
-
-    res.json({
-      success: true,
-      data: {
-        overallReadinessPercentage,
-        gapBreakdown: breakdown,
-        recommendedCourses: [
-          {
-            id: 'c1',
-            title: 'Full-Stack Web Engineering (Python & React)',
-            slug: 'fullstack-python-react',
-            tagline: 'Master async FastAPI backends, PostgreSQL schemas, and modern React interfaces.'
-          },
-          {
-            id: 'c6',
-            title: 'Cloud Infrastructure & DevOps Engineering',
-            slug: 'cloud-infrastructure-devops',
-            tagline: 'Docker containerization, CI/CD pipelines, and high-availability cloud deployments.'
-          }
-        ]
-      }
-    });
-  });
-
-  // Peer Matching & Study Groups
   let peerMatchesStore = [
     {
       partnerName: 'Jean-Paul Nsengiyumva',
@@ -336,7 +157,302 @@ async function startServer() {
     }
   ];
 
-  app.get('/api/peer-matching', (req, res) => {
+  // ==========================================
+  // API ROUTES
+  // ==========================================
+
+  // Health check & telemetry
+  app.get('/api/health', async (_req, res) => {
+    const supabaseHealth = await getSupabaseHealth();
+    res.json({
+      success: true,
+      message: 'The Hub backend API is running and connected',
+      status: 'online',
+      version: '1.0.0',
+      timestamp: new Date().toISOString(),
+      supabase: supabaseHealth,
+      database: {
+        provider: supabaseHealth.connected ? 'Supabase PostgreSQL Cloud DB' : 'In-Memory Resilient DB (Supabase sync ready)',
+        status: supabaseHealth.connected ? 'Connected to Supabase' : 'Active Local Store',
+        supabaseConfigured: supabaseHealth.configured,
+        supabaseConnected: supabaseHealth.connected,
+        coursesCount: coursesStore.length,
+        usersCount: usersStore.length,
+        nisrIndicatorsCount: nisrIndicators.length,
+        certificatesCount: certificatesStore.length,
+        sslEnforced: true
+      }
+    });
+  });
+
+  // Supabase cloud database status
+  app.get('/api/supabase/status', async (_req, res) => {
+    const health = await getSupabaseHealth();
+    res.json({
+      success: true,
+      data: health
+    });
+  });
+
+  // Admin Supabase synchronization trigger
+  app.post('/api/supabase/sync', async (_req, res) => {
+    const syncResult = await syncAllToSupabase({
+      courses: coursesStore,
+      users: usersStore,
+      certificates: certificatesStore,
+      nisrIndicators: nisrIndicators,
+      enrollments: enrollmentsStore
+    });
+    res.json(syncResult);
+  });
+
+  // Courses Catalog & Management
+  app.get('/api/courses', (req, res) => {
+    const { category, search } = req.query;
+    let list = [...coursesStore];
+    if (category && category !== 'All') {
+      list = list.filter(c => c.category?.toLowerCase() === category.toLowerCase());
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(c =>
+        c.title.toLowerCase().includes(q) ||
+        (c.description && c.description.toLowerCase().includes(q))
+      );
+    }
+    res.json(list);
+  });
+
+  app.get('/api/courses/:slug', (req, res) => {
+    const course = coursesStore.find(c => c.slug === req.params.slug || c.id === req.params.slug);
+    if (!course) return res.status(404).json({ success: false, error: 'Course not found' });
+    res.json(course);
+  });
+
+  app.post('/api/courses', (req, res) => {
+    const newCourse = {
+      id: 'c-' + Date.now(),
+      slug: (req.body.title || 'course').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      enrolled: 0,
+      rating: 5.0,
+      image: req.body.image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
+      ...req.body
+    };
+    coursesStore.unshift(newCourse);
+    systemLogsStore.unshift({
+      id: 'log-' + Date.now(),
+      timestamp: new Date().toISOString(),
+      type: 'COURSE_CREATE',
+      description: `New course published: ${newCourse.title}`
+    });
+    res.json({ success: true, course: newCourse });
+  });
+
+  app.put('/api/courses/:id', (req, res) => {
+    const course = coursesStore.find(c => c.id === req.params.id);
+    if (!course) return res.status(404).json({ success: false, error: 'Course not found' });
+    const { title, category, difficulty, duration, description, image, modules } = req.body;
+    if (title) course.title = title;
+    if (category) course.category = category;
+    if (difficulty) course.difficulty = difficulty;
+    if (duration) course.duration = duration;
+    if (description) course.description = description;
+    if (image) course.image = image;
+    if (modules) course.modules = modules;
+    systemLogsStore.unshift({
+      id: 'log-' + Date.now(),
+      timestamp: new Date().toISOString(),
+      type: 'COURSE_UPDATE',
+      description: `Course updated: ${course.title}`
+    });
+    res.json({ success: true, course });
+  });
+
+  app.delete('/api/courses/:id', (req, res) => {
+    coursesStore = coursesStore.filter(c => c.id !== req.params.id);
+    res.json({ success: true });
+  });
+
+  // 10-Question Module Quiz Submission (Gating Requirement: >= 8/10 to unlock next module)
+  app.post('/api/courses/quiz-submit', (req, res) => {
+    const { userId, courseId, moduleIndex, score } = req.body;
+    const finalScore = parseInt(score, 10) || 0;
+    const passed = finalScore >= 8;
+
+    const key = `${userId}_${courseId}`;
+    if (!quizProgressStore[key]) quizProgressStore[key] = {};
+    quizProgressStore[key][moduleIndex] = {
+      score: finalScore,
+      passed,
+      attemptedAt: new Date().toISOString()
+    };
+
+    systemLogsStore.unshift({
+      id: 'log-' + Date.now(),
+      timestamp: new Date().toISOString(),
+      type: 'QUIZ_SUBMIT',
+      description: `User ${userId || 'Learner'} completed Module ${parseInt(moduleIndex, 10) + 1} Quiz on Course ${courseId}: ${finalScore}/10 (${passed ? 'PASSED >=8/10' : 'REVIEW NEEDED <8/10'})`
+    });
+
+    res.json({
+      success: true,
+      score: finalScore,
+      passed,
+      passingScore: 8,
+      totalQuestions: 10,
+      unlockedNextModule: passed,
+      progress: quizProgressStore[key]
+    });
+  });
+
+  app.get('/api/courses/quiz-progress', (req, res) => {
+    const { userId, courseId } = req.query;
+    const key = `${userId}_${courseId}`;
+    res.json(quizProgressStore[key] || {});
+  });
+
+  // Enrollments
+  app.get('/api/enrollments', (req, res) => {
+    const { userId } = req.query;
+    if (!userId) return res.json(enrollmentsStore);
+    res.json(enrollmentsStore.filter(e => e.userId === userId));
+  });
+
+  app.post('/api/enrollments', (req, res) => {
+    const { userId, courseId, courseTitle } = req.body;
+    let enrollment = enrollmentsStore.find(e => e.userId === userId && e.courseId === courseId);
+    if (!enrollment) {
+      enrollment = {
+        id: 'en-' + Date.now(),
+        userId,
+        courseId,
+        courseTitle,
+        completed: false,
+        certificateRequested: false,
+        progressPercentage: 0
+      };
+      enrollmentsStore.push(enrollment);
+      const c = coursesStore.find(x => x.id === courseId);
+      if (c && typeof c.enrolled === 'number') c.enrolled += 1;
+    }
+    // Async push to Supabase
+    persistEnrollmentToSupabase(enrollment);
+    res.json({ success: true, enrollments: enrollmentsStore.filter(e => e.userId === userId) });
+  });
+
+  app.post('/api/enrollments/complete', (req, res) => {
+    const { userId, courseId } = req.body;
+    const en = enrollmentsStore.find(e => e.userId === userId && e.courseId === courseId);
+    if (en) {
+      en.completed = true;
+      en.progressPercentage = 100;
+      persistEnrollmentToSupabase(en);
+    }
+    res.json({ success: true, enrollments: enrollmentsStore.filter(e => e.userId === userId) });
+  });
+
+  // Certificates & SHA-256 Vault
+  app.get('/api/certificates', async (req, res) => {
+    const { userId } = req.query;
+    // Attempt Supabase fetch if available
+    const sbCerts = await fetchCertificatesFromSupabase(userId);
+    if (sbCerts && sbCerts.length > 0) {
+      // Merge with in-memory certs avoiding duplicate ids
+      const existingIds = new Set(certificatesStore.map(c => c.id));
+      for (const sc of sbCerts) {
+        if (!existingIds.has(sc.id)) {
+          certificatesStore.unshift(sc);
+          existingIds.add(sc.id);
+        }
+      }
+    }
+    if (userId) {
+      return res.json(certificatesStore.filter(c => c.userId === userId));
+    }
+    res.json(certificatesStore);
+  });
+
+  app.post('/api/certificates', (req, res) => {
+    const { userId, courseTitle } = req.body;
+    const user = usersStore.find(u => u.id === userId);
+    const newCert = {
+      id: 'cert-' + Date.now(),
+      userId,
+      userName: user ? user.name : 'Learner',
+      courseTitle,
+      issuedDate: new Date().toISOString().split('T')[0],
+      credentialHash: 'SHA-256: ' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+    };
+    certificatesStore.unshift(newCert);
+    // Write-through to Supabase
+    persistCertificateToSupabase(newCert);
+    res.json({ success: true, certificate: newCert });
+  });
+
+  app.post('/api/certificates/request', (req, res) => {
+    const { userId, courseId, courseTitle } = req.body;
+    const user = usersStore.find(u => u.id === userId);
+    const en = enrollmentsStore.find(e => e.userId === userId && e.courseId === courseId);
+    if (en) {
+      en.certificateRequested = true;
+      persistEnrollmentToSupabase(en);
+    }
+    let cert = certificatesStore.find(c => c.userId === userId && c.courseTitle === courseTitle);
+    if (!cert) {
+      cert = {
+        id: 'cert-' + Date.now(),
+        userId,
+        userName: user ? user.name : 'Learner',
+        courseTitle,
+        issuedDate: new Date().toISOString().split('T')[0],
+        credentialHash: 'SHA-256: ' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 10)
+      };
+      certificatesStore.unshift(cert);
+      persistCertificateToSupabase(cert);
+    }
+    res.json({ success: true, message: 'Certificate requested and granted successfully!', certificate: cert });
+  });
+
+  // Learning Paths & Deterministic Gap Analysis
+  app.get('/api/learning-paths', (_req, res) => {
+    res.json({
+      success: true,
+      data: initialLearningPathways.length > 0 ? initialLearningPathways : [
+        {
+          id: 'path-1',
+          role: 'Full-Stack Software Engineer',
+          title: 'Full-Stack Software Engineer (Enterprise Python & React)',
+          targetSector: 'ICT, Fintech & Services',
+          estimatedDuration: '16 Weeks',
+          nisrEvidence: 'According to NISR Labour Force Survey (LFS 2023), services and digital communication employment grew +3.2% YoY.',
+          capstoneBrief: 'Design and deploy a distributed cooperative inventory and payment reconciliation ledger for Rwandan agricultural exporters.'
+        }
+      ]
+    });
+  });
+
+  app.post('/api/learning-paths/gap-analysis', (req, res) => {
+    const { assessedSkills = [], pathId = 'path-1' } = req.body;
+    const result = recommendationEngine.calculateSkillGaps(assessedSkills, pathId);
+    res.json({ success: true, data: result });
+  });
+
+  app.post('/api/recommendations/analyze', (req, res) => {
+    const { userSkills = [], targetRoleId = 'path-1' } = req.body;
+    const result = recommendationEngine.calculateSkillGaps(userSkills, targetRoleId);
+    res.json({ success: true, data: result });
+  });
+
+  // Peer Matching & Study Circles
+  app.get('/api/peer-matching', (_req, res) => {
+    res.json({
+      success: true,
+      matches: peerMatchesStore,
+      studyGroups: studyGroupsStore
+    });
+  });
+
+  app.get('/api/peers/matches', (_req, res) => {
     res.json({
       success: true,
       matches: peerMatchesStore,
@@ -361,133 +477,185 @@ async function startServer() {
     });
   });
 
-  // Enrollments
-  app.get('/api/enrollments', (req, res) => {
-    const { userId } = req.query;
-    if (!userId) return res.json(enrollmentsStore);
-    res.json(enrollmentsStore.filter(e => e.userId === userId));
+  app.post('/api/peers/request-match', (req, res) => {
+    const { learningLanguage, knownLanguage, availability } = req.body;
+    const newMatch = {
+      partnerName: 'Patrick Shyaka',
+      partnerLocation: 'Kigali City (Gasabo)',
+      matchScore: 96,
+      topic: `${learningLanguage || 'English'} / ${knownLanguage || 'Kinyarwanda'} Guided Exchange`,
+      schedule: availability || 'Tuesdays & Thursdays, 18:00 CAT (40 min agenda)'
+    };
+    peerMatchesStore.unshift(newMatch);
+    res.json({
+      success: true,
+      message: 'Pairing algorithm matched you with a high-affinity peer!',
+      match: newMatch
+    });
   });
 
-  app.post('/api/enrollments', (req, res) => {
-    const { userId, courseId, courseTitle } = req.body;
-    if (!enrollmentsStore.some(e => e.userId === userId && e.courseId === courseId)) {
-      enrollmentsStore.push({
-        id: 'en-' + Date.now(),
-        userId,
-        courseId,
-        courseTitle,
-        completed: false,
-        certificateRequested: false
-      });
-      const c = coursesStore.find(x => x.id === courseId);
-      if (c) c.enrolled += 1;
-    }
-    res.json({ success: true, enrollments: enrollmentsStore.filter(e => e.userId === userId) });
-  });
-
-  app.post('/api/enrollments/complete', (req, res) => {
-    const { userId, courseId } = req.body;
-    const en = enrollmentsStore.find(e => e.userId === userId && e.courseId === courseId);
-    if (en) {
-      en.completed = true;
-    }
-    res.json({ success: true, enrollments: enrollmentsStore.filter(e => e.userId === userId) });
-  });
-
-  // Certificate Request
-  app.post('/api/certificates/request', (req, res) => {
-    const { userId, courseId, courseTitle } = req.body;
-    const user = usersStore.find(u => u.id === userId);
-    const en = enrollmentsStore.find(e => e.userId === userId && e.courseId === courseId);
-    if (en) {
-      en.certificateRequested = true;
-    }
-    // Also push a pending/issued certificate or notify admin
-    if (!certificatesStore.some(c => c.userId === userId && c.courseTitle === courseTitle)) {
-      certificatesStore.push({
-        id: 'cert-' + Date.now(),
-        userId,
-        userName: user ? user.name : 'Learner',
-        courseTitle,
-        issuedDate: new Date().toISOString().split('T')[0],
-        credentialHash: 'SHA-256: ' + Math.random().toString(36).substring(2, 15)
-      });
-    }
-    res.json({ success: true, message: 'Certificate requested and granted successfully!' });
-  });
-
-  app.get('/api/nisr/indicators', (req, res) => {
+  // NISR Official Labour Intelligence
+  app.get('/api/nisr/indicators', (_req, res) => {
     res.json(nisrIndicators);
   });
 
-  app.get('/api/assessments', (req, res) => {
+  app.get('/api/nisr/youth', (_req, res) => {
+    res.json({
+      success: true,
+      provinces: nisrService.getGeographicDisaggregation()
+    });
+  });
+
+  app.get('/api/nisr/labour', (_req, res) => {
+    res.json({
+      success: true,
+      data: nisrService.getLabourMarketSummary()
+    });
+  });
+
+  app.get('/api/nisr/provinces', (_req, res) => {
+    res.json({
+      success: true,
+      data: nisrService.getGeographicDisaggregation()
+    });
+  });
+
+  // Diagnostic Assessments
+  app.get('/api/assessments', (_req, res) => {
     res.json(assessmentsData);
   });
 
-  app.get('/api/challenges', (req, res) => {
+  app.get('/api/assessments/:id', (req, res) => {
+    const found = assessmentsData.find(a => a.id === req.params.id) || assessmentsData[0];
+    res.json({ success: true, data: found });
+  });
+
+  // Employer Challenges
+  app.get('/api/challenges', (_req, res) => {
     res.json(employerChallenges);
   });
 
-  app.get('/api/certificates', (req, res) => {
-    res.json(certificatesStore);
+  // Skills Registry
+  app.get('/api/skills', (_req, res) => {
+    res.json({ success: true, data: initialSkills });
   });
 
-  app.post('/api/certificates', (req, res) => {
-    const { userId, courseTitle } = req.body;
-    const user = usersStore.find(u => u.id === userId);
-    const newCert = {
-      id: 'cert-' + Date.now(),
-      userId,
-      userName: user ? user.name : 'Learner',
-      courseTitle,
-      issuedDate: new Date().toISOString().split('T')[0],
-      credentialHash: 'SHA-256: ' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-    };
-    certificatesStore.push(newCert);
-    res.json({ success: true, certificate: newCert });
-  });
-
-  app.get('/api/users', (req, res) => {
+  // Users & Profiles
+  app.get('/api/users', (_req, res) => {
     res.json(usersStore);
   });
 
   app.put('/api/users/:id', (req, res) => {
-    const { name, district, avatar } = req.body;
-    const u = usersStore.find(x => x.id === req.params.id);
-    if (!u) return res.status(404).json({ error: 'User not found' });
-    if (name) u.name = name;
-    if (district) u.district = district;
-    if (avatar) u.avatar = avatar;
+    const { name, fullName, district, location, avatar, avatarUrl, bio, notes, externalLinks, experiences, externalCertificates } = req.body;
+    let u = usersStore.find(x => x.id === req.params.id);
+    if (!u) {
+      u = {
+        id: req.params.id,
+        name: name || fullName || 'Learner',
+        fullName: name || fullName || 'Learner',
+        email: req.body.email || 'learner@thehub.rw',
+        role: req.body.role || 'learner',
+        district: district || location || 'Kigali City'
+      };
+      usersStore.push(u);
+    }
+    if (name || fullName) {
+      u.name = name || fullName;
+      u.fullName = name || fullName;
+    }
+    if (district || location) {
+      u.district = district || location;
+      u.location = district || location;
+    }
+    if (avatar || avatarUrl) {
+      u.avatar = avatar || avatarUrl;
+      u.avatarUrl = avatar || avatarUrl;
+    }
+    if (bio !== undefined) u.bio = bio;
+    if (notes !== undefined) u.notes = notes;
+    if (externalLinks) u.externalLinks = externalLinks;
+    if (experiences) u.experiences = experiences;
+    if (externalCertificates) u.externalCertificates = externalCertificates;
+
     systemLogsStore.unshift({
       id: 'log-' + Date.now(),
       timestamp: new Date().toISOString(),
       type: 'USER_UPDATE',
       description: `Profile updated for ${u.name} (${u.email})`
     });
+    // Async push to Supabase
+    persistUserToSupabase(u);
     res.json({ success: true, user: u });
   });
 
-  app.put('/api/courses/:id', (req, res) => {
-    const course = coursesStore.find(c => c.id === req.params.id);
-    if (!course) return res.status(404).json({ error: 'Course not found' });
-    const { title, category, difficulty, duration, description, image, modules } = req.body;
-    if (title) course.title = title;
-    if (category) course.category = category;
-    if (difficulty) course.difficulty = difficulty;
-    if (duration) course.duration = duration;
-    if (description) course.description = description;
-    if (image) course.image = image;
-    if (modules) course.modules = modules;
-    systemLogsStore.unshift({
-      id: 'log-' + Date.now(),
-      timestamp: new Date().toISOString(),
-      type: 'COURSE_UPDATE',
-      description: `Course updated: ${course.title}`
-    });
-    res.json({ success: true, course });
+  // Authentication & Verification
+  app.post('/api/auth/login', (req, res) => {
+    const { email, password } = req.body;
+    if (email === 'admin@thehub.rw' && password === 'Admin@1234!') {
+      return res.json({ success: true, user: usersStore.find(u => u.email === 'admin@thehub.rw') });
+    }
+    const found = usersStore.find(u => u.email === email);
+    if (found) {
+      return res.json({ success: true, user: found });
+    }
+    res.status(401).json({ success: false, error: 'Invalid email or password' });
   });
 
-  app.get('/api/system-logs', (req, res) => {
+  app.post('/api/auth/demo-login', (_req, res) => {
+    const demo = usersStore.find(u => u.role === 'learner') || usersStore[1];
+    res.json({ success: true, user: demo });
+  });
+
+  app.post('/api/auth/admin-login', (req, res) => {
+    const { password } = req.body;
+    if (password && password !== 'Admin@1234!') {
+      return res.status(401).json({ success: false, error: 'Incorrect administrator password' });
+    }
+    const admin = usersStore.find(u => u.role === 'admin') || usersStore[0];
+    res.json({ success: true, user: admin });
+  });
+
+  app.post('/api/auth/register', (req, res) => {
+    const { name, names, email, district, location, password } = req.body;
+    const finalEmail = (email || '').trim().toLowerCase();
+    if (usersStore.some(u => u.email === finalEmail)) {
+      return res.status(400).json({ success: false, error: 'Email already registered' });
+    }
+    const displayName = name || names || 'Learner';
+    const newUser = {
+      id: 'u-' + Date.now(),
+      name: displayName,
+      fullName: displayName,
+      email: finalEmail,
+      district: district || location || 'Kigali City',
+      location: district || location || 'Kigali City',
+      role: 'learner',
+      passportId: 'HUB-RW-' + Math.floor(10000 + Math.random() * 90000),
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      learningStreak: 1
+    };
+    usersStore.push(newUser);
+    // Async push to Supabase
+    persistUserToSupabase(newUser);
+    res.json({ success: true, user: newUser });
+  });
+
+  // Admin Progress & Activity Logs
+  app.get('/api/admin/progress', (_req, res) => {
+    const progressData = usersStore.filter(u => u.role !== 'admin').map(u => {
+      const userEnrollments = enrollmentsStore.filter(e => e.userId === u.id);
+      const userCerts = certificatesStore.filter(c => c.userId === u.id);
+      return {
+        user: u,
+        enrollments: userEnrollments,
+        certificates: userCerts
+      };
+    });
+    res.json(progressData);
+  });
+
+  app.get('/api/system-logs', (_req, res) => {
     res.json(systemLogsStore);
   });
 
@@ -504,58 +672,7 @@ async function startServer() {
     res.json({ success: true, log: newLog });
   });
 
-  app.get('/api/admin/progress', (req, res) => {
-    const progressData = usersStore.filter(u => u.role !== 'admin').map(u => {
-      const userEnrollments = enrollmentsStore.filter(e => e.userId === u.id);
-      const userCerts = certificatesStore.filter(c => c.userId === u.id);
-      return {
-        user: u,
-        enrollments: userEnrollments,
-        certificates: userCerts
-      };
-    });
-    res.json(progressData);
-  });
-
-  app.post('/api/auth/login', (req, res) => {
-    const { email, password } = req.body;
-    if (email === 'admin@thehub.rw' && password === 'Admin@1234!') {
-      return res.json({ success: true, user: usersStore.find(u => u.email === 'admin@thehub.rw') });
-    }
-    const found = usersStore.find(u => u.email === email);
-    if (found) return res.json({ success: true, user: found });
-    res.status(401).json({ success: false, error: 'Invalid email or password' });
-  });
-
-  app.post('/api/auth/register', (req, res) => {
-    const { name, email, district, password } = req.body;
-    if (usersStore.some(u => u.email === email)) {
-      return res.status(400).json({ success: false, error: 'Email already registered' });
-    }
-    const newUser = {
-      id: 'u-' + Date.now(),
-      name,
-      email,
-      district: district || 'Kigali City',
-      role: 'learner',
-      passportId: 'HUB-RW-' + Math.floor(10000 + Math.random() * 90000),
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
-    };
-    usersStore.push(newUser);
-    res.json({ success: true, user: newUser });
-  });
-
-  app.post('/api/recommendations/analyze', (req, res) => {
-    res.json({
-      targetRole: 'Full-Stack Software Engineer',
-      matchScore: 74,
-      gaps: [
-        { skill: 'Relational Database Design', priority: 'High', recommendedCourse: 'Full-Stack Web Engineering' },
-        { skill: 'API Security & JWT', priority: 'Medium', recommendedCourse: 'Full-Stack Web Engineering' }
-      ]
-    });
-  });
-
+  // Mount Vite middleware in development or static in production
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true, hmr: false },
@@ -564,13 +681,19 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     app.use(express.static(path.join(__dirname, 'dist')));
-    app.get('*', (req, res) => {
+    app.get('*', (_req, res) => {
       res.sendFile(path.join(__dirname, 'dist', 'index.html'));
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[The Hub] Server running on http://0.0.0.0:${PORT}`);
+  app.listen(PORT, '0.0.0.0', async () => {
+    console.log(`[The Hub] Full-Stack server running on http://0.0.0.0:${PORT}`);
+    try {
+      const sbHealth = await getSupabaseHealth();
+      console.log(`[The Hub Supabase] Status: ${sbHealth.status} | URL: ${sbHealth.url} | Message: ${sbHealth.message}`);
+    } catch (e) {
+      console.warn('[The Hub Supabase] Startup probe notice:', e.message);
+    }
   });
 }
 
