@@ -1,120 +1,178 @@
 import React from 'react';
-import { BookOpen, Award, BarChart3, ShieldCheck, ArrowRight, CheckCircle2, Briefcase, Users } from 'lucide-react';
+import { BookOpen, Award, BarChart3, ShieldCheck, ArrowRight, CheckCircle2, Briefcase, Users, Cpu, Wifi, FileText } from 'lucide-react';
 
 export default function Home({ setActiveTab, user, onOpenAuth }) {
   return (
-    <div className="space-y-16 pb-20">
-      {/* Hero Section (IBM minimalist dark & REB national alignment) */}
-      <section className="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#6366f1_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-          <div className="space-y-6">
-            <div className="inline-flex items-center space-x-2 bg-indigo-500/20 text-indigo-300 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider border border-indigo-500/30">
-              <ShieldCheck className="w-4 h-4 text-indigo-400" />
-              <span>REB & NISR National Skill Passport</span>
+    <div className="space-y-12 pb-24 bg-slate-50 text-slate-900 min-h-screen font-sans">
+      {/* IBM Carbon Inspired Enterprise Dashboard Header (Light Theme) */}
+      <section className="bg-white border-b border-slate-200 py-16 px-4 sm:px-6 lg:px-8 shadow-sm">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="flex items-center space-x-3">
+            <span className="px-2.5 py-1 bg-slate-100 border border-slate-300 text-slate-700 text-xs font-mono tracking-widest uppercase">
+              SYS-STATUS: OPERATIONAL
+            </span>
+            <span className="px-2.5 py-1 bg-slate-100 border border-slate-300 text-slate-700 text-xs font-mono tracking-widest uppercase">
+              ENVIRONMENT: PRODUCTION
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end">
+            <div className="lg:col-span-2 space-y-4">
+              <h1 className="text-4xl sm:text-6xl font-light tracking-tight text-slate-900">
+                The Hub <span className="font-bold text-blue-950">Enterprise Intelligence</span>
+              </h1>
+              <p className="text-slate-600 text-base max-w-2xl leading-relaxed font-light">
+                National skills platform delivering data-informed technical training, verified cryptographic credentials, offline-first progress synchronization, and official NISR labour market analytics.
+              </p>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-ext500 font-bold tracking-tight leading-tight">
-              Empowering Rwanda’s Digital Future Through <span className="text-indigo-400">Data-Informed Skills</span>
-            </h1>
-            <p className="text-slate-300 text-lg leading-relaxed">
-              Discover verified technical courses aligned with National Strategy for Transformation (NST2) targets, complete practical assessments, track your career passport, and get matched with top employers.
-            </p>
-            <div className="flex flex-wrap gap-4 pt-4">
+
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => setActiveTab('courses')}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-7 py-3.5 rounded-2xl font-semibold shadow-xl shadow-indigo-900/40 transition-all flex items-center space-x-2 text-base"
+                className="px-6 py-3.5 bg-blue-900 text-white hover:bg-blue-800 font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center space-x-2 shadow-sm"
               >
-                <span>Explore Courses</span>
-                <ArrowRight className="w-5 h-5" />
+                <span>Explore Catalog</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
               {!user && (
                 <button
                   onClick={onOpenAuth}
-                  className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 px-7 py-3.5 rounded-2xl font-semibold transition-all text-base"
+                  className="px-6 py-3.5 bg-slate-200 border border-slate-300 text-slate-800 hover:bg-slate-300 font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center"
                 >
-                  Create Learner Passport
+                  Sign In / Register
                 </button>
               )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-slate-900/80 backdrop-blur-md p-6 rounded-3xl border border-slate-800 shadow-xl space-y-3">
-              <div className="w-12 h-12 bg-indigo-600/20 text-indigo-400 rounded-2xl flex items-center justify-center">
-                <BookOpen className="w-6 h-6" />
-              </div>
-              <div className="text-3xl font-bold text-white">100+</div>
-              <div className="text-sm text-slate-400 font-medium">Verified Modules & Video Lectures</div>
-            </div>
-
-            <div className="bg-slate-900/80 backdrop-blur-md p-6 rounded-3xl border border-slate-800 shadow-xl space-y-3">
-              <div className="w-12 h-12 bg-emerald-600/20 text-emerald-400 rounded-2xl flex items-center justify-center">
-                <BarChart3 className="w-6 h-6" />
-              </div>
-              <div className="text-3xl font-bold text-white">NISR</div>
-              <div className="text-sm text-slate-400 font-medium">Labour Market Intelligence Integration</div>
-            </div>
-
-            <div className="bg-slate-900/80 backdrop-blur-md p-6 rounded-3xl border border-slate-800 shadow-xl space-y-3">
-              <div className="w-12 h-12 bg-amber-600/20 text-amber-400 rounded-2xl flex items-center justify-center">
-                <Award className="w-6 h-6" />
-              </div>
-              <div className="text-3xl font-bold text-white">QR Verified</div>
-              <div className="text-sm text-slate-400 font-medium">Secure SHA-256 Certificates</div>
-            </div>
-
-            <div className="bg-slate-900/80 backdrop-blur-md p-6 rounded-3xl border border-slate-800 shadow-xl space-y-3">
-              <div className="w-12 h-12 bg-purple-600/20 text-purple-400 rounded-2xl flex items-center justify-center">
-                <Briefcase className="w-6 h-6" />
-              </div>
-              <div className="text-3xl font-bold text-white">Direct Match</div>
-              <div className="text-sm text-slate-400 font-medium">Employer Projects & Stipends</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Highlights & Features (hidden when logged in) */}
-      {!user && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-            <h2 className="text-3xl font-bold text-slate-900">Platform Core Capabilities</h2>
-            <p className="text-slate-600">Built for Rwandan students, educators, and enterprise employers seeking verifiable skill credentials.</p>
+      {/* IBM Carbon Style Metric Cards Grid (Light Theme) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white border border-slate-200 p-6 space-y-3 hover:border-blue-900 transition-colors shadow-sm rounded-2xl">
+            <div className="flex items-center justify-between text-slate-400 font-mono text-xs">
+              <span>METRIC 01</span>
+              <BookOpen className="w-4 h-4 text-blue-900" />
+            </div>
+            <div className="text-3xl font-light text-slate-900">100+</div>
+            <div className="text-xs text-slate-500 font-mono">Curated Modules & Video Lectures</div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow space-y-4">
-              <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-bold text-xl">
-                01
-              </div>
-              <h3 className="text-xl font-bold text-slate-900">Enrolled-Only Assessments</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Assessments require login and strict enrollment. You only access tests for courses you are actively enrolled in, ensuring rigorous learning standards.
-              </p>
+          <div className="bg-white border border-slate-200 p-6 space-y-3 hover:border-blue-900 transition-colors shadow-sm rounded-2xl">
+            <div className="flex items-center justify-between text-slate-400 font-mono text-xs">
+              <span>METRIC 02</span>
+              <BarChart3 className="w-4 h-4 text-blue-900" />
             </div>
-
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow space-y-4">
-              <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-bold text-xl">
-                02
-              </div>
-              <h3 className="text-xl font-bold text-slate-900">Certificate Requests & Approvals</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Upon completing course modules, request your certificate. Administrators review and approve certificates with cryptographically verifiable QR codes.
-              </p>
-            </div>
-
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow space-y-4">
-              <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-bold text-xl">
-                03
-              </div>
-              <h3 className="text-xl font-bold text-slate-900">NISR Labour Data Sync</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Real-time integration with National Institute of Statistics of Rwanda indicators guiding you towards high-demand economic sectors.
-              </p>
-            </div>
+            <div className="text-3xl font-light text-slate-900">NISR LFS</div>
+            <div className="text-xs text-slate-500 font-mono">Real-time Labour Market Indicators</div>
           </div>
-        </section>
-      )}
+
+          <div className="bg-white border border-slate-200 p-6 space-y-3 hover:border-blue-900 transition-colors shadow-sm rounded-2xl">
+            <div className="flex items-center justify-between text-slate-400 font-mono text-xs">
+              <span>METRIC 03</span>
+              <Award className="w-4 h-4 text-blue-900" />
+            </div>
+            <div className="text-3xl font-light text-slate-900">SHA-256</div>
+            <div className="text-xs text-slate-500 font-mono">QR Verified Secure Certificates</div>
+          </div>
+
+          <div className="bg-white border border-slate-200 p-6 space-y-3 hover:border-blue-900 transition-colors shadow-sm rounded-2xl">
+            <div className="flex items-center justify-between text-slate-400 font-mono text-xs">
+              <span>METRIC 04</span>
+              <Briefcase className="w-4 h-4 text-blue-900" />
+            </div>
+            <div className="text-3xl font-light text-slate-900">Active</div>
+            <div className="text-xs text-slate-500 font-mono">Employer Matching & Stipends</div>
+          </div>
+        </div>
+      </section>
+
+      {/* System Core Functions & Architecture (Light Theme) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="border-b border-slate-200 pb-4 flex items-center justify-between">
+          <h2 className="text-lg font-mono tracking-wider uppercase text-slate-900 font-bold">
+            // Core System Functions & Architecture
+          </h2>
+          <span className="text-xs font-mono text-slate-500">CARBON ENTERPRISE SPEC v2.4</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white border border-slate-200 p-8 space-y-4 rounded-2xl shadow-sm">
+            <div className="w-10 h-10 bg-blue-900 text-white rounded-xl flex items-center justify-center font-mono font-bold text-sm">
+              01
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Course Discovery & Enrollment</h3>
+            <p className="text-slate-600 text-xs leading-relaxed font-light">
+              Public course catalog with granular skill filtering, difficulty levels, and syllabus previews. Enrolled users gain access to ordered lessons, videos, and practical notes.
+            </p>
+          </div>
+
+          <div className="bg-white border border-slate-200 p-8 space-y-4 rounded-2xl shadow-sm">
+            <div className="w-10 h-10 bg-blue-900 text-white rounded-xl flex items-center justify-center font-mono font-bold text-sm">
+              02
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Offline-First Synchronization</h3>
+            <p className="text-slate-600 text-xs leading-relaxed font-light">
+              Local IndexedDB caching for study notes and reading progress during network outages. Automatic conflict-free background queue synchronization upon reconnection.
+            </p>
+          </div>
+
+          <div className="bg-white border border-slate-200 p-8 space-y-4 rounded-2xl shadow-sm">
+            <div className="w-10 h-10 bg-blue-900 text-white rounded-xl flex items-center justify-center font-mono font-bold text-sm">
+              03
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Cryptographic Certificate Vault</h3>
+            <p className="text-slate-600 text-xs leading-relaxed font-light">
+              Server-validated course completion checks triggering unique SHA-256 hash IDs and scannable QR verification badges stored directly in the learner Skill Passport.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Step-by-Step Enterprise Navigation & Usage */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="border-b border-slate-200 pb-4 flex items-center justify-between">
+          <h2 className="text-lg font-mono tracking-wider uppercase text-slate-900 font-bold">
+            // Platform Operation Workflow
+          </h2>
+          <span className="text-xs font-mono text-slate-500">USER GUIDE</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white border border-slate-200 p-6 space-y-3 rounded-2xl shadow-sm">
+            <div className="text-xs font-mono text-slate-400">PHASE_01</div>
+            <h4 className="text-sm font-bold text-slate-900">Identity & Profile</h4>
+            <p className="text-slate-600 text-xs font-light leading-relaxed">
+              Register or sign in to obtain your National Passport ID. Customize profile details, avatar uploads, and account passwords securely.
+            </p>
+          </div>
+
+          <div className="bg-white border border-slate-200 p-6 space-y-3 rounded-2xl shadow-sm">
+            <div className="text-xs font-mono text-slate-400">PHASE_02</div>
+            <h4 className="text-sm font-bold text-slate-900">Curriculum & Study</h4>
+            <p className="text-slate-600 text-xs font-light leading-relaxed">
+              Enroll in verified courses, review structured modules, and study embedded lecture notes and video tutorials.
+            </p>
+          </div>
+
+          <div className="bg-white border border-slate-200 p-6 space-y-3 rounded-2xl shadow-sm">
+            <div className="text-xs font-mono text-slate-400">PHASE_03</div>
+            <h4 className="text-sm font-bold text-slate-900">Assessment & Grading</h4>
+            <p className="text-slate-600 text-xs font-light leading-relaxed">
+              Take strictly enforced online assessments to validate technical competency. Results update your portfolio automatically.
+            </p>
+          </div>
+
+          <div className="bg-white border border-slate-200 p-6 space-y-3 rounded-2xl shadow-sm">
+            <div className="text-xs font-mono text-slate-400">PHASE_04</div>
+            <h4 className="text-sm font-bold text-slate-900">Credentials & Matching</h4>
+            <p className="text-slate-600 text-xs font-light leading-relaxed">
+              Download printable PDF certificates with QR verification, explore NISR data insights, and apply for employer challenges.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

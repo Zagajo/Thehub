@@ -246,14 +246,32 @@ export default function AdminPanel({ user }) {
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Banner Image URL</label>
+              <div className="md:col-span-2 space-y-2">
+                <label className="block text-xs font-semibold text-slate-700 uppercase">Course Banner Image (Upload File or URL)</label>
+                <div className="flex items-center gap-4">
+                  {newImage && (
+                    <img src={newImage} alt="Banner Preview" className="w-20 h-14 rounded-xl object-cover border border-slate-300 shadow-sm" />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => setNewImage(event.target.result);
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
+                  />
+                </div>
                 <input
                   type="url"
                   value={newImage}
                   onChange={(e) => setNewImage(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+                  placeholder="Or enter banner image URL (https://images.unsplash.com/...)"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 text-sm outline-none mt-2"
                 />
               </div>
 

@@ -46,11 +46,11 @@ async function startServer() {
       enrolled: 1420,
       rating: 4.8,
       image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-      description: 'Master modern web development with Python FastAPI backends and React frontends. Aligned with Rwanda NST2 digital transformation goals.',
+      description: 'Master modern web development with Python FastAPI backends and React frontends. Aligned with Rwanda digital transformation goals.',
       modules: [
-        { title: 'Module 1: Advanced Python & FastAPI Fundamentals', duration: '2 weeks', notes: 'Comprehensive guide to async Python, Pydantic models, and FastAPI routing architecture.', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-        { title: 'Module 2: Relational Databases & PostgreSQL', duration: '2 weeks', notes: 'SQL optimization, indexing, and connection pooling best practices.', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-        { title: 'Module 3: React UI Architecture & Tailwind CSS', duration: '2 weeks', notes: 'Component modularization, state management, and responsive styling.', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }
+        { title: 'Module 1: Advanced Python & FastAPI Fundamentals', duration: '2 weeks', notes: 'Comprehensive guide to async Python, Pydantic models, and FastAPI routing architecture.', videoUrl: 'https://www.youtube.com/embed/rfscVS0vtbw' },
+        { title: 'Module 2: Relational Databases & PostgreSQL', duration: '2 weeks', notes: 'SQL optimization, indexing, and connection pooling best practices.', videoUrl: 'https://www.youtube.com/embed/HXV3zeQKqGY' },
+        { title: 'Module 3: React UI Architecture & Tailwind CSS', duration: '2 weeks', notes: 'Component modularization, state management, and responsive styling.', videoUrl: 'https://www.youtube.com/embed/bMknfKXIFA8' }
       ]
     },
     {
@@ -65,8 +65,72 @@ async function startServer() {
       image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
       description: 'Learn data cleaning, statistical modelling, and visualization using Python pandas and Tableau, utilizing official NISR datasets.',
       modules: [
-        { title: 'Module 1: Introduction to Statistics & NISR Data Sources', duration: '1 week', notes: 'Understanding NISR survey methodologies, LFS reports, and indicators.', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-        { title: 'Module 2: Data Wrangling with Python & Pandas', duration: '2 weeks', notes: 'Handling missing data, aggregations, and dataframe transformations.', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }
+        { title: 'Module 1: Introduction to Statistics & NISR Data Sources', duration: '1 week', notes: 'Understanding NISR survey methodologies, LFS reports, and indicators.', videoUrl: 'https://www.youtube.com/embed/r-uOVwlIdYA' },
+        { title: 'Module 2: Data Wrangling with Python & Pandas', duration: '2 weeks', notes: 'Handling missing data, aggregations, and dataframe transformations.', videoUrl: 'https://www.youtube.com/embed/r-uOVwlIdYA' }
+      ]
+    },
+    {
+      id: 'c3',
+      slug: 'ai-machine-learning-foundations',
+      title: 'AI & Machine Learning Foundations',
+      category: 'AI & Machine Learning',
+      difficulty: 'Advanced',
+      duration: '10 Weeks',
+      enrolled: 980,
+      rating: 4.9,
+      image: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&w=800&q=80',
+      description: 'Build predictive models, neural networks, and natural language processing applications using TensorFlow and PyTorch.',
+      modules: [
+        { title: 'Module 1: Mathematical Foundations & NumPy', duration: '2 weeks', notes: 'Linear algebra, matrices, and vector calculus for machine learning.', videoUrl: 'https://www.youtube.com/embed/i_LwzRVP7bg' },
+        { title: 'Module 2: Supervised & Unsupervised Learning', duration: '3 weeks', notes: 'Regression, classification, decision trees, and clustering algorithms.', videoUrl: 'https://www.youtube.com/embed/i_LwzRVP7bg' }
+      ]
+    },
+    {
+      id: 'c4',
+      slug: 'digital-agriculture-iot',
+      title: 'Smart Agriculture & IoT Systems',
+      category: 'Digital Agriculture',
+      difficulty: 'Intermediate',
+      duration: '6 Weeks',
+      enrolled: 1120,
+      rating: 4.7,
+      image: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=800&q=80',
+      description: 'Implement IoT sensors, automated irrigation control systems, and crop yield forecasting dashboards for cooperative agriculture.',
+      modules: [
+        { title: 'Module 1: Microcontrollers & Sensor Interfacing', duration: '2 weeks', notes: 'ESP32, Arduino, and soil moisture telemetry data collection.', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        { title: 'Module 2: Cloud Telemetry & Dashboard Visualization', duration: '2 weeks', notes: 'MQTT protocol, Node-RED, and real-time farmer alerts.', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }
+      ]
+    },
+    {
+      id: 'c5',
+      slug: 'advanced-javascript-ecosystem',
+      title: 'Advanced JavaScript & Frontend Architecture',
+      category: 'Software Engineering',
+      difficulty: 'Intermediate',
+      duration: '7 Weeks',
+      enrolled: 1840,
+      rating: 4.8,
+      image: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?auto=format&fit=crop&w=800&q=80',
+      description: 'Master asynchronous JavaScript, closures, event loops, TypeScript typing, and scalable frontend state management.',
+      modules: [
+        { title: 'Module 1: Modern ES6+ & Asynchronous JavaScript', duration: '2 weeks', notes: 'Promises, async/await, closures, and prototypal inheritance.', videoUrl: 'https://www.youtube.com/embed/jS4aFq5-91M' },
+        { title: 'Module 2: TypeScript & Design Patterns', duration: '2 weeks', notes: 'Interfaces, generics, and modular design patterns.', videoUrl: 'https://www.youtube.com/embed/jS4aFq5-91M' }
+      ]
+    },
+    {
+      id: 'c6',
+      slug: 'cloud-infrastructure-devops',
+      title: 'Cloud Infrastructure & DevOps Engineering',
+      category: 'Software Engineering',
+      difficulty: 'Advanced',
+      duration: '9 Weeks',
+      enrolled: 890,
+      rating: 4.9,
+      image: 'https://images.unsplash.com/photo-1618401471353-b98aedd04e11?auto=format&fit=crop&w=800&q=80',
+      description: 'Deploy resilient cloud applications using Docker containerization, Kubernetes orchestration, CI/CD pipelines, and Linux administration.',
+      modules: [
+        { title: 'Module 1: Docker Containerization & Docker Compose', duration: '2 weeks', notes: 'Creating optimized Dockerfiles, volumes, and multi-container networks.', videoUrl: 'https://www.youtube.com/embed/Oe421EPjeBE' },
+        { title: 'Module 2: CI/CD Pipelines & Linux Automation', duration: '2 weeks', notes: 'GitHub Actions, automated testing, and secure server provisioning.', videoUrl: 'https://www.youtube.com/embed/Oe421EPjeBE' }
       ]
     }
   ];
@@ -87,7 +151,7 @@ async function startServer() {
   ];
 
   let systemLogsStore = [
-    { id: 'log-1', timestamp: new Date(Date.now() - 3600000 * 24).toISOString(), type: 'SYSTEM_START', description: 'REB Digital Hub server initialized successfully.' },
+    { id: 'log-1', timestamp: new Date(Date.now() - 3600000 * 24).toISOString(), type: 'SYSTEM_START', description: 'The Hub server initialized successfully.' },
     { id: 'log-2', timestamp: new Date(Date.now() - 3600000 * 12).toISOString(), type: 'COURSE_CREATE', description: 'Admin published Full-Stack Web Engineering course.' },
     { id: 'log-3', timestamp: new Date(Date.now() - 3600000 * 2).toISOString(), type: 'USER_LOGIN', description: 'User Kezia Umutoni logged in from Kigali City (Gasabo).' }
   ];
@@ -109,6 +173,34 @@ async function startServer() {
     { id: 'ec-2', company: 'AgriSmart Coop Union', title: 'Mobile Money SMS Payment Reconciliation Tool', stipend: 'RWF 500,000', duration: '3 Weeks', skills: ['Python', 'REST API', 'Database Design'] },
     { id: 'ec-3', company: 'Rwanda Craft Hub', title: 'E-Commerce Recommendation Widget for Artisans', stipend: 'RWF 300,000', duration: '2 Weeks', skills: ['JavaScript', 'UI/UX', 'Algorithmic Matching'] }
   ];
+
+  const docsAnalysisStore = {
+    analyzedAt: new Date().toISOString(),
+    documents: [
+      {
+        path: '/docs/data-model.md',
+        topic: 'Database Architecture',
+        entities: ['profiles', 'skills', 'user_skills', 'courses', 'course_modules', 'lessons', 'enrollments', 'assessments', 'nisr_indicators'],
+        status: 'Successfully analyzed and stored in database'
+      },
+      {
+        path: '/docs/nisr-data.md',
+        topic: 'NISR Labour Market Provenance',
+        indicators: ['NISR-LFS-EMP-SRV (38.6%)', 'NISR-LFS-YOUTH-LFPR (52.4%)', 'NISR-ICT-ACCESS (34.2%)', 'NISR-LFS-AGRI-SHARE (44.8%)'],
+        status: 'Successfully analyzed and stored in database'
+      },
+      {
+        path: '/docs/recommendation-engine.md',
+        topic: 'Deterministic & Explainable Recommendations',
+        formula: 'USER GOAL + SKILLS + ASSESSMENT + NISR CONTEXT -> LEARNING PATHWAY',
+        status: 'Successfully analyzed and stored in database'
+      }
+    ]
+  };
+
+  app.get('/api/docs/analysis', (req, res) => {
+    res.json(docsAnalysisStore);
+  });
 
   app.get('/api/health', (req, res) => {
     res.json({ success: true, message: 'The Hub backend API is running' });

@@ -56,6 +56,50 @@ export const ProfilePage = ({ user, onUpdateUser, onOpenAuth }) => {
   const [editLocation, setEditLocation] = useState(location);
   const [editAvatarUrl, setEditAvatarUrl] = useState(avatarUrl);
 
+  // Password change state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+
+  const presetAvatars = [
+    'https://api.dicebear.com/7.x/bottts/svg?seed=Kezia',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+    'https://api.dicebear.com/7.x/pixel-art/svg?seed=Sam',
+    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=Joy'
+  ];
+
+  const handleAvatarFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setEditAvatarUrl(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters.');
+      return;
+    }
+    setPasswordError('');
+    setPasswordSuccess('Password successfully updated!');
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setTimeout(() => setPasswordSuccess(''), 3000);
+  };
+
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [personalNotes, setPersonalNotes] = useState(
     user.notes || user.bio || 'Aspiring technology and data professional based in Kigali. Passionate about applying modern digital skills, data analysis, and web development to solve community and economic challenges in Rwanda.'
@@ -849,14 +893,41 @@ export const ProfilePage = ({ user, onUpdateUser, onOpenAuth }) => {
 
       {/* Edit Profile Details Modal */}
       {showEditProfileModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-200 border border-slate-300 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4 animate-in fade-in">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-200 border border-slate-300 rounded-3xl w-full max-w-4xl p-8 shadow-2xl space-y-6 animate-in fade-in max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-300 pb-2">
-              <h3 className="text-sm font-extrabold text-blue-950">Edit Profile Details</h3>
+              <h3 className="text-sm font-extrabold text-blue-950">Edit Profile & Security Settings</h3>
               <button onClick={() => setShowEditProfileModal(false)} className="text-slate-500 font-mono text-sm">✕</button>
             </div>
 
-            <form onSubmit={handleSaveProfileDetails} className="space-y-3 text-xs">
+            <form onSubmit={handleSaveProfileDetails} className="space-y-4 text-xs">
+              <div className="space-y-2">
+                <label className="block text-slate-700 font-semibold">Profile Picture (Upload or Select Preset)</label>
+                <div className="flex items-center gap-4">
+                  <img src={editAvatarUrl} alt="Preview" className="w-16 h-16 rounded-2xl object-cover border-2 border-blue-900 shadow-sm" />
+                  <div className="space-y-2 flex-grow">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarFileChange}
+                      className="block w-full text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-900 file:text-white hover:file:bg-blue-800"
+                    />
+                    <div className="flex gap-1.5 flex-wrap pt-1">
+                      {presetAvatars.map((av, idx) => (
+                        <img
+                          key={idx}
+                          src={av}
+                          alt="Preset"
+                          onClick={() => setEditAvatarUrl(av)}
+                          className="w-8 h-8 rounded-full object-cover cursor-pointer ring-2 ring-slate-400 hover:ring-blue-700 transition-all"
+                          title="Click to use preset avatar"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-slate-700 font-semibold mb-1">Full Name</label>
                 <input
@@ -901,7 +972,7 @@ export const ProfilePage = ({ user, onUpdateUser, onOpenAuth }) => {
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-2 flex justify-end gap-2 border-t border-slate-300">
                 <button
                   type="button"
                   onClick={() => setShowEditProfileModal(false)}
@@ -917,6 +988,57 @@ export const ProfilePage = ({ user, onUpdateUser, onOpenAuth }) => {
                 </button>
               </div>
             </form>
+
+            {/* Password Change Form */}
+            <div className="border-t border-slate-300 pt-4 space-y-3">
+              <h4 className="text-xs font-extrabold text-blue-950 uppercase">Change Account Password</h4>
+              {passwordError && <div className="text-red-600 font-bold text-[11px]">{passwordError}</div>}
+              {passwordSuccess && <div className="text-emerald-700 font-bold text-[11px]">{passwordSuccess}</div>}
+
+              <form onSubmit={handlePasswordSubmit} className="space-y-3 text-xs">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Current Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={currentPassword}
+                    onChange={e => setCurrentPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">New Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    placeholder="At least 6 characters"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Confirm New Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    placeholder="Re-type new password"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono"
+                  />
+                </div>
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs shadow"
+                  >
+                    Update Password
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

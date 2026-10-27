@@ -1,0 +1,589 @@
+# MASTER HACKATHON PROMPT: TRANSFORM THE HUB INTO A WORLD-CLASS ENTERPRISE LEARNING PLATFORM
+
+## 1. YOUR ROLE AND MISSION
+
+Act as a senior full-stack software engineer, enterprise UX/UI designer, authentication and security specialist, learning-management-system architect, offline-first application engineer, and professional certificate designer.
+
+Your task is to inspect, improve, and complete **The Hub — Data-Informed Skills & Learning Platform**, transforming it into a polished, production-oriented, hackathon-ready digital learning platform inspired by the professional design quality, information architecture, clarity, accessibility, and consistency of IBM's website and learning ecosystem.
+
+Do not merely create a beautiful landing page, a static prototype, or a collection of disconnected components. Build a functional application in which authentication, course discovery, course enrollment, modules, lessons, assessments, progress tracking, offline learning, certificate generation, and learner dashboards work together.
+
+The application should feel like a modern enterprise technology platform: trustworthy, intelligent, minimal, structured, accessible, and easy to use for beginners and professionals.
+
+Use IBM's website as a design reference for its enterprise presentation, typography hierarchy, spacious layouts, navigation, content organization, and professional tone. Do not copy IBM logos, trademarks, copyrighted images, proprietary course content, or exact page layouts. Create a distinctive visual identity for The Hub.
+
+**Primary objective:** Deliver a coherent, working full-stack application that judges can explore during a hackathon and that learners can realistically use to develop, assess, track, and demonstrate their skills.
+
+## 2. INSPECT THE EXISTING PROJECT BEFORE MAKING CHANGES
+
+Before writing code, inspect the entire repository, its README, package files, folder structure, database schema, migrations, existing API endpoints, React components, authentication logic, and environment configuration.
+
+The existing architecture is organized as follows:
+
+- Frontend: React, Vite, Tailwind CSS, Lucide icons, and React Router or the routing solution already installed.
+- Backend: Node.js, Express, and REST API endpoints.
+- Database: Supabase PostgreSQL.
+- Existing feature areas: Dashboard, Courses, Course Details, Learning Paths, NISR Insights, Skill Passport, authentication, assessments, and recommendations.
+
+Preserve useful existing functionality. Extend the current implementation rather than replacing the application unnecessarily.
+
+Inspect the existing database schema before adding tables. Reuse existing entities, relationships, services, and endpoints whenever appropriate. Do not create duplicate tables or competing authentication systems.
+
+Create a brief implementation checklist, then begin working through it. Do not stop after producing a plan or explaining what needs to be done. Implement the actual changes, run the available checks, fix errors, and summarize the finished work.
+
+If a feature depends on unavailable credentials or external services, implement the appropriate integration structure and provide an honest, functional fallback. Never simulate a successful database write, authentication, assessment submission, or certificate verification when it has not actually occurred.
+
+## 3. VISUAL DESIGN: IBM-INSPIRED ENTERPRISE EXPERIENCE
+
+Create a consistent, premium visual system inspired by enterprise technology websites.
+
+### Design principles
+
+1. Use clear visual hierarchy, strong typography, meaningful whitespace, and consistent alignment.
+2. Make content easy to scan through descriptive headings, short introductions, structured cards, and well-organized sections.
+3. Use professional transitions and restrained animation rather than excessive gradients, bouncing elements, or decorative effects.
+4. Keep navigation predictable and provide clear page titles and breadcrumbs where appropriate.
+5. Make every page look like part of the same product.
+6. Prioritize usability on desktop, tablet, and mobile.
+7. Use original The Hub branding throughout the interface.
+
+### Color system
+
+Use a professional, accessible palette:
+
+- Midnight navy: `#0F172A`
+- Deep enterprise blue: `#1E3A8A`
+- Interactive blue: `#2563EB`
+- Light background: `#F1F5F9`
+- Card surfaces: `#FFFFFF`
+- Secondary surfaces: `#E2E8F0`
+- Primary text: `#0F172A`
+- Secondary text: `#475569`
+- Success: `#15803D`
+- Warning: `#B45309`
+- Error: `#B91C1C`
+
+Use blue for primary actions, links, focus states, and progress indicators. Use red only for meaningful errors and urgent warnings. Maintain sufficient contrast and never rely on color alone to communicate status.
+
+### Typography and layout
+
+Use a modern, readable sans-serif typeface. Establish consistent sizes for page titles, section headings, card headings, body text, labels, and metadata.
+
+Use a responsive grid, a consistent spacing scale, rounded corners in moderation, subtle borders, and light shadows. Use high-quality, relevant illustrations or original graphics only where they improve understanding.
+
+Avoid oversized hero sections that push useful content below the fold. The interface should feel professional, efficient, and information-rich without becoming crowded.
+
+### Main navigation
+
+Create a consistent header with:
+
+- The Hub logo and name.
+- Home or Dashboard.
+- Explore Courses.
+- Learning Paths.
+- Assessments.
+- Skills and Opportunities.
+- NISR Insights.
+- My Learning.
+- Skill Passport.
+- A profile menu containing account settings and sign-out.
+
+Adapt navigation to the user's authentication state and role. On smaller screens, use an accessible mobile menu.
+
+Do not display every option indiscriminately. Group related functionality logically and hide or disable unavailable features with a clear explanation.
+
+## 4. LANDING PAGE AND COURSE DISCOVERY
+
+The landing page should immediately explain what The Hub does and help users discover relevant learning opportunities.
+
+Include a concise hero section explaining that learners can discover skills, follow structured courses, complete practical assessments, and build evidence of their capabilities.
+
+Provide a prominent course search field with filtering by:
+
+- Subject or skill category.
+- Beginner, intermediate, and advanced difficulty.
+- Learning format.
+- Estimated duration.
+- Practical or theoretical focus.
+- Learning pathway.
+
+Show featured courses, recommended learning pathways, popular skill categories, and a concise explanation of how the platform works.
+
+Course cards should contain the course title, short description, level, estimated duration, module count, relevant skills, instructor or content source when available, and a clear action.
+
+For authenticated learners, show enrollment status and saved progress. For guests, allow course browsing and syllabus inspection without requiring registration.
+
+When a guest selects Enroll or Start Learning, open a polished authentication modal that preserves the learner's intended destination. After successful authentication, return the user to the selected course.
+
+Do not make visitors authenticate simply to browse public course descriptions.
+
+## 5. SECURE, COMPLETE AUTHENTICATION
+
+Implement authentication as a real full-stack feature using the existing Supabase setup wherever possible.
+
+Support registration, login, logout, session restoration, password reset, and appropriate account validation. Add email verification if supported by the project's configuration.
+
+### Registration
+
+Provide fields for name, email address, password, and password confirmation when applicable.
+
+Validate the email format, required fields, password policy, and matching passwords. Explain requirements before submission.
+
+Prevent duplicate account creation where supported by the authentication provider. If registration requires email verification, display a clear confirmation message and explain the next step.
+
+### Login
+
+Provide email and password fields, a password visibility control, a password reset link, and a submit button with loading feedback.
+
+Handle incorrect credentials with a clear message such as:
+
+"Email or password is incorrect. Check your details and try again."
+
+Use appropriate account-enumeration protections and generic responses where necessary. Do not reveal whether an arbitrary email belongs to an existing account.
+
+### Authentication error handling
+
+Every authentication form must handle:
+
+- Missing required fields.
+- Invalid email format.
+- Incorrect credentials.
+- Weak passwords.
+- Password mismatch.
+- Expired sessions.
+- Network failures.
+- Rate limiting.
+- Email verification requirements.
+- Duplicate registration attempts.
+- Authentication provider errors.
+
+Translate provider errors into understandable messages. Never expose stack traces, raw database errors, API secrets, or internal configuration.
+
+Display field-specific errors near the affected input and an accessible form-level error when appropriate.
+
+Preserve valid field values when a request fails, but never retain passwords unnecessarily.
+
+Prevent duplicate submissions while a request is in progress. Show a loading indicator, disable the submit button temporarily, and restore it when the operation completes.
+
+### Security requirements
+
+Keep Supabase privileged credentials exclusively on the server. Use the public or publishable key in frontend code only where appropriate.
+
+Never expose a service-role key through Vite variables, client bundles, browser storage, or API responses.
+
+Use server-side authorization, validated request data, secure session handling, and database Row Level Security policies. Verify that users can access only their own private records.
+
+A hidden frontend button is not a security boundary. Enforce permissions on the server and database.
+
+Provide logout functionality that clears the appropriate session state and protects private routes.
+
+## 6. COURSE, MODULE, LESSON, AND ASSESSMENT ARCHITECTURE
+
+Build a structured learning system in which courses contain modules, modules contain ordered lessons, and courses or modules can contain assessments.
+
+Use a consistent hierarchy:
+
+Course → Modules → Lessons → Exercises → Assessments → Completion.
+
+### Course detail page
+
+Each course page should include:
+
+- Course overview.
+- Learning objectives.
+- Intended audience.
+- Prerequisites.
+- Estimated duration.
+- Difficulty level.
+- Skills covered.
+- Course syllabus.
+- Module and lesson list.
+- Assessment requirements.
+- Completion criteria.
+- Certificate eligibility.
+- Enrollment and progress information.
+
+Display module expansion controls so learners can view the syllabus without unnecessary navigation.
+
+Each module should show its title, description, lesson count, estimated duration, and completion status.
+
+Each lesson should show its title, learning objectives, content format, duration, and status: locked, available, in progress, or completed.
+
+Support text lessons, diagrams, code examples, practical exercises, downloadable study notes, and video links where appropriate.
+
+Use structured content components rather than storing arbitrary executable HTML in lessons.
+
+### Learning interface
+
+Create a distraction-free learning screen with three main areas:
+
+1. A course sidebar containing modules and lessons.
+2. A central content area containing the current lesson.
+3. A compact progress panel showing completion, current position, and the next recommended activity.
+
+On mobile, collapse the sidebar into an accessible navigation drawer.
+
+Provide Previous Lesson and Next Lesson controls, a Mark as Complete action when appropriate, and a visible Save Status indicator.
+
+When a learner returns to a course, restore the last valid lesson and saved position where possible.
+
+Make locked content understandable by explaining which prerequisite or previous activity must be completed.
+
+Do not lock all content unnecessarily. Allow learners to review completed lessons freely.
+
+## 7. ASSESSMENTS AND PRACTICAL EVALUATION
+
+Build a coherent assessment system connected to courses, modules, and lessons.
+
+Support multiple-choice questions, multiple-select questions, short answers, practical tasks, and project submissions when appropriate to the course.
+
+Assessment pages should display the title, instructions, number of questions or tasks, permitted duration where applicable, passing criteria, and submission rules.
+
+Provide a clear start action and distinguish practice activities from formal assessments.
+
+### Assessment rules
+
+A formal assessment must not silently save answers for offline submission or automatically submit them after reconnection. When offline, prevent the learner from starting a formal assessment or clearly explain that an active assessment requires a reliable connection.
+
+For an assessment already in progress, handle connection loss according to the configured assessment policy. Preserve only the information allowed by that policy, clearly communicate the interruption, and never fabricate a successful submission.
+
+For online submission, validate the attempt on the server, enforce attempt limits, and calculate results using trusted server-side logic.
+
+Where relevant, randomize question order or question selection using server-controlled rules.
+
+Do not expose correct answers or marking keys in frontend code before the attempt is finalized.
+
+After submission, show the result, score, pass or fail status, feedback, and recommended next steps according to the assessment's configured release policy.
+
+Allow retries only when permitted. Show previous attempt history where appropriate.
+
+### Tri-part competency assessment
+
+Where supported by the course, implement the project's proposed assessment model:
+
+- Theory and knowledge: 30%.
+- Practical task: 40%.
+- Capstone evidence project: 30%.
+
+Calculate the overall score using the configured weights. Do not claim full competency if a required component is missing.
+
+Display separate scores for theory, practical work, and capstone evidence. Clearly distinguish course completion from verified competence.
+
+Make the assessment interface accessible, responsive, and easy to understand.
+
+## 8. OFFLINE-FIRST LEARNING AND PROGRESS SAVING
+
+Offline learning is a central requirement, especially for learners with inconsistent or expensive internet access.
+
+Implement an offline-first architecture for eligible learning content using a service worker and IndexedDB. Use localStorage only for small, non-sensitive preferences where appropriate.
+
+### Offline capabilities
+
+Authenticated learners should be able to download or cache eligible lesson content, reading materials, and study notes for offline review.
+
+Support a low-bandwidth mode that prioritizes text and lightweight diagrams, avoids unnecessary video downloads, and reduces network requests.
+
+Display a clear network status indicator:
+
+- Online.
+- Offline.
+- Sync pending.
+- Syncing.
+- Synced.
+- Sync failed.
+
+Never show "Saved to cloud" when the content exists only on the local device.
+
+### Progress tracking
+
+For eligible learning activities, save progress locally as the learner interacts with the lesson. This may include:
+
+- Last opened lesson.
+- Completed lessons.
+- Reading position.
+- Exercise completion.
+- Non-assessment notes.
+- Last local update time.
+- Pending synchronization status.
+
+Use IndexedDB to store structured records. Ensure the interface remains responsive and does not require an active network connection for every reading or navigation action.
+
+When connectivity returns, synchronize eligible progress with the backend.
+
+Use stable record identifiers, authenticated ownership, timestamps, version numbers or revision metadata, and idempotent synchronization operations to prevent duplicate updates.
+
+Handle simultaneous updates carefully. Define a deterministic conflict-resolution policy and preserve valid completed work wherever possible.
+
+If synchronization fails, keep eligible local progress, show the pending status, and provide a retry action.
+
+After successful synchronization, confirm that the server accepted the update before displaying a synced status.
+
+### Offline security and assessment restrictions
+
+Do not store passwords, service-role keys, access tokens, or unnecessary personal information in offline lesson storage.
+
+Formal assessments must require a live connection for starting and submitting attempts. Practice exercises may be available offline only when explicitly configured as practice activities.
+
+When an offline learner opens a formal assessment, show a message such as:
+
+"This assessment requires an internet connection. Your saved lesson progress is available offline and will synchronize when you reconnect."
+
+Do not represent offline assessment results as verified grades or certificates.
+
+Design offline behavior as an explicit product feature, not as a superficial badge that appears when the browser loses connectivity.
+
+## 9. LEARNER DASHBOARD AND PROGRESS ANALYTICS
+
+Create a useful dashboard for signed-in learners.
+
+At the top, display a personalized welcome, a clear Continue Learning action, and a compact overview of the learner's activity.
+
+Include:
+
+- Enrolled courses.
+- Courses in progress.
+- Completed courses.
+- Lessons completed.
+- Assessment results.
+- Pending synchronization.
+- Certificates earned.
+- Recommended next learning activities.
+
+Use simple progress bars and clear numerical summaries. Make it obvious what each percentage represents.
+
+A course progress percentage should be calculated consistently from the course's eligible lessons or explicitly defined completion rules. Do not inflate progress simply because a course was opened.
+
+Provide a Continue Learning card that returns the learner to their last saved lesson.
+
+Display recommendations based on available evidence such as learning goals, self-assessments, completed courses, and identified skill gaps.
+
+Use explainable recommendation logic. Tell learners why a course is recommended instead of making unsupported claims about job readiness.
+
+## 10. PROFESSIONAL COURSE COMPLETION CERTIFICATES
+
+Create an attractive certificate system that feels credible, modern, and suitable for a professional portfolio.
+
+Certificates should be issued only when the server confirms that the learner has satisfied the course's completion requirements.
+
+### Certificate design
+
+Use an original landscape certificate design with a restrained enterprise aesthetic.
+
+Include:
+
+- The Hub branding.
+- Certificate title.
+- Learner's verified display name.
+- Course title.
+- A concise statement of achievement.
+- Completion date.
+- Certificate identification number.
+- Issuing organization.
+- Authorized issuer or program designation when genuinely applicable.
+- Verification URL or QR code.
+- Optional final assessment result when appropriate.
+- A restrained decorative border and original graphic elements.
+
+Use strong typography, balanced spacing, generous margins, and a clear hierarchy. The certificate should look polished both on screen and when printed.
+
+Do not copy IBM's certificates, logos, seals, signatures, or branding. Do not fabricate accreditation, institutional endorsement, or professional licensing.
+
+### Certificate issuance
+
+Create a certificate record linked to the authenticated learner, completed course, and completion evidence.
+
+Generate a unique, non-guessable certificate identifier. Provide a printable, downloadable PDF and a public verification page.
+
+The verification page should display the certificate's valid or revoked status, certificate identifier, course title, issuing organization, and the minimum information needed to verify authenticity.
+
+Respect learner privacy. Avoid exposing email addresses, private assessment details, or unrelated profile information on public pages.
+
+Validate certificate eligibility on the server. Do not rely on a frontend button or client-side percentage to authorize issuance.
+
+Prevent duplicate certificates for the same achievement unless the platform explicitly supports reissuance.
+
+If a certificate is revoked, the public verification page must reflect that status.
+
+Course completion and demonstrated competency must remain distinct. A learner may receive a completion certificate without being described as professionally certified unless a genuine, authorized certification process exists.
+
+## 11. SKILL PASSPORT AND LEARNING PATHWAYS
+
+Extend the existing Skill Passport to present a learner's demonstrated skills, completed courses, eligible certificates, assessment results, practical projects, and capstone evidence.
+
+Clearly label the source and verification status of each achievement.
+
+Provide privacy controls for public sharing. The learner should choose which information is exposed through a shareable profile.
+
+Connect learning pathways to relevant courses and prerequisite skills.
+
+The existing recommendation engine should explain skill gaps using target-role requirements, assessment evidence, and available labour-market context.
+
+Do not guarantee employment, income, or professional qualification.
+
+Make the next step actionable: recommend a course, a practical task, or an assessment that helps address a specific skill gap.
+
+## 12. RWANDA LABOUR-MARKET CONTEXT AND NISR INSIGHTS
+
+Preserve The Hub's existing focus on Rwanda's labour market and the National Institute of Statistics of Rwanda.
+
+Keep the NISR Insights page as a distinct area where learners can explore relevant employment, education, sector, and digital-connectivity indicators.
+
+Display sources, dataset names, definitions, dates, methodology, and relevant limitations whenever available.
+
+Do not invent current statistics or present historical figures as current. Verify the source data before refreshing figures.
+
+Use labour-market information to inform course discovery and learning-pathway explanations, not to promise a job outcome.
+
+Ensure the interface remains understandable to users who are unfamiliar with statistics.
+
+## 13. BACKEND, DATABASE, AND API INTEGRATION
+
+Connect all major screens to the existing Express backend and Supabase database.
+
+Inspect the current database schema before making changes. Add migrations only where needed and keep them repeatable and safe.
+
+Use appropriate relational models for courses, modules, lessons, enrollments, lesson progress, assessment definitions, assessment attempts, submissions, certificates, and certificate verification.
+
+Enforce foreign keys, uniqueness constraints, validation, and appropriate indexes.
+
+Implement or extend API routes for course discovery, course details, enrollment, lesson access, progress synchronization, assessment attempts, results, certificates, and verification.
+
+Use consistent API response structures and meaningful HTTP status codes.
+
+Validate request bodies and path parameters on the server. Handle missing records, unauthorized requests, invalid input, conflicts, rate limits, and service outages gracefully.
+
+Use transactions or other appropriate consistency mechanisms when multiple database updates must succeed together.
+
+Configure Row Level Security policies and server-side authorization so learners cannot read or modify another learner's private records.
+
+Do not place privileged credentials in frontend code. Do not disable security controls to make a demonstration appear functional.
+
+Keep database errors in server logs where appropriate, but return safe, useful messages to users.
+
+## 14. ACCESSIBILITY, RESPONSIVENESS, AND USABILITY
+
+Meet practical accessibility expectations throughout the application.
+
+Use semantic HTML, correctly associated form labels, keyboard navigation, visible focus indicators, meaningful button labels, and accessible dialogs.
+
+Make error messages available to screen readers. Use appropriate live regions for changing status messages.
+
+Ensure interactive targets are easy to operate on mobile. Maintain readable text, suitable contrast, and layouts that adapt to small screens.
+
+Avoid relying solely on hover effects or color to communicate important information.
+
+Respect reduced-motion preferences and provide clear loading, empty, success, and error states.
+
+Use consistent button styles and predictable interaction patterns.
+
+Keep the learning experience simple enough for a first-time user to understand without extensive instructions.
+
+## 15. HACKATHON DEMONSTRATION AND SEED DATA
+
+Prepare a complete, coherent demonstration journey for judges.
+
+A judge should be able to:
+
+1. Open the landing page and discover a course.
+2. Review its syllabus as a guest.
+3. Register or sign in.
+4. Enroll in the course.
+5. Open a module and study a lesson.
+6. Complete a practice activity.
+7. See progress saved.
+8. Disconnect from the internet and revisit eligible cached content.
+9. Reconnect and observe pending progress synchronize.
+10. Complete an online formal assessment.
+11. Review the result.
+12. Satisfy the configured completion requirements.
+13. Generate and download a completion certificate.
+14. Open its public verification page.
+15. Review achievements in the Skill Passport.
+
+Provide realistic seed data for a small set of courses, modules, lessons, and assessments across relevant skills such as web development, programming, data analysis, and digital productivity.
+
+Ensure that seeded content is internally consistent and that the completion requirements can actually be met during a demonstration.
+
+Do not hardcode successful login responses, pretend to submit data to Supabase, or display fabricated learner progress as if it came from a real account.
+
+If a demo learner feature already exists, inspect its implementation and ensure it cannot bypass authorization or expose privileged credentials.
+
+## 16. TESTING AND QUALITY ASSURANCE
+
+Before considering the work complete, run the project's available frontend and backend checks.
+
+Test registration, login, logout, password reset, session restoration, invalid form submissions, course browsing, enrollment, module navigation, lesson completion, progress persistence, synchronization failures, assessment restrictions, assessment grading, certificate issuance, and certificate verification.
+
+Test at least the following failure scenarios:
+
+- Invalid email or password.
+- Missing required fields.
+- Expired or invalid session.
+- Unauthorized access to another learner's data.
+- Failed network request.
+- Offline lesson access.
+- Offline formal assessment attempt.
+- Failed progress synchronization.
+- Incomplete course certificate request.
+- Duplicate certificate request.
+- Revoked certificate verification.
+
+Fix broken imports, invalid TypeScript or JavaScript syntax, missing environment variables, failed API requests, and responsive layout issues.
+
+Use automated tests where practical. Do not claim that tests passed unless they were actually executed.
+
+Provide clear setup instructions for local development, required environment variables, database migrations, and the commands used to run the frontend and backend.
+
+## 17. IMPLEMENTATION PRIORITIES
+
+Work in the following order:
+
+**Priority 1 — Core functionality:** inspect the codebase, establish the design system, implement secure authentication and validation, improve course discovery, and ensure module and lesson navigation works.
+
+**Priority 2 — Learning workflow:** implement enrollment, saved progress, learner dashboards, assessment logic, and reliable backend integration.
+
+**Priority 3 — Offline support:** implement eligible lesson caching, IndexedDB progress persistence, synchronization status, and strict online-only formal assessment rules.
+
+**Priority 4 — Certificates and portfolio:** implement completion eligibility, PDF generation, unique identifiers, public verification, and Skill Passport integration.
+
+**Priority 5 — Refinement:** polish responsive layouts, accessibility, error states, loading states, realistic seed data, and the hackathon demonstration journey.
+
+If time is limited, complete a small number of end-to-end workflows properly rather than creating many incomplete screens.
+
+## 18. FINAL DELIVERY REQUIREMENTS
+
+Deliver actual code changes within the existing repository.
+
+Do not return only a design description, screenshots, static mockups, or code snippets without integrating them.
+
+Preserve working project features and explain any unavoidable breaking changes.
+
+At the end, provide a concise implementation report covering:
+
+- What was implemented.
+- Which files and components changed.
+- Which database migrations were added.
+- Which API endpoints were created or updated.
+- How authentication and authorization work.
+- How offline learning and synchronization work.
+- How assessments are protected.
+- How certificates are issued and verified.
+- Which tests were executed and their results.
+- Any outstanding limitations or external configuration requirements.
+- The exact commands to run the application locally.
+
+If you encounter an error, investigate it and attempt to fix it rather than stopping at the first failure. If an external dependency prevents completion, state exactly what is missing and what remains to be configured.
+
+## FINAL INSTRUCTION
+
+Act as an engineer responsible for delivering a working product, not merely proposing one.
+
+Build The Hub as a polished, original, IBM-inspired enterprise learning platform with secure authentication, structured courses and modules, reliable assessments, honest progress tracking, practical offline learning, professional certificates, and a verifiable Skill Passport.
+
+Keep the experience simple, fast, accessible, responsive, secure, and coherent.
+
+Every important button must work. Every form must validate its input. Every error must be understandable. Every progress indicator must reflect real saved data. Every certificate must be earned through verified completion rules.
+
+Prioritize correctness, security, usability, and a convincing end-to-end learner experience over decorative complexity.
+
+Begin by inspecting the existing repository, then implement, test, and refine the application until the highest-priority workflows function end to end.

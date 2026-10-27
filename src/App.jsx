@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import OfflineBanner from './components/OfflineBanner';
 import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import ProfileModal from './components/ProfileModal';
@@ -11,13 +13,13 @@ import NisrHub from './pages/NisrHub';
 import EmployerMatching from './pages/EmployerMatching';
 import AdminPanel from './pages/AdminPanel';
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState('home');
+function AppContent() {
   const [user, setUser] = useState(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // Default initial demo user or loaded from storage
   useEffect(() => {
     const saved = localStorage.getItem('hub_user');
     if (saved) {
@@ -33,9 +35,9 @@ export default function App() {
     setUser(loggedInUser);
     localStorage.setItem('hub_user', JSON.stringify(loggedInUser));
     if (loggedInUser.role === 'admin') {
-      setActiveTab('admin');
+      navigate('/admin');
     } else {
-      setActiveTab('home');
+      navigate('/');
     }
   };
 
@@ -47,30 +49,45 @@ export default function App() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('hub_user');
-    setActiveTab('home');
+    navigate('/');
   };
+
+  // Determine active tab for navbar based on current pathname
+  const pathname = location.pathname;
+  let activeTab = 'home';
+  if (pathname.includes('/courses')) activeTab = 'courses';
+  else if (pathname.includes('/passport')) activeTab = 'passport';
+  else if (pathname.includes('/assessments')) activeTab = 'assessments';
+  else if (pathname.includes('/nisr')) activeTab = 'nisr';
+  else if (pathname.includes('/employer')) activeTab = 'employer';
+  else if (pathname.includes('/admin')) activeTab = 'admin';
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
       <Navbar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          if (tab === 'home') navigate('/');
+          else navigate(`/${tab}`);
+        }}
         user={user}
         onOpenAuth={() => setAuthOpen(true)}
         onLogout={handleLogout}
         onOpenProfile={() => setProfileOpen(true)}
       />
+      <OfflineBanner />
 
       <main className="flex-grow">
-        {activeTab === 'home' && <Home setActiveTab={setActiveTab} user={user} onOpenAuth={() => setAuthOpen(true)} />}
-        {activeTab === 'courses' && <Courses user={user} onOpenAuth={() => setAuthOpen(true)} />}
-        {activeTab === 'passport' && <SkillPassport user={user} onOpenAuth={() => setAuthOpen(true)} />}
-        {activeTab === 'assessments' && <Assessments user={user} onOpenAuth={() => setAuthOpen(true)} setActiveTab={setActiveTab} />}
-        {activeTab === 'nisr' && <NisrHub />}
-        {activeTab === 'employer' && <EmployerMatching user={user} onOpenAuth={() => setAuthOpen(true)} />}
-        {activeTab === 'admin' && <AdminPanel user={user} />}
+        <Routes>
+          <Route path="/" element={<Home setActiveTab={(tab) => navigate(tab === 'home' ? '/' : `/${tab}`)} user={user} onOpenAuth={() => setAuthOpen(true)} />} />
+          <Route path="/courses" element={<Courses user={user} onOpenAuth={() => setAuthOpen(true)} />} />
+          <Route path="/passport" element={<SkillPassport user={user} onOpenAuth={() => setAuthOpen(true)} />} />
+          <Route path="/assessments" element={<Assessments user={user} onOpenAuth={() => setAuthOpen(true)} setActiveTab={(tab) => navigate(`/${tab}`)} />} />
+          <Route path="/nisr" element={<NisrHub />} />
+          <Route path="/employer" element={<EmployerMatching user={user} onOpenAuth={() => setAuthOpen(true)} />} />
+          <Route path="/admin" element={<AdminPanel user={user} />} />
+        </Routes>
       </main>
-
 
       <AuthModal
         isOpen={authOpen}
@@ -98,5 +115,13 @@ export default function App() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }

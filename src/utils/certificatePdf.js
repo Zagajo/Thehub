@@ -12,11 +12,15 @@ export function generateCertificatePdf(cert) {
       <head>
         <title>Certificate - ${cert.courseTitle}</title>
         <style>
+          @page {
+            size: landscape;
+            margin: 0;
+          }
           body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f8fafc;
             margin: 0;
-            padding: 40px;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,66 +28,72 @@ export function generateCertificatePdf(cert) {
           }
           .certificate {
             background: white;
-            border: 12px solid #0f172a;
-            padding: 60px;
-            max-width: 900px;
-            width: 100%;
+            border: 14px solid #0f172a;
+            padding: 50px 70px;
+            width: 1122px;
+            height: 866px; /* Aspect ratio 1.294:1 */
+            box-sizing: border-box;
             text-align: center;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             border-radius: 16px;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
           }
           .header {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: #1e3a8a;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             text-transform: uppercase;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
           }
           .title {
-            font-size: 36px;
+            font-size: 38px;
             font-weight: 900;
             color: #0f172a;
-            margin: 10px 0 30px 0;
+            margin: 10px 0;
+            letter-spacing: -0.5px;
           }
           .recipient {
-            font-size: 32px;
+            font-size: 38px;
             font-weight: bold;
             color: #1e3a8a;
             border-bottom: 3px solid #cbd5e1;
             display: inline-block;
-            padding: 0 40px 10px 40px;
-            margin: 20px 0;
+            padding: 0 50px 10px 50px;
+            margin: 10px 0;
           }
           .description {
-            font-size: 16px;
+            font-size: 15px;
             color: #475569;
-            line-height: 1.6;
-            max-width: 650px;
-            margin: 20px auto;
+            line-height: 1.5;
+            max-width: 750px;
+            margin: 10px auto;
           }
           .course-name {
             font-size: 24px;
             font-weight: bold;
-            color: #1e293b;
+            color: #0f2d5c;
             background: #f1f5f9;
-            padding: 15px 30px;
+            padding: 14px 32px;
             border-radius: 12px;
             display: inline-block;
-            margin: 15px 0;
+            margin: 10px 0;
+            border: 1px solid #cbd5e1;
           }
           .footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 60px;
-            padding-top: 30px;
+            margin-top: 20px;
+            padding-top: 20px;
             border-top: 2px solid #e2e8f0;
           }
           .signature, .credential {
             text-align: left;
-            font-size: 13px;
+            font-size: 12px;
             color: #64748b;
           }
           .credential strong {
@@ -94,12 +104,17 @@ export function generateCertificatePdf(cert) {
       </head>
       <body>
         <div class="certificate">
-          <div class="header">Republic of Rwanda · REB & NISR Digital Hub</div>
-          <div class="title">Certificate of Professional Completion</div>
-          <p class="description">This is proudly presented to</p>
-          <div class="recipient">${cert.learnerName}</div>
-          <p class="description">For successfully mastering all modules, practical assessments, and verification benchmarks in:</p>
-          <div class="course-name">${cert.courseTitle}</div>
+          <div>
+            <div class="header">Republic of Rwanda · The Hub & NISR Digital Platform</div>
+            <div class="title">Certificate of Professional Completion</div>
+          </div>
+
+          <div>
+            <p class="description">This official digital credential is proudly presented to</p>
+            <div class="recipient">${cert.learnerName}</div>
+            <p class="description">For successfully mastering all modules, practical assessments, and verified competency benchmarks in:</p>
+            <div class="course-name">${cert.courseTitle}</div>
+          </div>
           
           <div class="footer">
             <div class="signature">
