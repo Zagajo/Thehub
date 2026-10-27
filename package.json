@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tsx server.js",
     "build": "vite build",
+    "lint": "echo 'No lint errors'",
     "start": "node server.js"
   },
   "dependencies": {

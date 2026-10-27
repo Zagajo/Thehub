@@ -1191,5 +1191,415 @@ export const coursesData = [
         ]
       }
     ]
+  },
+  {
+    id: 'c4',
+    slug: 'english-workplace-beginner',
+    title: 'Professional English for Workplace Communication (Beginner)',
+    category: 'Languages & Communication',
+    difficulty: 'Beginner',
+    duration: '6 Weeks',
+    enrolled: 1840,
+    rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80',
+    description: 'Build confident English conversational fluency, core workplace vocabulary, clear professional pronunciation, and everyday business dialogue skills tailored for Rwandan service, hospitality, and tech sectors.',
+    modules: [
+      {
+        id: 'c4-m1',
+        title: 'Module 1: Workplace Introductions, Greetings & Polite Requests',
+        duration: '2 Weeks',
+        notes: 'Foundations of formal and informal greetings, professional introductions, asking for clarification politely, and expressing workplace needs in English.',
+        videoUrl: 'https://www.youtube.com/embed/juKd26qkNAw',
+        subtopics: [
+          {
+            id: 'c4-m1-s1',
+            title: '1. Professional Introductions & Introducing Others',
+            duration: '20 mins',
+            type: 'reading',
+            notes: {
+              overview: 'Master professional verbal introductions when meeting colleagues, clients, and partners in Rwandan workplace settings.',
+              coreConcepts: [
+                'Formal vs informal introductions: "Pleased to meet you", "It is a pleasure to meet you", "Good morning, my name is..."',
+                'Stating your role and district: "I am a junior software engineer based in Gasabo district."',
+                'Introducing teammates: "Allow me to introduce my colleague, Eric Mugabo, who leads our data team."'
+              ],
+              practicalExample: 'Dialogue:\n"Good morning, Ms. Kezia. Welcome to The Hub Rwanda. I am Patrick Shyaka, your project coordinator."\n"Good morning, Mr. Shyaka. It is a pleasure to meet you. Thank you for having me."',
+              rwandanContext: 'Respectful greetings and formal titles (Mr., Ms., Dr., Engineer) are highly valued in Rwandan government, banking, and commercial institutions.',
+              keyTakeaways: [
+                'Always state your name clearly, followed by your organizational role.',
+                'Use "Pleased to meet you" or "Nice to meet you" with a firm handshake or respectful nod.'
+              ]
+            }
+          },
+          {
+            id: 'c4-m1-s2',
+            title: '2. Making Polite Inquiries & Modal Requests (Could, Would, May)',
+            duration: '25 mins',
+            type: 'practice',
+            notes: {
+              overview: 'Learn how to transform direct commands into polite, professional requests using modal auxiliary verbs.',
+              coreConcepts: [
+                'Replacing imperative commands ("Give me the file") with polite modal requests ("Could you please share the document?").',
+                'Asking for permission: "May I ask a quick question regarding the deadline?"',
+                'Expressing availability and scheduling: "Would 14:00 CAT suit your schedule?"'
+              ],
+              practicalExample: 'Direct: "Send me the report now."\nPolite Professional: "Could you please email me the quarterly report when you have a moment? Thank you."',
+              rwandanContext: 'Polite indirect phrasing prevents perceived friction when collaborating across multicultural teams in Kigali and regional branches.',
+              keyTakeaways: [
+                'Use "Could you please..." for requests and "May I..." for asking permission.',
+                'Always acknowledge completed requests with "Thank you very much" or "I appreciate your help."'
+              ]
+            }
+          },
+          {
+            id: 'c4-m1-s3',
+            title: '3. Active Listening, Clarifications & Confirming Understanding',
+            duration: '25 mins',
+            type: 'code',
+            notes: {
+              overview: 'Techniques for politely confirming instructions, clarifying ambiguities, and verifying technical details without feeling self-conscious.',
+              coreConcepts: [
+                'Clarification formulas: "Could you please repeat that last point?", "If I understand correctly, we should submit by Friday?"',
+                'Paraphrasing to confirm: "Just to clarify, you would like me to compile the Excel table first?"',
+                'Spelling and numeric confirmation: "Could you spell the client name, please?"'
+              ],
+              practicalExample: 'Colleague: "Please draft the onboarding memo for the Musanze cohort by Tuesday afternoon."\nLearner: "Understood. Just to confirm, you need the memo completed by 15:00 on Tuesday?"\nColleague: "Exactly, thank you."',
+              rwandanContext: 'Ensuring absolute clarity eliminates rework when translating instructions between Kinyarwanda and English in fast-paced workplaces.',
+              keyTakeaways: [
+                'Never hesitate to ask for clarification; it demonstrates thoroughness and care.',
+                'Repeat key numbers, deadlines, and dates back to the speaker to avoid errors.'
+              ]
+            }
+          }
+        ],
+        quiz: [
+          {
+            id: 'q1',
+            question: 'Which greeting is most appropriate when entering a morning client meeting in Kigali?',
+            options: [
+              '"Hey what is up guys"',
+              '"Good morning, everyone. It is a pleasure to meet you."',
+              '"Tell me the agenda immediately"',
+              '"What time do we finish?"'
+            ],
+            correctAnswer: 1,
+            explanation: '"Good morning, everyone. It is a pleasure to meet you." is polished, respectful, and standard for professional business settings.'
+          },
+          {
+            id: 'q2',
+            question: 'How can you politely ask a colleague for a copy of a report?',
+            options: [
+              '"Give report now."',
+              '"Could you please send me a copy of the report when you have a moment?"',
+              '"Why didn’t you give me the report?"',
+              '"I demand the report."'
+            ],
+            correctAnswer: 1,
+            explanation: '"Could you please..." with "when you have a moment" softens the request while maintaining clear professional urgency.'
+          },
+          {
+            id: 'q3',
+            question: 'What is the most polite way to ask someone to repeat what they just said?',
+            options: [
+              '"What?"',
+              '"Speak louder."',
+              '"Pardon me, could you please repeat that last sentence?"',
+              '"You are not clear."'
+            ],
+            correctAnswer: 2,
+            explanation: '"Pardon me, could you please repeat that..." is the standard courteous phrasing in international business.'
+          },
+          {
+            id: 'q4',
+            question: 'Which preposition is correct: "The team meeting will take place _____ 10:00 AM _____ Friday"?',
+            options: [
+              '"at", "on"',
+              '"in", "at"',
+              '"on", "in"',
+              '"for", "by"'
+            ],
+            correctAnswer: 0,
+            explanation: 'In English, specific clock times use "at" (at 10:00 AM) and specific days of the week use "on" (on Friday).'
+          },
+          {
+            id: 'q5',
+            question: 'Which sentence correctly describes a current ongoing activity in the present continuous tense?',
+            options: [
+              '"I prepare the report yesterday."',
+              '"I am currently preparing the quarterly financial summary."',
+              '"I prepare always tomorrow."',
+              '"I have prepare the summary."'
+            ],
+            correctAnswer: 1,
+            explanation: 'Present continuous is formed with "am/is/are + verb-ing" to describe actions happening at the current moment.'
+          },
+          {
+            id: 'q6',
+            question: 'What does the abbreviation "FYI" commonly stand for in workplace emails?',
+            options: [
+              '"For Your Information"',
+              '"Finish Your Invoice"',
+              '"Fix Your Issues"',
+              '"Follow Your Instincts"'
+            ],
+            correctAnswer: 0,
+            explanation: '"FYI" is standard business shorthand for "For Your Information", used to share context without requiring immediate action.'
+          },
+          {
+            id: 'q7',
+            question: 'How should you sign off on a formal business email to a government official or new partner?',
+            options: [
+              '"Cheers mate"',
+              '"Sincerely," or "Best regards,"',
+              '"Later,"',
+              '"Sent from my phone"'
+            ],
+            correctAnswer: 1,
+            explanation: '"Sincerely," and "Best regards," are universally accepted formal closings for professional correspondence.'
+          },
+          {
+            id: 'q8',
+            question: 'What is the correct phrasing to introduce a colleague named Aline to an external guest?',
+            options: [
+              '"Look at Aline here."',
+              '"I would like to introduce my colleague, Aline Umutesi, our lead analyst."',
+              '"She is Aline."',
+              '"Aline is the person."'
+            ],
+            correctAnswer: 1,
+            explanation: '"I would like to introduce my colleague, [Name], [Title]" is the standard courteous business formula.'
+          },
+          {
+            id: 'q9',
+            question: 'What is the meaning of "Please find attached the invoice"?',
+            options: [
+              '"The invoice has been lost in the mail."',
+              '"The invoice document is included as a digital file attached to this email."',
+              '"Please create a new invoice today."',
+              '"Do not open any documents."'
+            ],
+            correctAnswer: 1,
+            explanation: '"Please find attached..." informs the recipient that a digital file has been clipped or uploaded with the message.'
+          },
+          {
+            id: 'q10',
+            question: 'What passing score is required on this module quiz to unlock Module 2?',
+            options: [
+              '5 / 10',
+              '6 / 10',
+              '8 / 10 (80%)',
+              '10 / 10 only'
+            ],
+            correctAnswer: 2,
+            explanation: 'Per The Hub mastery framework, scoring at least 8/10 (80%) is required to advance to the next module.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'c5',
+    slug: 'english-business-technology-intermediate',
+    title: 'English for Business & Technology (Intermediate)',
+    category: 'Languages & Communication',
+    difficulty: 'Intermediate',
+    duration: '8 Weeks',
+    enrolled: 1510,
+    rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80',
+    description: 'Elevate your technical vocabulary, lead agile standups, draft persuasive project proposals, deliver executive presentations, and negotiate effectively in global tech and business ecosystems.',
+    modules: [
+      {
+        id: 'c5-m1',
+        title: 'Module 1: Technical Writing, Agile Standups & Executive Briefings',
+        duration: '2 Weeks',
+        notes: 'Structuring executive summaries, concise bug reports, leading daily sprint standups in English, and delivering clear technical project updates.',
+        videoUrl: 'https://www.youtube.com/embed/juKd26qkNAw',
+        subtopics: [
+          {
+            id: 'c5-m1-s1',
+            title: '1. Leading Daily Agile Standups & Sprint Reporting',
+            duration: '30 mins',
+            type: 'reading',
+            notes: {
+              overview: 'Master the 3-question agile standup format in fluent, concise English: what was accomplished, what is planned today, and what blockers exist.',
+              coreConcepts: [
+                'The 3-point standup structure: "Yesterday, I completed...", "Today, I am focusing on...", "My primary blocker is..."',
+                'Action-oriented verbs: implemented, refactored, resolved, deployed, benchmarked.',
+                'Expressing impediments diplomatically: "I am currently blocked by waiting on API credentials from the payment provider."'
+              ],
+              practicalExample: '"Yesterday, I finalized the PostgreSQL database indexing for the student registry. Today, I am integrating the FastAPI authentication endpoints. No blockers on my end; I anticipate opening the pull request by 16:00."',
+              rwandanContext: 'International tech firms and venture-backed startups operating in Kigali (e.g., Norrsken Kigali, KLab) conduct all sprint ceremonies in English.',
+              keyTakeaways: [
+                'Keep standup updates under 90 seconds per person; focus on progress and blockers.',
+                'Use past tense for finished tasks and present continuous for today’s active focus.'
+              ]
+            }
+          },
+          {
+            id: 'c5-m1-s2',
+            title: '2. Professional Technical Documentation & Bug Reports',
+            duration: '35 mins',
+            type: 'code',
+            notes: {
+              overview: 'Draft reproducible, objective bug reports and architectural notes that engineering leads and stakeholders can understand without ambiguity.',
+              coreConcepts: [
+                'Standard bug report anatomy: Summary, Steps to Reproduce, Expected Behavior, Actual Behavior, Environment & Logs.',
+                'Objective technical tone: avoid emotional language ("this code is terrible"); use factual observations ("an unhandled NullPointer occurs under concurrent load").',
+                'Active voice for instructions: "Click Submit", "Select option 2", "Observe timeout error."'
+              ],
+              practicalExample: 'Title: [Bug] 401 Unauthorized returned on valid JWT refresh token\nSteps to Reproduce:\n1. Authenticate user via POST /api/auth/login.\n2. Await 15-minute token expiry.\n3. Send POST /api/auth/refresh with valid refresh cookie.\nExpected: 200 OK with refreshed access token.\nActual: 401 Unauthorized with error "token_expired".',
+              rwandanContext: 'High-quality bug documentation enables seamless handover between remote international clients and Rwandan software engineering teams.',
+              keyTakeaways: [
+                'Provide exact steps to reproduce so any engineer can replicate the issue.',
+                'State expected behavior clearly alongside the actual observed result.'
+              ]
+            }
+          },
+          {
+            id: 'c5-m1-s3',
+            title: '3. Formulating Persuasive Proposals & Executive Summaries',
+            duration: '35 mins',
+            type: 'practice',
+            notes: {
+              overview: 'Write compelling, data-grounded business proposals that connect technical solutions directly to business ROI and Rwandan national development metrics.',
+              coreConcepts: [
+                'The Executive Summary framework: Context, Problem Statement, Proposed Solution, Quantifiable Impact, Investment Required.',
+                'Signposting language: "Furthermore", "Consequently", "In summary", "The data indicates that..."',
+                'Hypothetical conditional phrasing: "If we adopt automated testing, regression defects will decrease by an estimated 35%."'
+              ],
+              practicalExample: 'Executive Summary:\n"To address inventory delays across rural coffee cooperatives, we propose deploying an offline-first mobile web portal. Aligned with NISR agricultural digitisation priorities, this solution will reduce manual reconciliation time from 5 days to 2 hours while preserving audit compliance."',
+              rwandanContext: 'Connecting technical proposals to NISR metrics or national NST2 priorities drastically increases executive buy-in and funding success.',
+              keyTakeaways: [
+                'Place the bottom-line recommendation in the first two sentences.',
+                'Quantify impact with concrete percentages, time saved, or revenue generated.'
+              ]
+            }
+          }
+        ],
+        quiz: [
+          {
+            id: 'q1',
+            question: 'During an agile daily standup, what are the three essential questions each developer answers?',
+            options: [
+              '"What time did you wake up, what did you eat, when do you leave?"',
+              '"What did you accomplish yesterday, what will you work on today, and what blockers exist?"',
+              '"Who wrote the best code, who made a mistake, how much does the project cost?"',
+              '"Which programming language is fastest, why, and how many lines did you write?"'
+            ],
+            correctAnswer: 1,
+            explanation: 'The standard agile scrum standup answers: 1) Yesterday’s progress, 2) Today’s plan, and 3) Any impediments/blockers.'
+          },
+          {
+            id: 'q2',
+            question: 'Which sentence best demonstrates objective, professional tone in a technical incident report?',
+            options: [
+              '"The server crashed because someone wrote sloppy code again."',
+              '"A memory leak in the image caching service caused an out-of-memory exception at 14:22 CAT, resulting in a 4-minute service interruption."',
+              '"Everything broke and users are furious with us."',
+              '"I told everyone this database was bad."'
+            ],
+            correctAnswer: 1,
+            explanation: 'Professional incident documentation specifies exact root causes, timestamps, impact duration, and objective telemetry without emotional blame.'
+          },
+          {
+            id: 'q3',
+            question: 'Which transition phrase is most effective when introducing a counter-argument diplomatically during a technical debate?',
+            options: [
+              '"You are completely wrong about this."',
+              '"While that approach offers lower initial complexity, we must also consider the long-term maintenance and scaling costs."',
+              '"Nobody uses that technology anymore."',
+              '"Stop talking and listen to my solution."'
+            ],
+            correctAnswer: 1,
+            explanation: '"While [acknowledging validity], we must also consider [alternative factor]" acknowledges the colleague respectfully before presenting the counter-point.'
+          },
+          {
+            id: 'q4',
+            question: 'Which conditional sentence correctly expresses a realistic future business outcome (First Conditional)?',
+            options: [
+              '"If we implement automated testing, our release defect rate will decrease significantly."',
+              '"If we implemented testing, our defects will have decrease."',
+              '"If we implement testing, our defects decreased yesterday."',
+              '"If we will implement testing, our defects decrease."'
+            ],
+            correctAnswer: 0,
+            explanation: 'First conditional uses "If + Present Simple, will + base verb" to discuss realistic conditions and their future consequences.'
+          },
+          {
+            id: 'q5',
+            question: 'In technical writing, why is the active voice ("The server processes incoming tokens") generally preferred over passive voice ("Incoming tokens are processed by the server")?',
+            options: [
+              'Active voice is strictly mandatory in all spoken English',
+              'Active voice is clearer, more direct, and clearly establishes which component performs the action',
+              'Passive voice causes database syntax errors',
+              'Active voice uses more words per sentence'
+            ],
+            correctAnswer: 1,
+            explanation: 'Active voice creates concise, punchy sentences that clearly identify the subject performing the action, reducing ambiguity in technical specifications.'
+          },
+          {
+            id: 'q6',
+            question: 'What is the purpose of an "Executive Summary" in a commercial project proposal?',
+            options: [
+              'To list every single line of code in the project',
+              'To provide busy decision-makers with a concise overview of the problem, proposed solution, and projected return on investment',
+              'To list the employee salaries and personal bank accounts',
+              'To provide an unedited transcript of previous team chats'
+            ],
+            correctAnswer: 1,
+            explanation: 'An executive summary synthesizes the strategic business case so senior executives can grasp key value propositions and approve investments quickly.'
+          },
+          {
+            id: 'q7',
+            question: 'Which phrasal verb means to delay or postpone a scheduled meeting until a later date?',
+            options: [
+              '"Call off"',
+              '"Push back" or "Put off"',
+              '"Bring forward"',
+              '"Break down"'
+            ],
+            correctAnswer: 1,
+            explanation: '"Push back" or "put off" means to reschedule an event to a later time or date. ("Bring forward" means earlier; "Call off" means cancel).'
+          },
+          {
+            id: 'q8',
+            question: 'How should you professionally address an email when you do not know the recipient’s specific name, but you know their team?',
+            options: [
+              '"Hey there people"',
+              '"Dear Hiring Committee," or "Dear Engineering Team,"',
+              '"To whoever is reading this,"',
+              '"Yo team,"'
+            ],
+            correctAnswer: 1,
+            explanation: '"Dear [Team/Committee Name]," is professional, respectful, and appropriately addresses the intended functional group.'
+          },
+          {
+            id: 'q9',
+            question: 'What is the meaning of the technical idiom "technical debt"?',
+            options: [
+              'Money owed to a bank for server hardware loans',
+              'The future implied cost of rework caused by choosing an easy or expedited solution now instead of a better long-term approach',
+              'The monthly internet bill for the office',
+              'A penalty fee paid to the tax authority'
+            ],
+            correctAnswer: 1,
+            explanation: 'Technical debt refers to shortcuts taken in software engineering that yield quick immediate delivery but require refactoring later.'
+          },
+          {
+            id: 'q10',
+            question: 'What minimum score is required on this module quiz to unlock Module 2?',
+            options: [
+              '6 / 10',
+              '7 / 10',
+              '8 / 10 (80%)',
+              '10 / 10'
+            ],
+            correctAnswer: 2,
+            explanation: 'Scoring at least 8 out of 10 (80%) is required to advance under The Hub mastery progression standards.'
+          }
+        ]
+      }
+    ]
   }
 ];

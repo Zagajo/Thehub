@@ -26,8 +26,8 @@ export const translations = {
 
     // Hero & Home
     hero_kicker: 'National Skills Platform · NISR Labour Evidence Aligned',
-    hero_title: 'The Hub',
-    hero_title_highlight: 'Enterprise Learning',
+    hero_title: 'Learn skills that move you forward',
+    hero_title_highlight: "in Rwanda's modern economy",
     hero_desc: 'A data-informed technical training and credentialing platform engineered around official National Institute of Statistics of Rwanda (NISR) labour demand. Features in-depth subtopic notes, mandatory 10-question module mastery quizzes, deterministic career paths, and bilingual peer study circles.',
     btn_explore_curriculum: 'Explore Curriculum',
     btn_career_paths: 'Career Pathways',
@@ -129,8 +129,8 @@ export const translations = {
 
     // Hero & Home
     hero_kicker: 'Plateforme Nationale des Compétences · Données NISR Vérifiées',
-    hero_title: 'The Hub',
-    hero_title_highlight: 'Formation d\'Entreprise',
+    hero_title: 'Apprenez des compétences qui vous propulsent',
+    hero_title_highlight: 'dans l\'économie moderne du Rwanda',
     hero_desc: 'Plateforme de formation technique et de certification fondée sur les données officielles du marché du travail de l\'Institut National de la Statistique du Rwanda (NISR). Comprend des notes de cours détaillées, des quiz obligatoires de 10 questions avec seuil de réussite à 8/10, des parcours professionnels déterministes et des échanges linguistiques bilingues.',
     btn_explore_curriculum: 'Explorer le Programme',
     btn_career_paths: 'Parcours de Carrière',
@@ -232,8 +232,8 @@ export const translations = {
 
     // Hero & Home
     hero_kicker: 'Urubuga rw\'Igihugu rw\'Ubumenyi · Bishingiye ku Mibare ya NISR',
-    hero_title: 'The Hub',
-    hero_title_highlight: 'Kwigisha Ikoranabuhanga',
+    hero_title: 'Wige ubumenyi butuma utera imbere',
+    hero_title_highlight: 'mu bukungu bugezweho bw\'u Rwanda',
     hero_desc: 'Urubuga rw\'igihugu rwo kwigisha ubumenyi n\'impamyabumenyi byishingikirije ku mibare y\'Ikigo cy\'Igihugu cy\'Ibarurishamibare mu Rwanda (NISR). Birimo ibisobanuro birambuye by\'amasomo, ibizamini byo ku rwego rwo hejuru by\'ibibazo 10 bisaba amanota 8/10 kugira ngo ukomeze, inzira z\'umwuga, no guhugurana mu ndimi.',
     btn_explore_curriculum: 'Reba Porogaramu y\'Amasomo',
     btn_career_paths: 'Inzira z\'Umwuga',

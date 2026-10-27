@@ -2,6 +2,7 @@
 // Connects to Express backend endpoints with resilient fallbacks for offline resilience.
 
 import { coursesData } from '../data/coursesData.js';
+import { technicalAssessments } from '../data/assessmentsData.js';
 
 const BASE_URL = '/api';
 
@@ -429,12 +430,61 @@ export const api = {
       const res = await fetch(`${BASE_URL}/assessments`);
       if (res.ok) {
         const data = await res.json();
-        return Array.isArray(data) ? data : (data.assessments || data.data || []);
+        const list = Array.isArray(data) ? data : (data.assessments || data.data || []);
+        if (list && list.length) return list;
       }
     } catch (e) {
       console.warn('Get assessments fallback', e);
     }
-    return [];
+    return technicalAssessments;
+  },
+
+  async submitAssessment(assessmentId, userId, answers) {
+    try {
+      const res = await fetch(`${BASE_URL}/assessments/${assessmentId}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, answers })
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Submit assessment fallback', e);
+    }
+
+    // Local deterministic fallback grading
+    const assessment = technicalAssessments.find(a => a.id === assessmentId) || technicalAssessments[0];
+    let correctCount = 0;
+    const review = assessment.questions.map((q, idx) => {
+      const selected = answers[idx];
+      const isCorrect = selected === q.correctIndex;
+      if (isCorrect) correctCount++;
+      return {
+        questionId: q.id,
+        topic: q.topic,
+        prompt: q.prompt,
+        options: q.options,
+        selectedOption: selected !== undefined ? selected : null,
+        correctIndex: q.correctIndex,
+        isCorrect,
+        explanation: q.explanation
+      };
+    });
+
+    const totalQuestions = assessment.questions.length;
+    const percentage = Math.round((correctCount / totalQuestions) * 100);
+    const passed = percentage >= 80;
+
+    return {
+      success: true,
+      assessmentId: assessment.id,
+      assessmentTitle: assessment.title,
+      totalQuestions,
+      correctCount,
+      percentage,
+      passingMark: 80,
+      passed,
+      review
+    };
   },
 
   async getChallenges() {

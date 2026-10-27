@@ -7,6 +7,7 @@ import { coursesData } from './src/data/coursesData.js';
 import { nisrService, officialNisrIndicators } from './backend/src/services/nisrService.js';
 import { recommendationEngine, roleBenchmarks } from './backend/src/services/recommendationEngine.js';
 import { initialSkills, initialLearningPathways, initialAssessments } from './backend/src/db/data.js';
+import { technicalAssessments } from './src/data/assessmentsData.js';
 import {
   getSupabaseHealth,
   serverSupabase,
@@ -520,14 +521,62 @@ async function startServer() {
     });
   });
 
-  // Diagnostic Assessments
+  // Diagnostic Assessments (15 questions per diagnostic, 80% passing mark)
   app.get('/api/assessments', (_req, res) => {
-    res.json(assessmentsData);
+    res.json(technicalAssessments);
   });
 
   app.get('/api/assessments/:id', (req, res) => {
-    const found = assessmentsData.find(a => a.id === req.params.id) || assessmentsData[0];
+    const found = technicalAssessments.find(a => a.id === req.params.id) || technicalAssessments[0];
     res.json({ success: true, data: found });
+  });
+
+  app.post('/api/assessments/:id/submit', (req, res) => {
+    const { userId, answers = {} } = req.body;
+    const assessment = technicalAssessments.find(a => a.id === req.params.id);
+    if (!assessment) {
+      return res.status(404).json({ success: false, error: 'Assessment not found' });
+    }
+
+    let correctCount = 0;
+    const review = assessment.questions.map((q, idx) => {
+      const selected = answers[idx];
+      const isCorrect = selected === q.correctIndex;
+      if (isCorrect) correctCount++;
+      return {
+        questionId: q.id,
+        topic: q.topic,
+        prompt: q.prompt,
+        options: q.options,
+        selectedOption: selected !== undefined ? selected : null,
+        correctIndex: q.correctIndex,
+        isCorrect,
+        explanation: q.explanation
+      };
+    });
+
+    const totalQuestions = assessment.questions.length; // 15
+    const percentage = Math.round((correctCount / totalQuestions) * 100);
+    const passed = percentage >= 80;
+
+    systemLogsStore.unshift({
+      id: 'log-' + Date.now(),
+      timestamp: new Date().toISOString(),
+      type: 'ASSESSMENT_SUBMIT',
+      description: `User ${userId || 'Learner'} took ${assessment.title}: ${correctCount}/${totalQuestions} (${percentage}%) - ${passed ? 'PASSED (>=80%)' : 'NEEDS REVIEW (<80%)'}`
+    });
+
+    res.json({
+      success: true,
+      assessmentId: assessment.id,
+      assessmentTitle: assessment.title,
+      totalQuestions,
+      correctCount,
+      percentage,
+      passingMark: 80,
+      passed,
+      review
+    });
   });
 
   // Employer Challenges

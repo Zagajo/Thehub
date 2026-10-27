@@ -53,17 +53,11 @@ export default function Navbar({ activeTab, setActiveTab, user, onOpenAuth, onLo
     { id: 'home', label: t('nav_overview', 'Overview'), icon: Home, desc: 'National platform summary & metrics' },
     { id: 'courses', label: t('nav_courses', 'Courses'), icon: BookOpen, desc: '10-question gated mastery curriculum' },
     { id: 'paths', label: t('nav_paths', 'Learning Paths'), icon: Layers, desc: 'Deterministic career benchmark tracks' },
+    { id: 'assessments', label: t('nav_assessments', 'Assessments'), icon: ShieldAlert, desc: '15-question tracked diagnostic tests with 80% pass mark' },
   ];
 
   // Secondary Tabs placed inside the "More" Dropdown so navigation never overflows
   const learnerOtherTabs = [
-    {
-      id: 'assessments',
-      label: t('nav_assessments', 'Assessments'),
-      icon: ShieldAlert,
-      category: 'Diagnostic',
-      desc: 'Skills gap diagnostic tests & technical evaluation'
-    },
     {
       id: 'passport',
       label: t('nav_passport', 'Skill Passport'),
@@ -92,29 +86,16 @@ export default function Navbar({ activeTab, setActiveTab, user, onOpenAuth, onLo
       category: 'Opportunities',
       desc: 'Enterprise challenges, apprenticeships & stipends'
     },
-    {
-      id: 'language',
-      label: t('nav_language', 'Translate / Indimi'),
-      icon: Globe,
-      category: 'Multilingual',
-      desc: 'Official Rwanda trilingual computing glossary & dictionary'
-    },
   ];
 
   const adminMainTabs = [
     { id: 'admin', label: t('nav_admin', 'Admin Dashboard'), icon: Settings, desc: 'Central management console' },
     { id: 'courses', label: t('nav_courses', 'Course Catalog'), icon: BookOpen, desc: 'Curriculum & module management' },
     { id: 'paths', label: t('nav_paths', 'Pathways'), icon: Layers, desc: 'Career tracks & benchmarks' },
+    { id: 'assessments', label: t('nav_assessments', 'Assessments'), icon: ShieldAlert, desc: '15-question technical diagnostic question bank' },
   ];
 
   const adminOtherTabs = [
-    {
-      id: 'assessments',
-      label: t('nav_assessments', 'Assessments'),
-      icon: ShieldAlert,
-      category: 'Diagnostic',
-      desc: 'Skills gap diagnostics & question bank'
-    },
     {
       id: 'passport',
       label: t('nav_passport', 'Skill Passport'),
@@ -135,13 +116,6 @@ export default function Navbar({ activeTab, setActiveTab, user, onOpenAuth, onLo
       icon: Briefcase,
       category: 'Opportunities',
       desc: 'Enterprise capstone challenges & project moderation'
-    },
-    {
-      id: 'language',
-      label: t('nav_language', 'Translate / Indimi'),
-      icon: Globe,
-      category: 'Multilingual',
-      desc: 'Trilingual technical glossary & translation management'
     },
     {
       id: 'home',
@@ -314,49 +288,49 @@ export default function Navbar({ activeTab, setActiveTab, user, onOpenAuth, onLo
                 )}
               </div>
             )}
-          </nav>
 
-          {/* Desktop Actions: Language Toggle + User Auth */}
-          <div className="hidden md:flex items-center space-x-3 shrink-0">
-            {/* Quick Trilingual Language Toggle (EN | FR | RW) */}
-            <div className="flex items-center border border-slate-200 rounded-md overflow-hidden bg-slate-50 font-mono text-[11px] shadow-2xs">
+            {/* Trilingual Language Selector (EN.FR.RW) replacing the Translate Tab */}
+            <div className="flex items-center my-auto ml-1.5 px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-mono text-xs select-none shadow-2xs shrink-0">
               <button
                 onClick={() => setLanguage('en')}
-                className={`px-2.5 py-1 transition-colors ${
+                className={`px-1.5 py-0.5 rounded transition-all text-[11px] font-bold ${
                   language === 'en'
-                    ? 'bg-blue-600 text-white font-bold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-blue-600 text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                 }`}
                 title="Switch to English"
               >
                 EN
               </button>
-              <span className="text-slate-300 select-none">|</span>
+              <span className="text-slate-400 font-bold px-0.5 select-none">.</span>
               <button
                 onClick={() => setLanguage('fr')}
-                className={`px-2.5 py-1 transition-colors ${
+                className={`px-1.5 py-0.5 rounded transition-all text-[11px] font-bold ${
                   language === 'fr'
-                    ? 'bg-blue-600 text-white font-bold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-blue-600 text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                 }`}
                 title="Passer en Français"
               >
                 FR
               </button>
-              <span className="text-slate-300 select-none">|</span>
+              <span className="text-slate-400 font-bold px-0.5 select-none">.</span>
               <button
                 onClick={() => setLanguage('rw')}
-                className={`px-2.5 py-1 transition-colors ${
+                className={`px-1.5 py-0.5 rounded transition-all text-[11px] font-bold ${
                   language === 'rw'
-                    ? 'bg-blue-600 text-white font-bold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-blue-600 text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                 }`}
                 title="Guhindura mu Kinyarwanda"
               >
                 RW
               </button>
             </div>
+          </nav>
 
+          {/* Desktop Actions: User Auth */}
+          <div className="hidden md:flex items-center space-x-3 shrink-0">
             {user ? (
               <div
                 onClick={onOpenProfile}
@@ -497,39 +471,41 @@ export default function Navbar({ activeTab, setActiveTab, user, onOpenAuth, onLo
             </div>
           </div>
 
-          {/* Mobile Trilingual Switcher */}
+          {/* Mobile Trilingual Switcher (EN.FR.RW) */}
           <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between text-xs font-mono">
-            <span className="text-slate-600 flex items-center gap-1.5 font-sans font-medium text-xs">
+            <span className="text-slate-700 flex items-center gap-1.5 font-sans font-medium text-xs">
               <Globe className="w-3.5 h-3.5 text-blue-600" />
-              <span>{t('lang_select_prompt', 'Language / Ururimi:')}</span>
+              <span>Language:</span>
             </span>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center px-2 py-1 rounded bg-white border border-slate-200 text-xs font-mono select-none">
               <button
                 onClick={() => setLanguage('en')}
-                className={`px-2 py-1 rounded text-[11px] font-bold ${
+                className={`px-2 py-0.5 rounded text-[11px] font-bold ${
                   language === 'en'
-                    ? 'bg-blue-600 text-white border border-blue-600'
-                    : 'bg-white text-slate-700 border border-slate-300'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 EN
               </button>
+              <span className="text-slate-400 font-bold px-1 select-none">.</span>
               <button
                 onClick={() => setLanguage('fr')}
-                className={`px-2 py-1 rounded text-[11px] font-bold ${
+                className={`px-2 py-0.5 rounded text-[11px] font-bold ${
                   language === 'fr'
-                    ? 'bg-blue-600 text-white border border-blue-600'
-                    : 'bg-white text-slate-700 border border-slate-300'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 FR
               </button>
+              <span className="text-slate-400 font-bold px-1 select-none">.</span>
               <button
                 onClick={() => setLanguage('rw')}
-                className={`px-2 py-1 rounded text-[11px] font-bold ${
+                className={`px-2 py-0.5 rounded text-[11px] font-bold ${
                   language === 'rw'
-                    ? 'bg-blue-600 text-white border border-blue-600'
-                    : 'bg-white text-slate-700 border border-slate-300'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 RW
