@@ -8,9 +8,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 pb-12 border-b border-slate-200">
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center font-bold text-white shadow-sm">
-                Hub
-              </div>
+              <img
+                src="/hub-logo.jpeg"
+                alt="The Hub Logo"
+                className="w-10 h-10 object-contain rounded-lg p-0.5 bg-white border border-slate-200 shadow-xs"
+              />
               <span className="text-slate-900 font-bold text-xl tracking-tight">The Hub</span>
             </div>
             <p className="text-sm text-slate-600 leading-relaxed">
@@ -25,10 +27,11 @@ export default function Footer() {
           <div>
             <h4 className="text-slate-900 font-semibold text-sm uppercase tracking-wider mb-4">Platform Ecosystem</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><a href="#courses" className="hover:text-slate-900 transition-colors flex items-center space-x-1"><span>Full-Stack Engineering</span></a></li>
-              <li><a href="#nisr" className="hover:text-slate-900 transition-colors flex items-center space-x-1"><span>Labour Intelligence</span></a></li>
-              <li><a href="#passport" className="hover:text-slate-900 transition-colors flex items-center space-x-1"><span>Verified Skill Passport</span></a></li>
-              <li><a href="#assessments" className="hover:text-slate-900 transition-colors flex items-center space-x-1"><span>Diagnostics & Certifications</span></a></li>
+              <li><a href="/courses" className="hover:text-slate-900 transition-colors flex items-center space-x-1"><span>Full-Stack Engineering & Quizzes</span></a></li>
+              <li><a href="/paths" className="hover:text-slate-900 transition-colors flex items-center space-x-1"><span>Career Pathways</span></a></li>
+              <li><a href="/language" className="hover:text-slate-900 transition-colors flex items-center space-x-1 text-blue-700 font-medium"><span>Translate / Indimi (EN · FR · RW)</span></a></li>
+              <li><a href="/passport" className="hover:text-slate-900 transition-colors flex items-center space-x-1"><span>Verified Skill Passport</span></a></li>
+              <li><a href="/nisr" className="hover:text-slate-900 transition-colors flex items-center space-x-1"><span>NISR Labour Evidence</span></a></li>
             </ul>
           </div>
 

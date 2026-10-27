@@ -7,11 +7,15 @@ import AuthModal from './components/AuthModal';
 import ProfileModal from './components/ProfileModal';
 import Home from './pages/Home';
 import Courses from './pages/Courses';
+import LearningPaths from './pages/LearningPaths';
+import PeerMatching from './pages/PeerMatching';
 import SkillPassport from './pages/SkillPassport';
 import Assessments from './pages/Assessments';
 import NisrHub from './pages/NisrHub';
 import EmployerMatching from './pages/EmployerMatching';
 import AdminPanel from './pages/AdminPanel';
+import LanguageHub from './pages/LanguageHub';
+import { LanguageProvider } from './context/LanguageContext';
 
 function AppContent() {
   const [user, setUser] = useState(null);
@@ -56,7 +60,10 @@ function AppContent() {
   const pathname = location.pathname;
   let activeTab = 'home';
   if (pathname.includes('/courses')) activeTab = 'courses';
+  else if (pathname.includes('/paths')) activeTab = 'paths';
+  else if (pathname.includes('/peer-matching') || pathname.includes('/community')) activeTab = 'peer-matching';
   else if (pathname.includes('/passport')) activeTab = 'passport';
+  else if (pathname.includes('/language') || pathname.includes('/translate')) activeTab = 'language';
   else if (pathname.includes('/assessments')) activeTab = 'assessments';
   else if (pathname.includes('/nisr')) activeTab = 'nisr';
   else if (pathname.includes('/employer')) activeTab = 'employer';
@@ -81,7 +88,11 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home setActiveTab={(tab) => navigate(tab === 'home' ? '/' : `/${tab}`)} user={user} onOpenAuth={() => setAuthOpen(true)} />} />
           <Route path="/courses" element={<Courses user={user} onOpenAuth={() => setAuthOpen(true)} />} />
+          <Route path="/paths" element={<LearningPaths user={user} onOpenAuth={() => setAuthOpen(true)} />} />
+          <Route path="/peer-matching" element={<PeerMatching user={user} onOpenAuth={() => setAuthOpen(true)} />} />
           <Route path="/passport" element={<SkillPassport user={user} onOpenAuth={() => setAuthOpen(true)} />} />
+          <Route path="/language" element={<LanguageHub user={user} onOpenAuth={() => setAuthOpen(true)} />} />
+          <Route path="/translate" element={<LanguageHub user={user} onOpenAuth={() => setAuthOpen(true)} />} />
           <Route path="/assessments" element={<Assessments user={user} onOpenAuth={() => setAuthOpen(true)} setActiveTab={(tab) => navigate(`/${tab}`)} />} />
           <Route path="/nisr" element={<NisrHub />} />
           <Route path="/employer" element={<EmployerMatching user={user} onOpenAuth={() => setAuthOpen(true)} />} />
@@ -120,8 +131,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
+    <LanguageProvider>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </LanguageProvider>
   );
 }

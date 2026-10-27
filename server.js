@@ -3,6 +3,7 @@ import cors from 'cors';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { coursesData } from './src/data/coursesData.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,105 +36,8 @@ async function startServer() {
     }
   ];
 
-  let coursesStore = [
-    {
-      id: 'c1',
-      slug: 'fullstack-python-react',
-      title: 'Full-Stack Web Engineering (Python & React)',
-      category: 'Software Engineering',
-      difficulty: 'Intermediate',
-      duration: '8 Weeks',
-      enrolled: 1420,
-      rating: 4.8,
-      image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-      description: 'Master modern web development with Python FastAPI backends and React frontends. Aligned with Rwanda digital transformation goals.',
-      modules: [
-        { title: 'Module 1: Advanced Python & FastAPI Fundamentals', duration: '2 weeks', notes: 'Comprehensive guide to async Python, Pydantic models, and FastAPI routing architecture.', videoUrl: 'https://www.youtube.com/embed/rfscVS0vtbw' },
-        { title: 'Module 2: Relational Databases & PostgreSQL', duration: '2 weeks', notes: 'SQL optimization, indexing, and connection pooling best practices.', videoUrl: 'https://www.youtube.com/embed/HXV3zeQKqGY' },
-        { title: 'Module 3: React UI Architecture & Tailwind CSS', duration: '2 weeks', notes: 'Component modularization, state management, and responsive styling.', videoUrl: 'https://www.youtube.com/embed/bMknfKXIFA8' }
-      ]
-    },
-    {
-      id: 'c2',
-      slug: 'data-analytics-nisr',
-      title: 'Data Analytics & Labour Market Intelligence',
-      category: 'Data Science',
-      difficulty: 'Beginner',
-      duration: '6 Weeks',
-      enrolled: 2150,
-      rating: 4.9,
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
-      description: 'Learn data cleaning, statistical modelling, and visualization using Python pandas and Tableau, utilizing official NISR datasets.',
-      modules: [
-        { title: 'Module 1: Introduction to Statistics & NISR Data Sources', duration: '1 week', notes: 'Understanding NISR survey methodologies, LFS reports, and indicators.', videoUrl: 'https://www.youtube.com/embed/r-uOVwlIdYA' },
-        { title: 'Module 2: Data Wrangling with Python & Pandas', duration: '2 weeks', notes: 'Handling missing data, aggregations, and dataframe transformations.', videoUrl: 'https://www.youtube.com/embed/r-uOVwlIdYA' }
-      ]
-    },
-    {
-      id: 'c3',
-      slug: 'ai-machine-learning-foundations',
-      title: 'AI & Machine Learning Foundations',
-      category: 'AI & Machine Learning',
-      difficulty: 'Advanced',
-      duration: '10 Weeks',
-      enrolled: 980,
-      rating: 4.9,
-      image: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&w=800&q=80',
-      description: 'Build predictive models, neural networks, and natural language processing applications using TensorFlow and PyTorch.',
-      modules: [
-        { title: 'Module 1: Mathematical Foundations & NumPy', duration: '2 weeks', notes: 'Linear algebra, matrices, and vector calculus for machine learning.', videoUrl: 'https://www.youtube.com/embed/i_LwzRVP7bg' },
-        { title: 'Module 2: Supervised & Unsupervised Learning', duration: '3 weeks', notes: 'Regression, classification, decision trees, and clustering algorithms.', videoUrl: 'https://www.youtube.com/embed/i_LwzRVP7bg' }
-      ]
-    },
-    {
-      id: 'c4',
-      slug: 'digital-agriculture-iot',
-      title: 'Smart Agriculture & IoT Systems',
-      category: 'Digital Agriculture',
-      difficulty: 'Intermediate',
-      duration: '6 Weeks',
-      enrolled: 1120,
-      rating: 4.7,
-      image: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=800&q=80',
-      description: 'Implement IoT sensors, automated irrigation control systems, and crop yield forecasting dashboards for cooperative agriculture.',
-      modules: [
-        { title: 'Module 1: Microcontrollers & Sensor Interfacing', duration: '2 weeks', notes: 'ESP32, Arduino, and soil moisture telemetry data collection.', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-        { title: 'Module 2: Cloud Telemetry & Dashboard Visualization', duration: '2 weeks', notes: 'MQTT protocol, Node-RED, and real-time farmer alerts.', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }
-      ]
-    },
-    {
-      id: 'c5',
-      slug: 'advanced-javascript-ecosystem',
-      title: 'Advanced JavaScript & Frontend Architecture',
-      category: 'Software Engineering',
-      difficulty: 'Intermediate',
-      duration: '7 Weeks',
-      enrolled: 1840,
-      rating: 4.8,
-      image: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?auto=format&fit=crop&w=800&q=80',
-      description: 'Master asynchronous JavaScript, closures, event loops, TypeScript typing, and scalable frontend state management.',
-      modules: [
-        { title: 'Module 1: Modern ES6+ & Asynchronous JavaScript', duration: '2 weeks', notes: 'Promises, async/await, closures, and prototypal inheritance.', videoUrl: 'https://www.youtube.com/embed/jS4aFq5-91M' },
-        { title: 'Module 2: TypeScript & Design Patterns', duration: '2 weeks', notes: 'Interfaces, generics, and modular design patterns.', videoUrl: 'https://www.youtube.com/embed/jS4aFq5-91M' }
-      ]
-    },
-    {
-      id: 'c6',
-      slug: 'cloud-infrastructure-devops',
-      title: 'Cloud Infrastructure & DevOps Engineering',
-      category: 'Software Engineering',
-      difficulty: 'Advanced',
-      duration: '9 Weeks',
-      enrolled: 890,
-      rating: 4.9,
-      image: 'https://images.unsplash.com/photo-1618401471353-b98aedd04e11?auto=format&fit=crop&w=800&q=80',
-      description: 'Deploy resilient cloud applications using Docker containerization, Kubernetes orchestration, CI/CD pipelines, and Linux administration.',
-      modules: [
-        { title: 'Module 1: Docker Containerization & Docker Compose', duration: '2 weeks', notes: 'Creating optimized Dockerfiles, volumes, and multi-container networks.', videoUrl: 'https://www.youtube.com/embed/Oe421EPjeBE' },
-        { title: 'Module 2: CI/CD Pipelines & Linux Automation', duration: '2 weeks', notes: 'GitHub Actions, automated testing, and secure server provisioning.', videoUrl: 'https://www.youtube.com/embed/Oe421EPjeBE' }
-      ]
-    }
-  ];
+  let coursesStore = [...coursesData];
+  let quizProgressStore = {};
 
   let enrollmentsStore = [
     { id: 'en-1', userId: 'u-kezia-1', courseId: 'c1', courseTitle: 'Full-Stack Web Engineering (Python & React)', completed: true, certificateRequested: true }
@@ -232,6 +136,229 @@ async function startServer() {
   app.delete('/api/courses/:id', (req, res) => {
     coursesStore = coursesStore.filter(c => c.id !== req.params.id);
     res.json({ success: true });
+  });
+
+  // 10-Question Module Quiz Submission (Gating Requirement: >= 8/10 to unlock next module)
+  app.post('/api/courses/quiz-submit', (req, res) => {
+    const { userId, courseId, moduleIndex, score } = req.body;
+    const finalScore = parseInt(score, 10) || 0;
+    const passed = finalScore >= 8; // Mandatory >= 8/10 rule
+
+    const key = `${userId}_${courseId}`;
+    if (!quizProgressStore[key]) quizProgressStore[key] = {};
+    quizProgressStore[key][moduleIndex] = {
+      score: finalScore,
+      passed,
+      attemptedAt: new Date().toISOString()
+    };
+
+    systemLogsStore.unshift({
+      id: 'log-' + Date.now(),
+      timestamp: new Date().toISOString(),
+      type: 'QUIZ_SUBMIT',
+      description: `User ${userId || 'Learner'} completed Module ${parseInt(moduleIndex, 10) + 1} Quiz on Course ${courseId}: ${finalScore}/10 (${passed ? 'PASSED >=8/10' : 'REVIEW NEEDED <8/10'})`
+    });
+
+    res.json({
+      success: true,
+      score: finalScore,
+      passed,
+      passingScore: 8,
+      totalQuestions: 10,
+      unlockedNextModule: passed,
+      progress: quizProgressStore[key]
+    });
+  });
+
+  app.get('/api/courses/quiz-progress', (req, res) => {
+    const { userId, courseId } = req.query;
+    const key = `${userId}_${courseId}`;
+    res.json(quizProgressStore[key] || {});
+  });
+
+  // Learning Paths & Gap Analysis
+  app.get('/api/learning-paths', (req, res) => {
+    res.json({
+      success: true,
+      data: [
+        {
+          id: 'path-1',
+          role: 'Full-Stack Software Engineer',
+          title: 'Full-Stack Software Engineer (Enterprise Python & React)',
+          targetSector: 'ICT, Fintech & Services',
+          estimatedDuration: '16 Weeks',
+          nisrEvidence: 'According to NISR Labour Force Survey (LFS 2023), services and digital tech employment grew +3.2% YoY. Software engineers and API developers in Kigali command high demand with substantial wage premiums in digital trade.',
+          capstoneBrief: 'Design, implement, and deploy a distributed cooperative inventory and payment reconciliation ledger for Rwandan agricultural exporters with offline SMS fallbacks and PostgreSQL audit logs.'
+        },
+        {
+          id: 'path-2',
+          role: 'Data Analyst & Market Researcher',
+          title: 'Data Analyst & Labour Market Intelligence Specialist',
+          targetSector: 'Public Policy, Banking & Statistical Research',
+          estimatedDuration: '12 Weeks',
+          nisrEvidence: 'NISR Open Data initiative and national development goals (NST1) require high-level analytical talent capable of processing microdata, computing macroeconomic indicators, and generating actionable policy briefs.',
+          capstoneBrief: 'Publish an automated longitudinal dashboard examining youth labour underutilization trends (LU1 to LU4) across all 30 Rwandan districts using official NISR microdata.'
+        },
+        {
+          id: 'path-3',
+          role: 'Digital Agriculture Specialist',
+          title: 'Smart Agriculture & IoT Automation Systems Engineer',
+          targetSector: 'Agritech & Rural Cooperatives',
+          estimatedDuration: '14 Weeks',
+          nisrEvidence: 'While agriculture employs 44.8% of Rwanda’s workforce, productivity transformation relies on tech integration: IoT telemetry, smart irrigation, and post-harvest supply chain digitization.',
+          capstoneBrief: 'Deploy an automated soil moisture and telemetry sensor station communicating via MQTT with SMS alert dispatching for cooperative tea and coffee washing stations in Northern Province.'
+        }
+      ]
+    });
+  });
+
+  app.post('/api/learning-paths/gap-analysis', (req, res) => {
+    const { assessedSkills = [], pathId = 'path-1' } = req.body;
+    const benchmarks = {
+      'path-1': [
+        { skillName: 'Python & FastAPI Routing', requiredScore: 80, defaultCurrent: 85 },
+        { skillName: 'Relational Database Design & SQL', requiredScore: 80, defaultCurrent: 55 },
+        { skillName: 'React Component Architecture', requiredScore: 80, defaultCurrent: 82 },
+        { skillName: 'API Security & Authentication', requiredScore: 75, defaultCurrent: 60 }
+      ],
+      'path-2': [
+        { skillName: 'Statistical Methodology & NISR Indices', requiredScore: 85, defaultCurrent: 75 },
+        { skillName: 'Pandas Data Wrangling & Cleaning', requiredScore: 80, defaultCurrent: 85 },
+        { skillName: 'SQL Microdata Aggregation', requiredScore: 80, defaultCurrent: 65 },
+        { skillName: 'Policy Visualization & Dashboards', requiredScore: 75, defaultCurrent: 70 }
+      ],
+      'path-3': [
+        { skillName: 'Microcontroller Telemetry (ESP32/Arduino)', requiredScore: 80, defaultCurrent: 60 },
+        { skillName: 'MQTT & Low-Bandwidth Protocol Design', requiredScore: 75, defaultCurrent: 55 },
+        { skillName: 'Crop Analytics & Weather Correlation', requiredScore: 80, defaultCurrent: 85 },
+        { skillName: 'Solar & Power-Resilient Hardware Design', requiredScore: 70, defaultCurrent: 65 }
+      ]
+    };
+
+    const targetList = benchmarks[pathId] || benchmarks['path-1'];
+    let totalMet = 0;
+    let totalReq = 0;
+
+    const breakdown = targetList.map(item => {
+      const found = assessedSkills.find(s => s.skillName === item.skillName);
+      const currentScore = found ? found.score : item.defaultCurrent;
+      const gap = Math.max(0, item.requiredScore - currentScore);
+      totalMet += Math.min(currentScore, item.requiredScore);
+      totalReq += item.requiredScore;
+
+      let priority = 'Benchmark Met';
+      if (gap >= 25) priority = 'Critical Gap';
+      else if (gap > 0) priority = 'Moderate Gap';
+
+      return {
+        skillName: item.skillName,
+        requiredScore: item.requiredScore,
+        currentScore,
+        gap,
+        priority
+      };
+    });
+
+    const overallReadinessPercentage = Math.round((totalMet / totalReq) * 100);
+
+    res.json({
+      success: true,
+      data: {
+        overallReadinessPercentage,
+        gapBreakdown: breakdown,
+        recommendedCourses: [
+          {
+            id: 'c1',
+            title: 'Full-Stack Web Engineering (Python & React)',
+            slug: 'fullstack-python-react',
+            tagline: 'Master async FastAPI backends, PostgreSQL schemas, and modern React interfaces.'
+          },
+          {
+            id: 'c6',
+            title: 'Cloud Infrastructure & DevOps Engineering',
+            slug: 'cloud-infrastructure-devops',
+            tagline: 'Docker containerization, CI/CD pipelines, and high-availability cloud deployments.'
+          }
+        ]
+      }
+    });
+  });
+
+  // Peer Matching & Study Groups
+  let peerMatchesStore = [
+    {
+      partnerName: 'Jean-Paul Nsengiyumva',
+      partnerLocation: 'Kigali City (Nyarugenge)',
+      matchScore: 95,
+      topic: 'Professional English & Technical Kinyarwanda Translation',
+      schedule: 'Tuesdays & Thursdays, 18:00 CAT (40 min agenda)'
+    },
+    {
+      partnerName: 'Aline Umutesi',
+      partnerLocation: 'Huye District (Southern Province)',
+      matchScore: 91,
+      topic: 'FastAPI Microservices & Full-Stack Study Pair',
+      schedule: 'Mondays & Wednesdays, 19:00 CAT (40 min agenda)'
+    },
+    {
+      partnerName: 'David Mugisha',
+      partnerLocation: 'Musanze District (Northern Province)',
+      matchScore: 88,
+      topic: 'NISR Statistical Modeling & Python Pandas Collaboration',
+      schedule: 'Saturdays, 11:00 CAT (40 min agenda)'
+    }
+  ];
+
+  let studyGroupsStore = [
+    {
+      id: 'sg-1',
+      title: 'Kigali Full-Stack React & Python Circle',
+      focus: 'Enterprise component architecture, database indexing, and API security',
+      meetingTime: 'Saturdays, 10:00 CAT',
+      facilitator: 'Eric Habimana (Senior Engineer)',
+      membersCount: 28
+    },
+    {
+      id: 'sg-2',
+      title: 'NISR Labour Analytics & Open Data Group',
+      focus: 'Microdata mining, LFS quarterly indicators, and public health metrics',
+      meetingTime: 'Sundays, 15:00 CAT',
+      facilitator: 'Chantal Uwase (Data Scientist)',
+      membersCount: 34
+    },
+    {
+      id: 'sg-3',
+      title: 'Digital Agriculture & IoT Telemetry Cohort',
+      focus: 'ESP32 sensor prototyping, LoRaWAN networks, and soil diagnostics',
+      meetingTime: 'Fridays, 17:30 CAT',
+      facilitator: 'Claude Ndahiro (Hardware Lead)',
+      membersCount: 19
+    }
+  ];
+
+  app.get('/api/peer-matching', (req, res) => {
+    res.json({
+      success: true,
+      matches: peerMatchesStore,
+      studyGroups: studyGroupsStore
+    });
+  });
+
+  app.post('/api/peer-matching/request', (req, res) => {
+    const { learningLanguage, knownLanguage, availability } = req.body;
+    const newMatch = {
+      partnerName: 'Patrick Shyaka',
+      partnerLocation: 'Kigali City (Gasabo)',
+      matchScore: 96,
+      topic: `${learningLanguage || 'English'} / ${knownLanguage || 'Kinyarwanda'} Guided Exchange`,
+      schedule: availability || 'Tuesdays & Thursdays, 18:00 CAT (40 min agenda)'
+    };
+    peerMatchesStore.unshift(newMatch);
+    res.json({
+      success: true,
+      message: `Matched with peer partner for ${learningLanguage || 'English'} exchange! Session calendar invite dispatched.`,
+      match: newMatch
+    });
   });
 
   // Enrollments

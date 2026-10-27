@@ -20,6 +20,7 @@ export default function AdminPanel({ user }) {
   // Course editing state
   const [editingCourseId, setEditingCourseId] = useState(null);
   const [editModules, setEditModules] = useState([]);
+  const [adminNotice, setAdminNotice] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -106,7 +107,8 @@ export default function AdminPanel({ user }) {
       if (data.success) {
         setEditingCourseId(null);
         fetchData();
-        alert('Course modules, videos and notes updated successfully!');
+        setAdminNotice('Course modules, videos and notes updated successfully!');
+        setTimeout(() => setAdminNotice(null), 5000);
       }
     } catch (err) {
       console.error(err);
