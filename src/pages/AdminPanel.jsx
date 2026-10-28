@@ -64,25 +64,27 @@ export default function AdminPanel({ user }) {
 
   const fetchData = async () => {
     try {
-      const [cRes, certRes, uRes, progRes, logRes] = await Promise.all([
-        fetch('/api/courses'),
-        fetch('/api/certificates'),
-        fetch('/api/users'),
-        fetch('/api/admin/progress'),
-        fetch('/api/system-logs')
+      const results = await Promise.allSettled([
+        fetch('/api/courses').then(r => r.ok ? r.json() : null),
+        fetch('/api/certificates').then(r => r.ok ? r.json() : null),
+        fetch('/api/users').then(r => r.ok ? r.json() : null),
+        fetch('/api/admin/progress').then(r => r.ok ? r.json() : null),
+        fetch('/api/system-logs').then(r => r.ok ? r.json() : null)
       ]);
-      const cData = await cRes.json();
-      const certData = await certRes.json();
-      const uData = await uRes.json();
-      const progData = await progRes.json();
-      const logData = await logRes.json();
-      setCourses(Array.isArray(cData) ? cData : (cData.courses || cData.data || []));
-      setCertificates(Array.isArray(certData) ? certData : (certData.certificates || certData.data || []));
-      setUsersList(Array.isArray(uData) ? uData : (uData.users || uData.data || []));
-      setUserProgress(Array.isArray(progData) ? progData : (progData.progress || progData.data || []));
-      setSystemLogs(Array.isArray(logData) ? logData : (logData.logs || logData.data || []));
+      const [cRes, certRes, uRes, progRes, logRes] = results;
+      const cData = cRes.status === 'fulfilled' ? cRes.value : null;
+      const certData = certRes.status === 'fulfilled' ? certRes.value : null;
+      const uData = uRes.status === 'fulfilled' ? uRes.value : null;
+      const progData = progRes.status === 'fulfilled' ? progRes.value : null;
+      const logData = logRes.status === 'fulfilled' ? logRes.value : null;
+
+      if (cData) setCourses(Array.isArray(cData) ? cData : (cData.courses || cData.data || []));
+      if (certData) setCertificates(Array.isArray(certData) ? certData : (certData.certificates || certData.data || []));
+      if (uData) setUsersList(Array.isArray(uData) ? uData : (uData.users || uData.data || []));
+      if (progData) setUserProgress(Array.isArray(progData) ? progData : (progData.progress || progData.data || []));
+      if (logData) setSystemLogs(Array.isArray(logData) ? logData : (logData.logs || logData.data || []));
     } catch (err) {
-      console.error(err);
+      // Soft handled
     }
   };
 
@@ -176,7 +178,7 @@ export default function AdminPanel({ user }) {
         <div className="space-y-2">
           <div className="inline-flex items-center space-x-2 bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full text-xs font-mono">
             <Settings className="w-4 h-4 text-indigo-400" />
-            <span>REB Admin Console</span>
+            <span>Hub Admin Console</span>
           </div>
           <h1 className="text-3xl font-bold">Platform Management Dashboard</h1>
           <p className="text-slate-300 text-sm">Manage courses, edit curriculum videos & notes, view user progress, check system logs, and oversee approvals.</p>

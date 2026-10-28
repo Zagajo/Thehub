@@ -69,7 +69,7 @@ export default function Courses({ user, onOpenAuth }) {
         }
       }
     } catch (err) {
-      console.error('Error loading courses:', err);
+      console.warn('Courses loading fallback applied:', err);
     } finally {
       setLoading(false);
     }

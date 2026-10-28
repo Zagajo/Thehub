@@ -62,7 +62,7 @@ export default function Assessments({ user, onOpenAuth, setActiveTab }) {
           setCatalogFilter('all');
         }
       } catch (err) {
-        console.error('Error fetching assessments data:', err);
+        console.warn('Assessments data fetch warning, using fallback data:', err);
       } finally {
         setLoading(false);
       }

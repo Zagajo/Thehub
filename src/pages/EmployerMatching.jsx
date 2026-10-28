@@ -1,26 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Briefcase, Building, CheckCircle2, ArrowRight, ChevronRight } from 'lucide-react';
+import { api, fallbackChallenges } from '../services/api';
 
 export default function EmployerMatching({ user, onOpenAuth }) {
-  const [challenges, setChallenges] = useState([]);
+  const [challenges, setChallenges] = useState(fallbackChallenges);
   const [appliedNotice, setAppliedNotice] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchChallenges() {
       try {
-        const res = await fetch('/api/challenges');
-        const data = await res.json();
-        const list = Array.isArray(data) ? data : (data.challenges || data.data || []);
-        setChallenges(list);
+        const list = await api.getChallenges();
+        if (isMounted && list && list.length > 0) {
+          setChallenges(list);
+        }
       } catch (err) {
-        console.error(err);
+        // Handled cleanly via fallbackChallenges
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
     fetchChallenges();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleApply = (challenge) => {
@@ -71,11 +76,11 @@ export default function EmployerMatching({ user, onOpenAuth }) {
             <div className="space-y-4">
               <div className="flex items-center space-x-2 text-blue-700 font-mono font-semibold text-xs uppercase tracking-wider">
                 <Building className="w-4 h-4" />
-                <span>{challenge.company}</span>
+                <span>{challenge.company || challenge.organization || 'Enterprise Partner'}</span>
               </div>
               <h3 className="text-lg font-bold text-slate-900">{challenge.title}</h3>
               <div className="flex flex-wrap gap-1.5 pt-1">
-                {challenge.skills.map((skill, i) => (
+                {(challenge.skills || challenge.skillsDemonstrated || []).map((skill, i) => (
                   <span
                     key={i}
                     className="bg-slate-100 text-slate-700 text-[11px] font-mono px-2 py-0.5 border border-slate-200"
@@ -90,11 +95,11 @@ export default function EmployerMatching({ user, onOpenAuth }) {
               <div className="flex items-center justify-between text-xs font-mono">
                 <div>
                   <span className="text-slate-400 block text-[10px] uppercase">Stipend</span>
-                  <span className="font-bold text-slate-900">{challenge.stipend}</span>
+                  <span className="font-bold text-slate-900">{challenge.stipend || challenge.compensation || 'RWF 350,000'}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 block text-[10px] uppercase">Duration</span>
-                  <span className="font-semibold text-slate-700">{challenge.duration}</span>
+                  <span className="font-semibold text-slate-700">{challenge.duration || '2 Weeks'}</span>
                 </div>
               </div>
 

@@ -52,7 +52,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             <X className="w-5 h-5" />
           </button>
           <div className="flex items-center space-x-2 text-indigo-400 font-semibold text-sm mb-1">
-            <span>REB & NISR Skills Ecosystem</span>
+            <span>Hub & NISR Skills Ecosystem</span>
           </div>
           <h2 className="text-2xl font-bold">
             {isLogin ? 'Sign In to The Hub' : 'Create Learner Passport'}

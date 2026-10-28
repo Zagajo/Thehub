@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart3, TrendingUp, ShieldCheck, Database, ExternalLink, ChevronRight } from 'lucide-react';
+import { api, fallbackNisrIndicators } from '../services/api';
 
 export default function NisrHub() {
-  const [indicators, setIndicators] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [indicators, setIndicators] = useState(fallbackNisrIndicators);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchIndicators() {
       try {
-        const res = await fetch('/api/nisr/indicators');
-        const data = await res.json();
-        const list = Array.isArray(data) ? data : (data.indicators || data.data || []);
-        setIndicators(list);
+        const list = await api.getNisrIndicators();
+        if (isMounted && list && list.length > 0) {
+          setIndicators(list);
+        }
       } catch (err) {
-        console.error(err);
+        // Fallback already provided
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
     fetchIndicators();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (

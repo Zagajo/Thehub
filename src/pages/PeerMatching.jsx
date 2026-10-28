@@ -33,7 +33,7 @@ export default function PeerMatching({ user, onOpenAuth }) {
           setStudyGroups(res.studyGroups || []);
         }
       } catch (e) {
-        console.error('Error loading peer data:', e);
+        console.warn('Peer matching loading fallback applied:', e);
       } finally {
         setLoading(false);
       }

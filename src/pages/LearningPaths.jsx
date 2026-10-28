@@ -32,7 +32,7 @@ export default function LearningPaths({ user, onOpenAuth }) {
           setAnalysis(gapRes.data);
         }
       } catch (e) {
-        console.error('Error loading pathways:', e);
+        console.warn('Learning paths loading fallback applied:', e);
       } finally {
         setLoading(false);
       }

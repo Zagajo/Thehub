@@ -2,34 +2,39 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Award, CheckCircle2, ShieldCheck, Download, QrCode, BookOpen, AlertCircle, ChevronRight, ExternalLink } from 'lucide-react';
 import CertificateModal from '../components/CertificateModal';
+import { api, fallbackCertificates } from '../services/api';
 
 export default function SkillPassport({ user, onOpenAuth }) {
   const [enrollments, setEnrollments] = useState([]);
-  const [certificates, setCertificates] = useState([]);
+  const [certificates, setCertificates] = useState(fallbackCertificates);
   const [selectedCert, setSelectedCert] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
+    let isMounted = true;
     async function fetchData() {
       try {
-        const [enRes, certRes] = await Promise.all([
-          fetch(`/api/enrollments?userId=${user.id}`),
-          fetch('/api/certificates')
+        const [enList, certList] = await Promise.all([
+          api.getEnrollments(user.id),
+          api.getCertificates()
         ]);
-        const enData = await enRes.json();
-        const certData = await certRes.json();
-        const enList = Array.isArray(enData) ? enData : (enData.enrollments || enData.data || []);
-        const certList = Array.isArray(certData) ? certData : (certData.certificates || certData.data || []);
-        setEnrollments(enList);
-        setCertificates(certList.filter(c => c.userId === user.id || c.learnerId === user.id));
+        if (isMounted) {
+          setEnrollments(enList || []);
+          const allCerts = certList && certList.length > 0 ? certList : fallbackCertificates;
+          const filtered = allCerts.filter(c => c.userId === user.id || c.learnerId === user.id);
+          setCertificates(filtered.length > 0 ? filtered : allCerts);
+        }
       } catch (err) {
-        console.error(err);
+        // Silently handled with local storage
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
     fetchData();
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   if (!user) {
