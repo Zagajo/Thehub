@@ -5,7 +5,7 @@
  * and user assessed skills, augmented with NISR socioeconomic context.
  */
 
-import { initialCourses, initialLearningPathways } from '../db/data.js';
+import { initialCourses, initialLearningPathways } from './data.js';
 import { nisrService } from './nisrService.js';
 
 export const roleBenchmarks = {
@@ -137,12 +137,10 @@ export class RecommendationEngine {
 
     // Map gaps to targeted courses
     const recommendedCourses = initialCourses.filter(course =>
-      course.skillsGained.some(skill =>
+      course.skillsGained && course.skillsGained.some(skill =>
         gapBreakdown.some(g => g.gap > 0 && skill.toLowerCase().includes(g.skillName.toLowerCase().split(' ')[0]))
       )
     );
-
-    const nisrSummary = nisrService.getLabourMarketSummary();
 
     return {
       targetPathway: {

@@ -5,7 +5,7 @@
  * Preserves strict data provenance: source, dataset, indicator, year, unit, geography, metadata.
  */
 
-import { initialNISRIndicators } from '../db/data.js';
+import { initialNISRIndicators } from './data.js';
 
 export const officialNisrIndicators = [
   {
